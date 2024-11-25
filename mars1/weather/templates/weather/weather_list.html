@@ -1,0 +1,11 @@
+{% extends "weather/base.html" %}
+{% block title %}{% endblock title %}
+{% block content %}
+<h1>Sol weather</h1>
+{% for sol in soles %}
+    <a href="{{ sol.get_absolute_url }}">
+        {{ sol.sol }}
+    </a>
+    <p>{{ sol.terrestrial_date }}</p>
+{% endfor %}
+{% endblock content %}
