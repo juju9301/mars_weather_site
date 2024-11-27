@@ -1,4 +1,4 @@
-{% extends "weather/base.html" %}
+{% extends 'weather/base.html' %}
 {% block title %}{% endblock title %}
 {% block content %}
 <h1>Sol weather</h1>
@@ -8,4 +8,5 @@
     </a>
     <p>{{ sol.terrestrial_date }}</p>
 {% endfor %}
+{% include 'pagination.html' with page=page_obj %}
 {% endblock content %}
