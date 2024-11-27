@@ -1,0 +1,62 @@
+{% extends 'weather/base.html' %}
+
+{% block title %}Generate Weather Plot{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center mb-4">Generate Weather Plot</h1>
+
+    <!-- Form to Select Sol Range and Temperature Type -->
+    <form method="get" action="{% url 'weather:generate_weather_plot' %}">
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="sol_from" class="form-label">Sol From:</label>
+                <select id="sol_from" name="sol_from" class="form-select" required>
+                    <option value="">Select Sol From</option>
+                    {% for sol in available_sols %}
+                        <option value="{{ sol }}" {% if sol == sol_from|default:'' %}selected{% endif %}>
+                            {{ sol }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="sol_to" class="form-label">Sol To:</label>
+                <select id="sol_to" name="sol_to" class="form-select" required>
+                    <option value="">Select Sol To</option>
+                    {% for sol in available_sols %}
+                        <option value="{{ sol }}" {% if sol == sol_to|default:'' %}selected{% endif %}>
+                            {{ sol }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="temp_type" class="form-label">Temperature Type:</label>
+                <select id="temp_type" name="temp_type" class="form-select" required>
+                    <option value="min_temp" {% if temp_type == "min_temp" %}selected{% endif %}>Min Temp</option>
+                    <option value="max_temp" {% if temp_type == "max_temp" %}selected{% endif %}>Max Temp</option>
+                    <option value="average_temp" {% if temp_type == "average_temp" %}selected{% endif %}>Average Temp</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary">Generate Plot</button>
+        </div>
+    </form>
+
+    <!-- Display Plot Image -->
+    {% if plot_image %}
+        <h2 class="text-center mt-4">{{ temp_type|title }} Plot from Sol {{ sol_from }} to Sol {{ sol_to }}</h2>
+        <h5 class="text-center mb-4">These sols correspond to the period on Earth between {{ terr_dates.date_from }} to {{ terr_dates.date_to }}</h5>
+        <div class="text-center">
+            <img src="{{ plot_image }}" alt="Weather Plot" class="img-fluid mt-3">
+        </div>
+    {% elif error %}
+        <div class="alert alert-danger mt-4">
+            <p>{{ error }}</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
