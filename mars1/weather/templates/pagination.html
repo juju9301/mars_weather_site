@@ -10,4 +10,9 @@
             <a href="?page={{ page.next_page_number }}">Next</a>
         {% endif %}
     </span>
+    <form method="get" action="">
+        <label for="page_input">Go to page:</label>
+        <input type="number" id="page_input" name="page" min="1" max="{{ page.paginator.num_pages }}" value="{{ page.number }}">
+        <button type="submit">Go</button>
+    </form>
 </div>

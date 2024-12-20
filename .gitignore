@@ -1,2 +1,5 @@
 marsenv/
 mars1/db.sqlite3
+__pycache__/
+*.pyc
+mars1/weather/__pycache__/

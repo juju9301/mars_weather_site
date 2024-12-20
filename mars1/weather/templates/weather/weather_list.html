@@ -2,11 +2,29 @@
 {% block title %}{% endblock title %}
 {% block content %}
 <h1>Sol weather</h1>
-{% for sol in soles %}
-    <a href="{{ sol.get_absolute_url }}">
-        {{ sol.sol }}
-    </a>
-    <p>{{ sol.terrestrial_date }}</p>
-{% endfor %}
+
+<form method="get" action="">
+    <label for="sol_search">Search by Sol number:</label>
+    <input type="number" id="sol_search" name="sol" value="{{ request.GET.sol }}">
+    
+    <label for="date_search">or by Terrestrial date:</label>
+    <input type="date" id="date_search" name="terrestrial_date" value="{{ request.GET.terrestrial_date }}">
+    
+    <button type="submit">Search</button>
+</form>
+
+{% if page_obj %}
+    {% for sol in page_obj %}
+        <a href="{{ sol.get_absolute_url }}">
+            {{ sol.sol }}
+        </a>
+        <p>{{ sol.terrestrial_date }}</p>
+    {% endfor %}
+    <a href="{% url 'weather:weather_list' %}"><button>Back to full list</button></a>
+{% else %}
+    <p>No results found for the given Sol number or Terrestrial date.</p>
+    <a href="{% url 'weather:weather_list' %}"><button>Back to full list</button></a>
+{% endif %}
+
 {% include 'pagination.html' with page=page_obj %}
 {% endblock content %}
