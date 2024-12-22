@@ -1,40 +1,46 @@
 {% extends 'weather/base.html' %}
-{% block title %}{% endblock title %}
+{% block title %}Weather List{% endblock title %}
 {% block content %}
-<h1>Sol weather</h1>
-<p>We use data from <a href="https://cab.inta-csic.es/">https://cab.inta-csic.es/</a>. They're awesome</p>
+<div class="container mx-auto mt-5">
+    <h1 class="text-3xl font-bold mb-4">Sol Weather</h1>
+    <p>We use data from <a href="https://cab.inta-csic.es/" class="text-orange-600">https://cab.inta-csic.es/</a>. They're awesome</p>
 
-<form method="get" action="">
-    <label for="sol_search">Search by Sol number:</label>
-    <input type="number" id="sol_search" name="sol" value="{{ request.GET.sol }}">
-    
-    <label for="date_search">or by Terrestrial date:</label>
-    <input type="date" id="date_search" name="terrestrial_date" value="{{ request.GET.terrestrial_date }}">
-    
-    <button type="submit">Search</button>
-</form>
+    <form method="get" action="" class="flex items-center mb-4 space-x-4">
+        <div class="flex items-center space-x-2">
+            <label for="sol_search" class="text-gray-700">Search by Sol number:</label>
+            <input type="number" id="sol_search" name="sol" class="form-input" value="{{ request.GET.sol }}">
+        </div>
+        <div class="flex items-center space-x-2">
+            <label for="date_search" class="text-gray-700">or by Terrestrial date:</label>
+            <input type="date" id="date_search" name="terrestrial_date" class="form-input" value="{{ request.GET.terrestrial_date }}">
+        </div>
+        <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded">Search</button>
+    </form>
 
-<form method="post" action="{% url 'weather:update_weather_data' %}">
-    {% csrf_token %}
-    <button type="submit">Update Weather Data</button>
-</form>
+    <form method="post" action="{% url 'weather:update_weather_data' %}" class="mb-4">
+        {% csrf_token %}
+        <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded">Update Weather Data</button>
+    </form>
 
-{% if page_obj %}
-    {% for sol in page_obj %}
-        <a href="{{ sol.get_absolute_url }}">
-            {{ sol.sol }}
-        </a>
-        <p>{{ sol.terrestrial_date }}</p>
-    {% endfor %}
-    {% if request.GET.sol or request.GET.terrestrial_date %}
-        <a href="{% url 'weather:weather_list' %}"><button>Back to full list</button></a>
+    {% if page_obj %}
+        <div class="bg-white shadow rounded-lg p-4">
+            {% for sol in page_obj %}
+                <a href="{{ sol.get_absolute_url }}" class="block border-b border-gray-200 py-2 hover:bg-gray-100">
+                    <h5 class="text-xl font-bold text-gray-900">Sol {{ sol.sol }}</h5>
+                    <p class="text-gray-600">{{ sol.terrestrial_date }}</p>
+                </a>
+            {% endfor %}
+        </div>
+        {% if request.GET.sol or request.GET.terrestrial_date %}
+            <a href="{% url 'weather:weather_list' %}" class="text-orange-600 mt-3 inline-block">Back to full list</a>
+        {% endif %}
+    {% else %}
+        <p>No results found for the given Sol number or Terrestrial date.</p>
+        {% if request.GET.sol or request.GET.terrestrial_date %}
+            <a href="{% url 'weather:weather_list' %}" class="text-orange-600 mt-3 inline-block">Back to full list</a>
+        {% endif %}
     {% endif %}
-{% else %}
-    <p>No results found for the given Sol number or Terrestrial date.</p>
-    {% if request.GET.sol or request.GET.terrestrial_date %}
-        <a href="{% url 'weather:weather_list' %}"><button>Back to full list</button></a>
-    {% endif %}
-{% endif %}
 
-{% include 'pagination.html' with page=page_obj %}
+    {% include 'pagination.html' with page=page_obj %}
+</div>
 {% endblock content %}
