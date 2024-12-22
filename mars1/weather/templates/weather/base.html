@@ -13,20 +13,31 @@
     <nav class="bg-white shadow">
         <div class="container mx-auto px-4 py-2 flex justify-between items-center">
             <a class="text-xl font-bold text-orange-600" href="{% url 'weather:index' %}">Mars Weather</a>
-            <div class="space-x-4">
+            <div class="space-x-4 flex items-center">
                 <a class="text-gray-700 hover:text-orange-600" href="{% url 'weather:weather_list' %}">Weather List</a>
                 <a class="text-gray-700 hover:text-orange-600" href="{% url 'weather:generate_weather_plot' %}">Generate Weather Plot</a>
+                {% if user.is_authenticated %}
+                    <span class="text-gray-700">Hello, {{ user.username }}</span>
+                    <form method="post" action="{% url 'accounts:logout' %}" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded">Logout</button>
+                    </form>
+                {% else %}
+                    <a class="bg-gray-600 text-white px-4 py-2 rounded" href="{% url 'accounts:login' %}">Login</a>
+                    <a class="bg-gray-600 text-white px-4 py-2 rounded" href="{% url 'accounts:register' %}">Register</a>
+                {% endif %}
             </div>
         </div>
     </nav>
 
-    {% comment %} <!-- Hero Section -->
-    <div class="hero bg-cover bg-center text-white py-20" style="background-image: url('https://mars.nasa.gov/system/news_items/main_images/9347_PIA25681-FigureA-web.jpg');">
-        <div class="container mx-auto text-center">
+    <!-- Hero Section -->
+    <div class="hero bg-cover bg-center text-white py-10 relative" style="background-image: url('https://mars.nasa.gov/system/news_items/main_images/9347_PIA25681-FigureA-web.jpg');">
+        <div class="absolute inset-0 bg-black opacity-50"></div>
+        <div class="container mx-auto text-center relative z-10">
             <h1 class="text-4xl font-bold">Welcome to Mars Weather</h1>
             <p class="text-xl mt-4">Explore the latest weather data from the Red Planet.</p>
         </div>
-    </div> {% endcomment %}
+    </div>
 
     <div class="container mx-auto mt-10 flex-grow">
         {% block content %}
@@ -35,7 +46,7 @@
 
     <footer class="bg-white shadow mt-10 py-4">
         <div class="container mx-auto text-center text-gray-600">
-            <span>© 2023 Mars Weather</span>
+            <span>© 2025 Mars Weather</span>
         </div>
     </footer>
 </body>

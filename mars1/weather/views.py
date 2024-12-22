@@ -4,6 +4,9 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from matplotlib import pyplot as plt
 from django.urls import reverse
 from django.http import HttpResponseBadRequest, JsonResponse
+from django.contrib.auth.decorators import login_required
+from .models import Post
+from .forms import PostForm
 
 from io import BytesIO
 import base64
@@ -131,7 +134,21 @@ def _generate_plot(weather_data, sol_from, sol_to, temp_type):
     return f'data:image/png;base64,{image_base64}'
 
 def index(request):
-    return render(request, 'index.html', {})
+    posts = Post.objects.all().order_by('-created_at')
+    return render(request, 'index.html', {'posts': posts})
+
+@login_required
+def add_post(request):
+    if request.method == 'POST':
+        form = PostForm(request.POST, request.FILES)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            post.save()
+            return redirect('weather:index')
+    else:
+        form = PostForm()
+    return render(request, 'add_post.html', {'form': form})
 
 def update_weather_data(request):
     if request.method == 'POST':

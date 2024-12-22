@@ -1,5 +1,5 @@
 from django import forms
-from .models import Plot, Weather
+from .models import Weather, Post
 
 
 class PlotForm(forms.Form):
@@ -12,4 +12,10 @@ class PlotForm(forms.Form):
     sol_to = forms.ChoiceField(choices=sol_to_choices)
     param = forms.ChoiceField(choices=param_choices)
 
-
+class PostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ['content', 'image']
+        widgets = {
+            'content': forms.Textarea(attrs={'rows': 4, 'cols': 40}),
+        }
