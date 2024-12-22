@@ -20,10 +20,14 @@
         </a>
         <p>{{ sol.terrestrial_date }}</p>
     {% endfor %}
-    <a href="{% url 'weather:weather_list' %}"><button>Back to full list</button></a>
+    {% if request.GET.sol or request.GET.terrestrial_date %}
+        <a href="{% url 'weather:weather_list' %}"><button>Back to full list</button></a>
+    {% endif %}
 {% else %}
     <p>No results found for the given Sol number or Terrestrial date.</p>
-    <a href="{% url 'weather:weather_list' %}"><button>Back to full list</button></a>
+    {% if request.GET.sol or request.GET.terrestrial_date %}
+        <a href="{% url 'weather:weather_list' %}"><button>Back to full list</button></a>
+    {% endif %}
 {% endif %}
 
 {% include 'pagination.html' with page=page_obj %}
