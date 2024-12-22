@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 
 class Weather(models.Model):
     orig_id = models.IntegerField()
-    terrestrial_date = models.CharField(max_length=100)
-    sol = models.IntegerField()
+    terrestrial_date = models.DateField()
+    sol = models.IntegerField(unique=True)
     ls = models.IntegerField(null=True)
     season = models.CharField(max_length=20, null=True)
     min_temp = models.IntegerField(null=True)
@@ -31,6 +31,9 @@ class Weather(models.Model):
     def get_absolute_url(self):
         return reverse("weather:weather_detail", args=[self.sol])
     
+    def __str__(self):
+        return f'Sol {self.sol}'
+
     class Meta:
         ordering = ('-sol',)
 
@@ -41,4 +44,3 @@ class Weather(models.Model):
 #     weather = models.ForeignKey(Weather, on_delete=models.CASCADE, related_name='plots')
 #     image = models.ImageField(upload_to='weather_plots/', blank=True, null=True)
 #     created_at = models.DateTimeField(auto_now_add=True)
-

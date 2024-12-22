@@ -2,6 +2,7 @@
 {% block title %}{% endblock title %}
 {% block content %}
 <h1>Sol weather</h1>
+<p>We use data from <a href="https://cab.inta-csic.es/">https://cab.inta-csic.es/</a>. They're awesome</p>
 
 <form method="get" action="">
     <label for="sol_search">Search by Sol number:</label>
@@ -11,6 +12,11 @@
     <input type="date" id="date_search" name="terrestrial_date" value="{{ request.GET.terrestrial_date }}">
     
     <button type="submit">Search</button>
+</form>
+
+<form method="post" action="{% url 'weather:update_weather_data' %}">
+    {% csrf_token %}
+    <button type="submit">Update Weather Data</button>
 </form>
 
 {% if page_obj %}
