@@ -19,3 +19,13 @@ class PostForm(forms.ModelForm):
         widgets = {
             'content': forms.Textarea(attrs={'rows': 4, 'cols': 40}),
         }
+        content = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 4, 'cols': 40, 'required': False}))
+    def clean(self):
+        cleaned_data = super().clean()
+        content = cleaned_data.get('content')
+        image = cleaned_data.get('image')
+
+        if not content and not image:
+            raise forms.ValidationError('You must provide either content or an image.')
+
+        return cleaned_data

@@ -13,7 +13,9 @@
         {% for post in posts %}
             <div class="bg-white shadow rounded-lg p-4 mb-4">
                 <p class="text-gray-700"><strong>Posted by {{ post.author.username }}</strong> on {{ post.created_at }}</p>
-                <p class="text-gray-700">{{ post.content|linebreaks }}</p>
+                {% if post.content %}
+                    <p class="text-gray-700">{{ post.content|linebreaks }}</p>
+                {% endif %}
                 {% if post.image %}
                     <img src="{{ post.image.url }}" alt="Post Image" class="mt-2 max-w-full max-h-64 object-contain">
                 {% endif %}
