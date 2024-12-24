@@ -1,0 +1,13 @@
+{% extends "weather/base.html" %}
+
+{% block title %}Add Comment{% endblock title %}
+{% block content %}
+<div class="container mx-auto mt-5">
+    <h1 class="text-3xl font-bold mb-4">Add Comment</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded">Submit</button>
+    </form>
+</div>
+{% endblock content %}

@@ -1,12 +1,12 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Weather
+from .models import Weather, Post, Comment
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from matplotlib import pyplot as plt
 from django.urls import reverse
 from django.http import HttpResponseBadRequest, JsonResponse
 from django.contrib.auth.decorators import login_required
-from .models import Post
-from .forms import PostForm
+from .forms import PostForm, CommentForm
+from django.core.files.base import ContentFile
 
 from io import BytesIO
 import base64
@@ -49,7 +49,7 @@ def generate_weather_plot(request):
     # Fetch all available sols for dropdown options
     available_sols = Weather.objects.values_list('sol', flat=True).order_by('sol')
 
-    if sol_from and sol_to and temp_type:
+    if (sol_from and sol_to and temp_type):
         try:
             sol_from = int(sol_from)
             sol_to = int(sol_to)
@@ -144,11 +144,31 @@ def add_post(request):
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
+            random_mars_image_url = form.cleaned_data.get('random_mars_image_url')
+            if random_mars_image_url:
+                response = requests.get(random_mars_image_url)
+                if response.status_code == 200:
+                    post.image.save(f"random_mars_image_{post.id}.jpg", ContentFile(response.content), save=False)
             post.save()
             return redirect('weather:index')
     else:
         form = PostForm()
     return render(request, 'add_post.html', {'form': form})
+
+@login_required
+def add_comment(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.post = post
+            comment.author = request.user
+            comment.save()
+            return redirect('weather:index')
+    else:
+        form = CommentForm()
+    return render(request, 'add_comment.html', {'form': form, 'post': post})
 
 def update_weather_data(request):
     if request.method == 'POST':

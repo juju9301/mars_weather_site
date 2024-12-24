@@ -7,7 +7,50 @@
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
+        <input type="hidden" id="random_mars_image_url" name="random_mars_image_url">
         <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded">Submit</button>
     </form>
+    <button id="get-random-mars-picture" class="bg-gray-600 text-white px-4 py-2 rounded mt-4">Get Random Mars Picture</button>
+    <div id="random-mars-picture-container" class="mt-4"></div>
+    <button id="add-to-post" class="bg-gray-600 text-white px-4 py-2 rounded mt-4 hidden">Add to Post</button>
+    <div id="image-url-display" class="mt-4 text-gray-700"></div>
 </div>
+
+<script>
+document.getElementById('get-random-mars-picture').addEventListener('click', function() {
+    const sol = Math.floor(Math.random() * 1000) + 1; // Random sol (Martian day)
+    const rover = ['curiosity', 'opportunity', 'spirit'][Math.floor(Math.random() * 3)]; // Random rover
+    const apiKey = 'DEMO_KEY'; // Replace with your NASA API key
+
+    fetch(`https://api.nasa.gov/mars-photos/api/v1/rovers/${rover}/photos?sol=${sol}&api_key=${apiKey}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.photos.length > 0) {
+                const randomPhoto = data.photos[Math.floor(Math.random() * data.photos.length)];
+                const img = new Image();
+                img.src = randomPhoto.img_src;
+                img.onload = function() {
+                    const container = document.getElementById('random-mars-picture-container');
+                    container.innerHTML = `<img src="${randomPhoto.img_src}" alt="Random Mars Picture" class="max-w-full max-h-64 object-contain mt-2">`;
+                    const addToPostButton = document.getElementById('add-to-post');
+                    addToPostButton.classList.remove('hidden');
+                    addToPostButton.dataset.imageUrl = randomPhoto.img_src;
+                };
+                img.onerror = function() {
+                    alert('Failed to load image. Try again.');
+                };
+            } else {
+                alert('No photos found for this sol. Try again.');
+            }
+        })
+        .catch(error => console.error('Error fetching random Mars picture:', error));
+});
+
+document.getElementById('add-to-post').addEventListener('click', function() {
+    const imageUrl = this.dataset.imageUrl;
+    document.getElementById('random_mars_image_url').value = imageUrl;
+    document.getElementById('image-url-display').innerText = `Image URL: ${imageUrl}`;
+    alert('Image added to post!');
+});
+</script>
 {% endblock content %}
