@@ -1,0 +1,14 @@
+  # - name: Re-Deploy Pythonanywhere Django API
+  # # You may pin to the exact commit or the version.
+  # # uses: umuttopalak/pythonanywhere-deploy-action@4ca6962f80ef5d2ca806d1e94ce49b41a0e5708a
+  # uses: umuttopalak/pythonanywhere-deploy-action@v1.1.0
+  # with:
+  #   # Pythonanywhere host (EU/US), can be either eu.pythonanywhere.com or www.pythonanywhere.com
+  #   host: 
+  #   # Username for pythonanywhere
+  #   username: 
+  #   # API token for pythonanywhere
+  #   api_token: 
+  #   # Domain name of the webapp to reload
+  #   domain_name: # optional
+          
