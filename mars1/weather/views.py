@@ -134,8 +134,14 @@ def _generate_plot(weather_data, sol_from, sol_to, temp_type):
     return f'data:image/png;base64,{image_base64}'
 
 def index(request):
-    posts = Post.objects.all().order_by('-created_at')
-    return render(request, 'index.html', {'posts': posts})
+    posts_list = Post.objects.all().order_by('-created_at')
+    paginator = Paginator(posts_list, 10)  # Show 10 posts per page
+
+    page_number = request.GET.get('page')
+    posts = paginator.get_page(page_number)
+
+    recent_sol = Weather.objects.latest('sol') if Weather.objects.exists() else None
+    return render(request, 'index.html', {'posts': posts, 'recent_sol': recent_sol})
 
 @login_required
 def add_post(request):
