@@ -39,7 +39,7 @@ for sol in soles:
     result.append(obj)
     i += 1
 
-with open('weather_fixture.json', 'w') as result_file:
+with open(r'weather\fixtures\weather_fixture.json', 'w') as result_file:
     json.dump(result, result_file)
 
 
