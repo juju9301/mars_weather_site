@@ -23,11 +23,13 @@ jobs:
           name: Run Django migrations
           command: |
             . venv/bin/activate
+            cd mars1  # Change to the directory containing manage.py
             python manage.py migrate
       - run:
           name: Run tests
           command: |
             . venv/bin/activate
+            cd mars1  # Change to the directory containing manage.py
             pytest
 
 workflows:
