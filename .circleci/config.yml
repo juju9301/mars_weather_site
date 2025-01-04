@@ -15,7 +15,6 @@ jobs:
           name: Install system dependencies
           command: |
             sudo apt-get update
-            sudo playwright install-deps  
       - run:
           name: Install dependencies
           command: |
@@ -24,6 +23,7 @@ jobs:
             pip install -r requirements.txt
             pip install pytest pytest-django pytest-playwright
             playwright install
+            playwright install-deps
       - run:
           name: Run Django migrations
           command: |
