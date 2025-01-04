@@ -1,35 +1,41 @@
-# This config was automatically generated from your source code
-# Stacks detected: cicd:github-actions:.github/workflows,deps:python:.,file:manage.py:mars1
+
 version: 2.1
-orbs:
-  python: circleci/python@2
-jobs:
-  test-python:
-    # Install dependencies and run tests
+
+executors:
+  python-executor:
     docker:
-      - image: cimg/python:3.8-node
+      - image: circleci/python:3.8
+    working_directory: ~/repo
+
+jobs:
+  test:
+    executor: python-executor
     steps:
       - checkout
-      - python/install-packages
+      - run:
+          name: Install dependencies
+          command: |
+            python -m venv venv
+            . venv/bin/activate
+            pip install -r requirements.txt
+            pip install pytest pytest-django pytest-playwright
+            playwright install
+      - run:
+          name: Run Django migrations
+          command: |
+            . venv/bin/activate
+            python manage.py migrate
       - run:
           name: Run tests
-          command: python manage.py test
-  deploy:
-    # This is an example deploy job, not actually used by the workflow
-    docker:
-      - image: cimg/base:stable
-    steps:
-      # Replace this with steps to deploy to users
-      - run:
-          name: deploy
-          command: '#e.g. ./deploy.sh'
-      - run:
-          name: found github actions config
-          command: ':'
+          command: |
+            . venv/bin/activate
+            pytest
+
 workflows:
-  build-and-test:
+  version: 2
+  test:
     jobs:
-      - test-python
-    # - deploy:
-    #     requires:
-    #       - test-python
+      - test:
+          filters:
+            branches:
+              only: master
