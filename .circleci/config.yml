@@ -32,11 +32,13 @@ jobs:
       - run:
           name: Start Django server
           command: |
-
+            cd mars1
             python manage.py runserver 0.0.0.0:8000
       - run:
           name: Run tests
           command: |
+            . venv/bin/activate
+            cd mars1  # Change to the directory containing manage.py
             pytest
 
 workflows:
