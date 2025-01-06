@@ -34,7 +34,7 @@ jobs:
           command: |
             . venv/bin/activate
             cd mars1
-            python manage.py runserver 0.0.0.0:8000
+            nohup python manage.py runserver 0.0.0.0:8000 &
       - run:
           name: Run tests
           command: |
