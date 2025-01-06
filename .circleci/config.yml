@@ -35,11 +35,11 @@ jobs:
             . venv/bin/activate
             cd mars1  # Change to the directory containing manage.py
             nohup python manage.py runserver 0.0.0.0:8000 > server.log 2>&1 &
-      - run:
-          name: Wait for server to start
-          command: |
-            . venv/bin/activate
-            until curl -s http://localhost:8000 > /dev/null; do echo "Waiting for server..."; sleep 5; done
+      # - run:
+      #     name: Wait for server to start
+      #     command: |
+      #       . venv/bin/activate
+      #       until curl -s http://localhost:8000 > /dev/null; do echo "Waiting for server..."; sleep 5; done
       - run:
           name: Check server log
           command: |
