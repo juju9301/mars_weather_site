@@ -29,20 +29,18 @@ jobs:
             . venv/bin/activate
             cd mars1  # Change to the directory containing manage.py
             python manage.py migrate
+      - run:
+          name: Start Django server
+          command: |
+            . venv/bin/activate
+            cd mars1
             python manage.py runserver 0.0.0.0:8000
+      - run:
+          name: Run tests
+          command: |
+            . venv/bin/activate
+            cd mars1  # Change to the directory containing manage.py
             pytest
-
-      # - run:
-      #     name: Start Django server
-      #     command: |
-      #       cd mars1
-      #       python manage.py runserver 0.0.0.0:8000
-      # - run:
-      #     name: Run tests
-      #     command: |
-      #       . venv/bin/activate
-      #       cd mars1  # Change to the directory containing manage.py
-      #       pytest
 
 workflows:
   version: 2
