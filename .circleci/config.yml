@@ -36,6 +36,11 @@ jobs:
             cd mars1
             nohup python manage.py runserver 0.0.0.0:8000 &
       - run:
+          name: Wait for server to start
+          command: |
+            . venv/bin/activate
+            until curl -s http://localhost:8000 > /dev/null; do echo "Waiting for server..."; sleep 5; done
+      - run:
           name: Run tests
           command: |
             . venv/bin/activate
