@@ -4,9 +4,25 @@
 {% block content %}
 <div class="container mx-auto mt-5">
     <h1 class="text-3xl font-bold mb-4">Login</h1>
-    <form method="post">
+    <form method="post" novalidate>
         {% csrf_token %}
-        {{ form.as_p }}
+        {% if form.non_field_errors %}
+            <div class="text-red-500 text-xs italic mb-4">{{ form.non_field_errors }}</div>
+        {% endif %}
+        <div class="mb-4">
+            <label for="{{ form.username.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ form.username.label }}</label>
+            {{ form.username }}
+            {% if form.username.errors %}
+                <div class="text-red-500 text-xs italic">{{ form.username.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="mb-4">
+            <label for="{{ form.password.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ form.password.label }}</label>
+            {{ form.password }}
+            {% if form.password.errors %}
+                <div class="text-red-500 text-xs italic">{{ form.password.errors }}</div>
+            {% endif %}
+        </div>
         <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded">Login</button>
     </form>
 </div>
