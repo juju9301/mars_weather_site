@@ -1,21 +1,13 @@
-import pytest
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import Page, expect
 
-@pytest.fixture(scope="session")
-def browser():
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        yield browser
-        browser.close()
+def test_homepage_title(page: Page):
+    page.goto('http://localhost:8000/')
+    expect(page).to_have_title('Mars Weather - Home')
 
-@pytest.fixture(scope="function")
-def context_page(browser):
-    context = browser.new_context()
-    page = context.new_page()
-    yield context, page
-    context.close()
 
-def test_homepage(context_page):
-    context, page = context_page
-    page.goto("http://localhost:8000")
-    assert page.title() == "Expected Title"
+def test_home_page_hero_header(page: Page):
+    page.goto('http://127.0.0.1:8000/')
+    header = page.get_by_test_id('hero-header')
+    expect(header).to_be_visible()
+    # assert header.text_content() == 'Welcome to Mars Weather'
+    expect(header).to_contain_text('Welcome to Mars Weather')
