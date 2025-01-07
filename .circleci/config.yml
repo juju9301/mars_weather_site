@@ -40,11 +40,11 @@ jobs:
           command: |
             . venv/bin/activate
             until curl -s http://localhost:8000 > /dev/null; do echo "Waiting for server..."; sleep 5; done
-      - run:
-          name: Check server log
-          command: |
-            . venv/bin/activate
-            cat mars1/server.log
+      # - run:
+      #     name: Check server log
+      #     command: |
+      #       . venv/bin/activate
+      #       cat mars1/server.log
       - run:
           name: Run tests
           command: |
@@ -56,7 +56,7 @@ workflows:
   version: 2
   test:
     jobs:
-      - test:
-          filters:
-            branches:
-              only: master
+      - test
+          # filters:
+          #   branches:
+          #     only: master
