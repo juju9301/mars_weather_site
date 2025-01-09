@@ -41,17 +41,12 @@ jobs:
           command: |
             . venv/bin/activate
             until curl -s http://localhost:8000 > /dev/null; do echo "Waiting for server..."; sleep 5; done
-      # - run:
-      #     name: Check server log
-      #     command: |
-      #       . venv/bin/activate
-      #       cat mars1/server.log
       - run:
           name: Run tests
           command: |
             . venv/bin/activate
             cd mars1  # Change to the directory containing manage.py
-            pytest
+            pytest -v
 
 workflows:
   version: 2
