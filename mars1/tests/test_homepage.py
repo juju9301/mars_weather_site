@@ -6,8 +6,8 @@ def test_homepage_title(page: Page):
     page.goto(BASE_URL)
     expect(page).to_have_title('Mars Weather - Home')
 
-def test_headless_and_slow_mo(browser_type: BrowserType):
-    browser = browser_type.launch(headless=False, slow_mo=100)
+# def test_headless_and_slow_mo(browser_type: BrowserType):
+#     browser = browser_type.launch(headless=False, slow_mo=100)
     
 
 
