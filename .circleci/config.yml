@@ -35,6 +35,7 @@ jobs:
             . venv/bin/activate
             cd mars1  # Change to the directory containing manage.py
             python manage.py runserver 0.0.0.0:8000
+          background: true
       - run:
           name: Start xvfb
           command: |
