@@ -7,6 +7,7 @@ from django.http import HttpResponseBadRequest, JsonResponse
 from django.contrib.auth.decorators import login_required
 from .forms import PostForm, CommentForm
 from django.core.files.base import ContentFile
+from django.conf import settings
 
 from io import BytesIO
 import base64
@@ -141,7 +142,7 @@ def index(request):
     posts = paginator.get_page(page_number)
 
     recent_sol = Weather.objects.latest('sol') if Weather.objects.exists() else None
-    return render(request, 'index.html', {'posts': posts, 'recent_sol': recent_sol})
+    return render(request, 'index.html', {'posts': posts, 'recent_sol': recent_sol, 'nasa_api_key': settings.NASA_API_KEY})
 
 @login_required
 def add_post(request):
@@ -159,7 +160,7 @@ def add_post(request):
             return redirect('weather:index')
     else:
         form = PostForm()
-    return render(request, 'add_post.html', {'form': form})
+    return render(request, 'add_post.html', {'form': form, 'nasa_api_key': settings.NASA_API_KEY})
 
 @login_required
 def add_comment(request, post_id):
@@ -174,7 +175,7 @@ def add_comment(request, post_id):
             return redirect('weather:index')
     else:
         form = CommentForm()
-    return render(request, 'add_comment.html', {'form': form, 'post': post})
+    return render(request, 'add_comment.html', {'form': form, 'post': post, 'comments': post.comments.all()})
 
 def update_weather_data(request):
     if request.method == 'POST':

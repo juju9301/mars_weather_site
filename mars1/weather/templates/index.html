@@ -31,7 +31,7 @@
                                 </div>
                             {% endfor %}
                             {% if user.is_authenticated %}
-                                <a href="{% url 'weather:add_comment' post.id %}" class="text-orange-600">Add Comment</a>
+                                <a href="{% url 'weather:add_comment' post.id %}" class="bg-gray-600 text-white px-4 py-2 rounded">Add Comment</a>
                             {% else %}
                                 <p>Please <a href="{% url 'accounts:login' %}" class="text-orange-600">login</a> to add a comment.</p>
                             {% endif %}
@@ -131,7 +131,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const apiKey = 'DEMO_KEY'; // Replace with your NASA API key
+    const apiKey = '{{ nasa_api_key }}';
     fetch(`https://api.nasa.gov/planetary/apod?api_key=${apiKey}`)
         .then(response => response.json())
         .then(data => {

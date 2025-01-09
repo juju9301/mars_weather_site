@@ -2,25 +2,82 @@
 
 {% block title %}Add Post{% endblock title %}
 {% block content %}
-<div class="container mx-auto mt-5">
-    <h1 class="text-3xl font-bold mb-4">Add Post</h1>
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <input type="hidden" id="random_mars_image_url" name="random_mars_image_url">
-        <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded">Submit</button>
-    </form>
-    <button id="get-random-mars-picture" class="bg-gray-600 text-white px-4 py-2 rounded mt-4">Get Random Mars Picture</button>
-    <div id="random-mars-picture-container" class="mt-4"></div>
-    <button id="add-to-post" class="bg-gray-600 text-white px-4 py-2 rounded mt-4 hidden">Add to Post</button>
-    <div id="image-url-display" class="mt-4 text-gray-700"></div>
+<div class="container mx-auto mt-5 flex flex-col md:flex-row">
+    <!-- Left side: Post form -->
+    <div class="w-full md:w-1/2 pr-4 md:pr-4 md:pl-0 pl-4">
+        <h1 class="text-3xl font-bold mb-4">Add Post</h1>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="mb-4">
+                <label for="{{ form.title.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ form.title.label }}</label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                    <div class="text-red-500 text-xs italic">{{ form.title.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="mb-4">
+                <label for="{{ form.content.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ form.content.label }}</label>
+                {{ form.content }}
+                {% if form.content.errors %}
+                    <div class="text-red-500 text-xs italic">{{ form.content.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="mb-4">
+                <label for="{{ form.image.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ form.image.label }}</label>
+                <div class="flex items-center">
+                    {{ form.image }}
+                    <span id="mars-image-url" class="ml-4 text-gray-700 w-1/2 truncate"></span>
+                </div>
+                {% if form.image.errors %}
+                    <div class="text-red-500 text-xs italic">{{ form.image.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <input type="hidden" id="random_mars_image_url" name="random_mars_image_url">
+            <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded">Submit</button>
+        </form>
+    </div>
+
+    <!-- Right side: Random Mars picture section -->
+    <div class="w-full md:w-1/2 pl-4 mt-8 md:mt-0">
+        <h2 class="text-2xl font-bold mb-4">Get Random Mars Picture</h2>
+        <div class="mb-4">
+            <label for="rover-selector" class="block text-gray-700 text-sm font-bold mb-2">Select Rover</label>
+            <select id="rover-selector" class="block w-full mt-1">
+                <option value="curiosity">Curiosity</option>
+                <option value="opportunity">Opportunity</option>
+                <option value="spirit">Spirit</option>
+            </select>
+        </div>
+        <button id="get-random-mars-picture" class="bg-gray-600 text-white px-4 py-2 rounded mt-4">Get Random Mars Picture</button>
+        <div id="random-mars-picture-container" class="mt-4"></div>
+        <button id="add-to-post" class="bg-gray-600 text-white px-4 py-2 rounded mt-4 hidden">Add to Post</button>
+        <div id="image-url-display" class="mt-4 text-gray-700"></div>
+    </div>
 </div>
 
 <script>
 document.getElementById('get-random-mars-picture').addEventListener('click', function() {
-    const sol = Math.floor(Math.random() * 1000) + 1; // Random sol (Martian day)
-    const rover = ['curiosity', 'opportunity', 'spirit'][Math.floor(Math.random() * 3)]; // Random rover
-    const apiKey = 'DEMO_KEY'; // Replace with your NASA API key
+    const rover = document.getElementById('rover-selector').value;
+    let solRange;
+    switch (rover) {
+        case 'curiosity':
+            solRange = 3000; // Example sol range for Curiosity
+            break;
+        case 'opportunity':
+            solRange = 5000; // Example sol range for Opportunity
+            break;
+        case 'spirit':
+            solRange = 2000; // Example sol range for Spirit
+            break;
+        default:
+            solRange = 1000;
+    }
+    const sol = Math.floor(Math.random() * solRange) + 1; // Random sol within the range
+    const apiKey = '{{ nasa_api_key }}'; // Use the API key passed from the view
 
     fetch(`https://api.nasa.gov/mars-photos/api/v1/rovers/${rover}/photos?sol=${sol}&api_key=${apiKey}`)
         .then(response => response.json())
@@ -40,17 +97,19 @@ document.getElementById('get-random-mars-picture').addEventListener('click', fun
                     alert('Failed to load image. Try again.');
                 };
             } else {
-                alert('No photos found for this sol. Try again.');
+                alert('No photos found for this sol.');
             }
-        })
-        .catch(error => console.error('Error fetching random Mars picture:', error));
+        });
 });
 
 document.getElementById('add-to-post').addEventListener('click', function() {
     const imageUrl = this.dataset.imageUrl;
-    document.getElementById('random_mars_image_url').value = imageUrl;
-    document.getElementById('image-url-display').innerText = `Image URL: ${imageUrl}`;
-    alert('Image added to post!');
+    const imageInput = document.querySelector('input[name="random_mars_image_url"]');
+    imageInput.value = imageUrl;
+    const fileInput = document.querySelector('input[type="file"]');
+    fileInput.classList.add('hidden');
+    const marsImageUrlSpan = document.getElementById('mars-image-url');
+    marsImageUrlSpan.innerText = imageUrl;
 });
 </script>
 {% endblock content %}
