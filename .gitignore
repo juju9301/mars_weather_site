@@ -9,3 +9,6 @@ mars1/weather/__pycache__/
 *media/
 
 .env
+*/allure-results/*
+.coverage
+report.html
