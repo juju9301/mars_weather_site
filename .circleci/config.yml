@@ -30,6 +30,12 @@ jobs:
             cd mars1  # Change to the directory containing manage.py
             python manage.py migrate
       - run:
+          name: Create test user
+          command: |
+            . venv/bin/activate
+            cd mars1
+            python manage.py create_test_user
+      - run:
           name: Start Django server
           command: |
             . venv/bin/activate
