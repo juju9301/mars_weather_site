@@ -6,7 +6,7 @@ import os
 
 load_dotenv()
 
-success_user_login, success_user_password = os.getenv('SUCCESS_TEST_USER_LOGIN')
+success_user_login, success_user_password = os.getenv('SUCCESS_TEST_USER_LOGIN'), os.getenv('SUCCESS_TEST_USER_PASS')
 
 class Command(BaseCommand):
     help = 'Create a test user'
