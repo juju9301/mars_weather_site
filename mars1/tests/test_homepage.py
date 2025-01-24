@@ -17,3 +17,5 @@ def test_home_page_hero_header(page: Page):
     header = page.get_by_test_id('hero-header')
     expect(header).to_be_visible()
     expect(header).to_contain_text('Welcome to Mars Weather')
+
+
