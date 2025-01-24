@@ -49,8 +49,7 @@ def test_error_message_if_incorrect_password(page: Page, login_page: LoginPage):
 def test_successful_login(page: Page, login_page: LoginPage):
     login_page.login(username=success_user_login, password=success_user_password)
     expect(page).to_have_url(BASE_URL)
-    hello_string = page.get_by_text(f'Hello, {success_user_login}')
-    expect(hello_string).to_be_visible()
-    nav_login_button = page.get_by_text('Login')
-    expect(nav_login_button).not_to_be_visible()
+    expect(login_page.nav_greeting).to_be_visible()
+    expect(login_page.nav_greeting).to_have_text(f'Hello, {success_user_login}')
+    expect(login_page.nav_login_button).not_to_be_visible()
 

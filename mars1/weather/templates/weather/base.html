@@ -17,7 +17,7 @@
                 <a class="text-gray-700 hover:text-orange-600" href="{% url 'weather:weather_list' %}">Weather List</a>
                 <a class="text-gray-700 hover:text-orange-600" href="{% url 'weather:generate_weather_plot' %}">Generate Weather Plot</a>
                 {% if user.is_authenticated %}
-                    <span class="text-gray-700">Hello, {{ user.username }}</span>
+                    <span data-testid="nav-greeting" class="text-gray-700">Hello, {{ user.username }}</span>
                     <form method="post" action="{% url 'accounts:logout' %}" class="inline">
                         {% csrf_token %}
                         <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded">Logout</button>
