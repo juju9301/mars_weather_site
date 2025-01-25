@@ -51,5 +51,6 @@ def test_successful_login(page: Page, login_page: LoginPage):
     expect(page).to_have_url(BASE_URL)
     expect(login_page.nav_greeting).to_be_visible()
     expect(login_page.nav_greeting).to_have_text(f'Hello, {success_user_login}')
+    expect(login_page.nav_logout_button).to_be_visible()
     expect(login_page.nav_login_button).not_to_be_visible()
 
