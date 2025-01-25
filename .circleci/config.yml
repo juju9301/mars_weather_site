@@ -24,10 +24,10 @@ jobs:
             playwright install
             playwright install-deps
       - run:
-          name: Run Django migrations
+          name: Apply migrations
           command: |
             . venv/bin/activate
-            cd mars1  # Change to the directory containing manage.py
+            cd mars1
             python manage.py migrate
       - run:
           name: Create test user
@@ -57,11 +57,12 @@ jobs:
             . venv/bin/activate
             cd mars1
             export DISPLAY=:99
+            export PYTHONPATH=$PYTHONPATH:$(pwd)/tests
             pytest --junitxml=reports/test-results.xml
       - store_test_results:
-          path: reports
+          path: mars1/reports
       - store_artifacts:
-          path: reports
+          path: mars1/reports
 
 workflows:
   version: 2
