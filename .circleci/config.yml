@@ -30,33 +30,37 @@ jobs:
             cd mars1  # Change to the directory containing manage.py
             python manage.py migrate
       - run:
+          name: Create test user
+          command: |
+            . venv/bin/activate
+            cd mars1
+            python manage.py create_test_user
+      - run:
           name: Start Django server
           command: |
             . venv/bin/activate
             cd mars1  # Change to the directory containing manage.py
-            python manage.py runserver 0.0.0.0:8000 &
+            python manage.py runserver 0.0.0.0:8000
+          background: true
+      - run:
+          name: Start xvfb
+          command: |
+            Xvfb :99 -screen 0 1280x1024x24 &
       - run:
           name: Wait for server to start
           command: |
             . venv/bin/activate
             until curl -s http://localhost:8000 > /dev/null; do echo "Waiting for server..."; sleep 5; done
       - run:
-          name: Check server log
-          command: |
-            . venv/bin/activate
-            cat mars1/server.log
-      - run:
           name: Run tests
           command: |
             . venv/bin/activate
-            cd mars1  # Change to the directory containing manage.py
+            cd mars1
+            export DISPLAY=:99
             pytest
 
 workflows:
   version: 2
   test:
     jobs:
-      - test:
-          filters:
-            branches:
-              only: master
+      - test
