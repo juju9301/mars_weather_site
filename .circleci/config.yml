@@ -24,10 +24,10 @@ jobs:
             playwright install
             playwright install-deps
       - run:
-          name: Apply migrations
+          name: Run Django migrations
           command: |
             . venv/bin/activate
-            cd mars1
+            cd mars1  # Change to the directory containing manage.py
             python manage.py migrate
       - run:
           name: Create test user

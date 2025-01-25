@@ -10,6 +10,7 @@ coverage==7.6.10
 cycler==0.12.1
 Django==5.1.4
 execnet==2.1.1
+Faker==35.0.0
 fonttools==4.55.3
 greenlet==3.1.1
 idna==3.10

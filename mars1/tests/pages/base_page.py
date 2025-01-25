@@ -1,4 +1,9 @@
 from playwright.sync_api import Page
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
 
 class BasePage:
     def __init__(self, page: Page):
@@ -9,3 +14,6 @@ class BasePage:
         self.nav_greeting = page.get_by_test_id('nav-greeting')
         self.nav_plot_link = page.get_by_role('link', name="Generate Weather Plot")
         self.nav_weather_list = page.get_by_role('link', name="Weather List")
+
+        self.success_user_login = os.getenv('SUCCESS_TEST_USER_LOGIN') 
+        self.success_user_password = os.getenv('SUCCESS_TEST_USER_PASS')
