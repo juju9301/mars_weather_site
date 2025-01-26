@@ -7,6 +7,8 @@ __pycache__/
 *.pyc
 mars1/weather/__pycache__/
 *media/
+!mars1/media/post_images/
+!/mars1/media/post_images/test-image.jpg
 
 .env
 */allure-results/*
