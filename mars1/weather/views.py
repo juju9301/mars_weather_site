@@ -136,7 +136,7 @@ def _generate_plot(weather_data, sol_from, sol_to, temp_type):
 
 def index(request):
     posts_list = Post.objects.all().order_by('-created_at')
-    paginator = Paginator(posts_list, 10)  # Show 10 posts per page
+    paginator = Paginator(posts_list, 3)  # Show 3 posts per page
 
     page_number = request.GET.get('page')
     posts = paginator.get_page(page_number)
