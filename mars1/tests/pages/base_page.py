@@ -1,6 +1,7 @@
 from playwright.sync_api import Page
 from dotenv import load_dotenv
 import os
+from ..utils.constants import BASE_URL
 
 load_dotenv()
 
@@ -8,6 +9,7 @@ load_dotenv()
 class BasePage:
     def __init__(self, page: Page):
         self.page = page
+        self.base_url = BASE_URL
         self.nav_login_button = page.locator('[href="/accounts/login/"]')
         self.nav_register_button = page.locator('[href="/accounts/register/"]')
         self.nav_logout_button = page.get_by_role('button', name="Logout")

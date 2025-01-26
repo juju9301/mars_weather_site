@@ -4,7 +4,7 @@
 {% block content %}
 <div class="container mx-auto mt-5">
     <h1 class="text-3xl font-bold mb-4">Register</h1>
-    <form method="post" novalidate>
+    <form method="post" data-testid="register-form" novalidate>
         {% csrf_token %}
         {% if form.non_field_errors %}
             <div class="text-red-500 text-xs italic mb-4">{{ form.non_field_errors }}</div>
