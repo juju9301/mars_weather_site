@@ -1,5 +1,4 @@
 from playwright.sync_api import Page
-from ..utils.constants import BASE_URL
 from .base_page import BasePage
 
 class LoginPage(BasePage):
@@ -14,7 +13,7 @@ class LoginPage(BasePage):
         self.incorrect_credentials_error =  page.locator('ul.errorlist')
 
     def navigate(self):
-        self.page.goto(BASE_URL + self.path)
+        self.page.goto(self.base_url + self.path)
 
     def login(self, username: str, password: str):
         self.username_input.fill(username)

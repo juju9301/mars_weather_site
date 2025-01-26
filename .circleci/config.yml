@@ -57,11 +57,12 @@ jobs:
             . venv/bin/activate
             cd mars1
             export DISPLAY=:99
+            export PYTHONPATH=$PYTHONPATH:$(pwd)/tests
             pytest --junitxml=reports/test-results.xml
       - store_test_results:
-          path: reports
+          path: mars1/reports
       - store_artifacts:
-          path: reports
+          path: mars1/reports
 
 workflows:
   version: 2
