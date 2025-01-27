@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
-from weather.models import Post
+from core.models import Post
 import os
 
 IMAGE_URL = 'https://assets.science.nasa.gov/dynamicimage/assets/science/psd/mars/news_items/main_images/9306_https___mars.nasa-web.jpg?w=1200&h=1200&fit=clip&crop=faces%2Cfocalpoint'
