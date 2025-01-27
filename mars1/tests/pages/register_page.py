@@ -8,12 +8,13 @@ class RegisterPage(BasePage):
         self.path = 'accounts/register/'
         self.url = self.base_url + self.path
         self.page = page
+        # register form locators
         self.username_input = page.locator('#id_username')
         self.password_input = page.locator('#id_password1')
         self.password_confirm_input = page.locator('#id_password2')
         self.submit = page.get_by_role('button', name='Register')
         self.register_form = page.get_by_test_id('register-form')
-
+        # error message locators
         self.error_list = page.locator('ul.errorlist')
         self.error_password_short = page.get_by_text('This password is too short. It must contain at least 8 characters.')
         self.error_password_too_common = page.get_by_text('This password is too common.')

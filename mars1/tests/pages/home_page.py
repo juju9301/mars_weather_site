@@ -10,9 +10,14 @@ class HomePage(BasePage):
         self.login_to_add_post = page.get_by_text('Please login to add a post.')
         self.login_to_add_comment = page.get_by_text('Please login to add a comment.')
 
+        # post pagination locators
+        self.pag_first = page.get_by_role('link', name='First')
         self.pag_next = page.get_by_role('link', name='Next')
         self.pag_last = page.get_by_role('link', name='Last')
         self.pag_previous = page.get_by_role('link', name='Previous')
+
+    def navigate(self):
+        self.page.goto(self.base_url)
         
 
 
