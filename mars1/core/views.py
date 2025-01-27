@@ -1,7 +1,16 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 # from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .forms import RegisterForm, LoginForm
+from django.contrib.auth.decorators import login_required
+from django.core.files.base import ContentFile
+from django.core.paginator import Paginator
+from django.conf import settings
+
+import requests
+
+from .models import Post, Comment
+from weather.models import Weather
+from .forms import RegisterForm, LoginForm, PostForm, CommentForm
 
 
 def register(request):
@@ -10,7 +19,7 @@ def register(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('weather:index')
+            return redirect('core:index')
     else:
         form = RegisterForm()
     return render(request, 'core/register.html', {'form': form})
@@ -21,7 +30,7 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect('weather:index')
+            return redirect('core:index')
     else:
         form = LoginForm()
     return render(request, 'core/login.html', {'form': form})
@@ -29,4 +38,47 @@ def login_view(request):
 def logout_view(request):
     if request.method == 'POST':
         logout(request)
-        return redirect('weather:index')
+        return redirect('core:index')
+
+def index(request):
+    posts_list = Post.objects.all().order_by('-created_at')
+    paginator = Paginator(posts_list, 10)  # Show 10 posts per page
+
+    page_number = request.GET.get('page')
+    posts = paginator.get_page(page_number)
+
+    recent_sol = Weather.objects.latest('sol') if Weather.objects.exists() else None
+    return render(request, 'index.html', {'posts': posts, 'recent_sol': recent_sol, 'nasa_api_key': settings.NASA_API_KEY})
+
+@login_required
+def add_post(request):
+    if request.method == 'POST':
+        form = PostForm(request.POST, request.FILES)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            random_mars_image_url = form.cleaned_data.get('random_mars_image_url')
+            if random_mars_image_url:
+                response = requests.get(random_mars_image_url)
+                if response.status_code == 200:
+                    post.image.save(f"random_mars_image_{post.id}.jpg", ContentFile(response.content), save=False)
+            post.save()
+            return redirect('core:index')
+    else:
+        form = PostForm()
+    return render(request, 'core/add_post.html', {'form': form, 'nasa_api_key': settings.NASA_API_KEY})
+
+@login_required
+def add_comment(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.post = post
+            comment.author = request.user
+            comment.save()
+            return redirect('core:index')
+    else:
+        form = CommentForm()
+    return render(request, 'core/add_comment.html', {'form': form, 'post': post, 'comments': post.comments.all()})
