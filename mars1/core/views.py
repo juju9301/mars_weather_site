@@ -5,12 +5,14 @@ from django.contrib.auth.decorators import login_required
 from django.core.files.base import ContentFile
 from django.core.paginator import Paginator
 from django.conf import settings
-
 import requests
-
 from .models import Post, Comment
 from weather.models import Weather
 from .forms import RegisterForm, LoginForm, PostForm, CommentForm
+
+from .serializers import PostSerializer, CommentSerializer
+from rest_framework import generics, status
+from rest_framework.response import Response
 
 
 def register(request):
@@ -82,3 +84,31 @@ def add_comment(request, post_id):
     else:
         form = CommentForm()
     return render(request, 'core/add_comment.html', {'form': form, 'post': post, 'comments': post.comments.all()})
+
+# test endpoint views
+
+class PostListCreateApiView(generics.ListCreateAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+
+    def create(self, request, *args, **kwargs):
+        if isinstance(request.data, list):
+            serializer = self.get_serializer(data=request.data, many=True)
+        else:
+            serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers =  self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+class PostDeleteApiView(generics.DestroyAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+
+    def delete(self,request, *args, **kwargs):
+        ids = request.data.get('ids', [])
+        if not ids:
+            return Response({'error': 'No ids provided'},status=status.HTTP_400_BAD_REQUEST)
+        posts = Post.objects.filter(id__in=ids)
+        posts.delete()
+        return Response({'deleted': ids}, status=status.HTTP_204_NO_CONTENT)
