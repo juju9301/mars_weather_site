@@ -13,7 +13,7 @@ def register(request):
             return redirect('weather:index')
     else:
         form = RegisterForm()
-    return render(request, 'accounts/register.html', {'form': form})
+    return render(request, 'core/register.html', {'form': form})
 
 def login_view(request):
     if request.method == 'POST':
@@ -24,7 +24,7 @@ def login_view(request):
             return redirect('weather:index')
     else:
         form = LoginForm()
-    return render(request, 'accounts/login.html', {'form': form})
+    return render(request, 'core/login.html', {'form': form})
 
 def logout_view(request):
     if request.method == 'POST':

@@ -5,7 +5,7 @@ from .base_page import BasePage
 class RegisterPage(BasePage):
     def __init__(self, page: Page):
         super().__init__(page)
-        self.path = 'accounts/register/'
+        self.path = 'register/'
         self.url = self.base_url + self.path
         self.page = page
         self.username_input = page.locator('#id_username')
