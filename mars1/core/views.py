@@ -112,3 +112,38 @@ class PostDeleteApiView(generics.DestroyAPIView):
         posts = Post.objects.filter(id__in=ids)
         posts.delete()
         return Response({'deleted': ids}, status=status.HTTP_204_NO_CONTENT)
+
+class CommentListCreateApiView(generics.ListCreateAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        post_id = self.request.query_params.get(post_id)
+        if post_id:
+            return Comment.objects.filter(post_id=post_id)
+        return super().get_queryset()
+
+    def create(self, request, *args, **kwargs):
+        if isinstance(request.data, list):
+            serializer = self.get_serializer(data=request.data, many=True)
+        else:
+            serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers =  self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        
+class CommentDeleteApiView(generics.DestroyAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+
+    def delete(self, request, *args, **kwargs):
+        ids = request.data.get('ids', [])
+        if not ids:
+            return Response({'error': 'No IDs provided'}, status=status.HTTP_400_BAD_REQUEST)
+        comments = Comment.objects.filter(id__in=ids)
+        count = comments.count()
+        comments.delete()
+        return Response({'deleted': count}, status=status.HTTP_204_NO_CONTENT)
+
+
