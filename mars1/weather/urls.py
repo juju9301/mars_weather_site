@@ -8,7 +8,5 @@ urlpatterns = [
     path('<int:sol>', views.weather_detail, name='weather_detail'),
     path('plot', views.generate_weather_plot, name='generate_weather_plot'),
     path('update_weather_data', views.update_weather_data, name='update_weather_data'),
-    path('', views.index, name='index'),
-    path('add_post/', views.add_post, name='add_post'),
-    path('add_comment/<int:post_id>/', views.add_comment, name='add_comment'),
+
 ]

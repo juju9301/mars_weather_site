@@ -1,4 +1,4 @@
-# filepath: /c:/Users/Ivan/Documents/py_projects/mars_weather_site/mars1/accounts/management/commands/create_test_user.py
+# filepath: /c:/Users/Ivan/Documents/py_projects/mars_weather_site/mars1/core/management/commands/create_test_user.py
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 from dotenv import load_dotenv
