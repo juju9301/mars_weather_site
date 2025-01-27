@@ -36,7 +36,7 @@ def test_error_message_if_username_and_password_not_provided(page: Page):
 
 def test_error_message_if_incorrect_password(page: Page, login_page: LoginPage):
     login_page.login(username=login_page.success_user_login, password='randomString123')
-    expect(page).to_have_url(BASE_URL + 'accounts/login/')
+    expect(page).to_have_url(BASE_URL + 'login/')
     expect(login_page.incorrect_credentials_error).to_be_visible()
     expect(login_page.incorrect_credentials_error).to_have_text('Please enter a correct username and password. Note that both fields may be case-sensitive.')
 
