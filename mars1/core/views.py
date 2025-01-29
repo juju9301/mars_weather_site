@@ -9,8 +9,9 @@ import requests
 from .models import Post, Comment
 from weather.models import Weather
 from .forms import RegisterForm, LoginForm, PostForm, CommentForm
+from django.contrib.auth.models import User
 
-from .serializers import PostSerializer, CommentSerializer
+from .serializers import PostSerializer, CommentSerializer, UserSerializer
 from rest_framework import generics, status
 from rest_framework.response import Response
 
@@ -147,3 +148,15 @@ class CommentDeleteApiView(generics.DestroyAPIView):
         count = comments.count()
         comments.delete()
         return Response({'deleted': count}, status=status.HTTP_204_NO_CONTENT)
+    
+class UserDeleteApiView(generics.DestroyAPIView):
+    def delete(self, request, *args, **kwargs):
+        ids = request.data.get('ids', None)
+        if ids:
+            users = User.objects.filter(id__in=ids)
+        else:
+            users = User.objects.all()
+        ids = list(users.values_list('id', flat=True))
+        users.delete()
+        return Response({'deleted': ids}, status=status.HTTP_204_NO_CONTENT)
+

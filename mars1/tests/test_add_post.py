@@ -10,15 +10,6 @@ import requests
 
 fake = Faker()
 
-def make_api_request(method, endpoint, playwright: sync_playwright):
-    context = playwright.request.new_context()
-    if method == 'GET':
-        resp = context.get(endpoint)
-    elif method == 'POST':
-        form_data = {'author': 1, 'content': 'api request content'}
-        resp = context.post(endpoint, form_data)
-    return resp
-
 @pytest.fixture
 def all_pages(page: Page):
     login_page = LoginPage(page)
@@ -27,6 +18,7 @@ def all_pages(page: Page):
     return login_page, home_page, add_post_page 
     # await Post.objects.all().delete()
 
+@pytest.mark.e2e
 def test_login_and_add_post(page: Page, all_pages):
     login_page, home_page, add_post_page = all_pages
     page.goto(home_page.base_url)
