@@ -11,7 +11,7 @@ class BasePage:
         self.page = page
         self.base_url = BASE_URL
         # navbar locators
-        self.nav_login_button = page.locator('[href="/login/"]')
+        self.nav_login_button = page.get_by_test_id('nav-login')
         self.nav_register_button = page.locator('[href="/register/"]')
         self.nav_logout_button = page.get_by_role('button', name="Logout")
         self.nav_greeting = page.get_by_test_id('nav-greeting')

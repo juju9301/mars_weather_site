@@ -105,13 +105,15 @@ class PostDeleteApiView(generics.DestroyAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
 
-    def delete(self,request, *args, **kwargs):
-        ids = request.data.get('ids', [])
-        if not ids:
-            return Response({'error': 'No ids provided'},status=status.HTTP_400_BAD_REQUEST)
-        posts = Post.objects.filter(id__in=ids)
+    def delete(self, request, *args, **kwargs):
+        ids = request.data.get('ids', None)
+        if ids:
+            posts = Post.objects.filter(id__in=ids)
+        else:
+            posts = Post.objects.all()
+        count = posts.count()
         posts.delete()
-        return Response({'deleted': ids}, status=status.HTTP_204_NO_CONTENT)
+        return Response({'deleted': count}, status=status.HTTP_204_NO_CONTENT)
 
 class CommentListCreateApiView(generics.ListCreateAPIView):
     queryset = Comment.objects.all()
@@ -145,5 +147,3 @@ class CommentDeleteApiView(generics.DestroyAPIView):
         count = comments.count()
         comments.delete()
         return Response({'deleted': count}, status=status.HTTP_204_NO_CONTENT)
-
-

@@ -18,7 +18,7 @@ def test_error_message_if_password_not_provided(login_page: LoginPage):
 
 def test_error_message_if_username_not_provided(login_page: LoginPage):
     login_page.password_input.fill('randomstring')
-    login_page.login_button.click()
+    login_page.login_submit_button.click()
     # error_message = page.get_by_text('This field is required.')
     expect(login_page.empty_password_error).to_be_hidden()
     expect(login_page.empty_username_error).to_have_text('This field is required.')
@@ -27,7 +27,7 @@ def test_error_message_if_username_not_provided(login_page: LoginPage):
 def test_error_message_if_username_and_password_not_provided(page: Page):
     login_page = LoginPage(page)
     login_page.navigate()
-    login_page.login_button.click()
+    login_page.login_submit_button.click()
     expect(login_page.empty_username_error).to_have_text('This field is required.')
     expect(login_page.empty_username_error).to_be_visible()
     expect(login_page.empty_password_error).to_have_text('This field is required.')

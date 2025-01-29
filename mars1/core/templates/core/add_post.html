@@ -6,7 +6,7 @@
     <!-- Left side: Post form -->
     <div class="w-full md:w-1/2 pr-4 md:pr-4 md:pl-0 pl-4">
         <h1 class="text-3xl font-bold mb-4">Add Post</h1>
-        <form method="post" enctype="multipart/form-data">
+        <form method="post" enctype="multipart/form-data" data-testid="post-form">
             {% csrf_token %}
             
             <div class="mb-4">

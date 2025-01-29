@@ -5,10 +5,13 @@ from .base_page import BasePage
 class HomePage(BasePage):
     def __init__(self, page: Page):
         super().__init__(page)
-        self.add_post_button = page.get_by_role('button', name='Add Post')
+        self.url = self.base_url
+        self.add_post_button = page.locator('a[href="/add_post/"]', has_text='Add Post')
         self.add_comment_button = page.get_by_role('button', name='Add Comment')
         self.login_to_add_post = page.get_by_text('Please login to add a post.')
         self.login_to_add_comment = page.get_by_text('Please login to add a comment.')
+        self.hero_header = page.get_by_test_id('hero-header')
+        self.post = page.get_by_test_id('post')
 
         # post pagination locators
         self.pag_first = page.get_by_role('link', name='First')
