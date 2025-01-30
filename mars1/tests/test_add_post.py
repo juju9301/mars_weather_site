@@ -57,7 +57,7 @@ def test_post_with_fetched_image(page: Page, all_pages):
     mars_info = add_post_page.mars_picture_info.text_content()
     mars_pic_url = add_post_page.mars_picture.get_attribute('src')
     add_post_page.add_to_post_button.click()
-    expect(add_post_page.content_field).to_have_value(mars_info) ## somethings wrong
+    expect(add_post_page.content_field).to_have_value(mars_info)
     expect(add_post_page.choose_image_input).to_be_hidden()
     expect(add_post_page.mars_image_url).to_have_text(mars_pic_url)
     add_post_page.submit_button.click()
