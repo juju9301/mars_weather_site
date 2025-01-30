@@ -90,6 +90,7 @@ document.getElementById('get-random-mars-picture').addEventListener('click', fun
                     const container = document.getElementById('random-mars-picture-container');
                     container.innerHTML = `<img src="${randomPhoto.img_src}" alt="Random Mars Picture" class="max-w-full max-h-64 object-contain mt-2">`;
                     const info = document.createElement('p');
+                    info.setAttribute('data-testid', 'mars-pic-info')
                     info.textContent = `Mars pic from sol ${sol} by ${rover} rover`;
                     container.appendChild(info);
                     const addToPostButton = document.getElementById('add-to-post');

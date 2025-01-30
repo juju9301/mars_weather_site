@@ -10,6 +10,11 @@ class AddPostPage(BasePage):
         self.content_field = page.get_by_role('textbox', name='content')
         self.choose_image_input = page.locator('input[type="file"]')
         self.submit_button = page.get_by_role('button', name='Submit')
+        self.get_mars_picture_button = page.get_by_role('button', name='Get Random Mars Picture')
+        self.mars_picture = page.get_by_alt_text('Random Mars Picture')
+        self.mars_picture_info = page.get_by_test_id('mars-pic-info')
+        self.add_to_post_button = page.get_by_role('button', name='Add to Post')
+        self.mars_image_url = page.locator('span#mars-image-url')
 
     def navigate(self):
         self.page.goto(self.url)

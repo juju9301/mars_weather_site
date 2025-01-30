@@ -35,7 +35,7 @@ def test_login_and_add_post(page: Page, all_pages):
     add_post_page.add_post(content=content)
     expect(page).to_have_url(home_page.url)
     expect(home_page.post).to_have_count(1)
-    # expect(home_page.post).to_have_text('this is a demo text')
+
 
 def test_post_with_custom_picture(page: Page, all_pages):
     login_page, home_page, add_post_page = all_pages
@@ -46,6 +46,21 @@ def test_post_with_custom_picture(page: Page, all_pages):
     add_post_page.add_post(text, add_post_page.test_file_jpg)
     expect(page).to_have_url(home_page.url)
 
+def test_post_with_fetched_image(page: Page, all_pages):
+    login_page, home_page, add_post_page = all_pages
+    login_page.navigate()
+    login_page.login(login_page.success_user_login, login_page.success_user_password)
+    home_page.add_post_button.click()
+    add_post_page.get_mars_picture_button.click()
+    expect(add_post_page.mars_picture).to_be_visible()
+    expect(add_post_page.mars_picture_info).to_be_visible()
+    mars_info = add_post_page.mars_picture_info.all_text_contents
+    mars_pic_url = add_post_page.mars_picture.get_attribute('href')
+    add_post_page.add_to_post_button.click()
+    expect(add_post_page.content_field).to_have_value(mars_info) ## somethings wrong
+    expect(add_post_page.choose_image_input).to_be_hidden()
+    expect(add_post_page.mars_image_url).to_have_text(mars_pic_url)
+    add_post_page.submit_button.click()
 
 
 
