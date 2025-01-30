@@ -1,7 +1,7 @@
 from playwright.sync_api import Page
 from dotenv import load_dotenv
 import os
-from ..utils.constants import BASE_URL
+from ..utils.constants import BASE_URL, TEST_FILES
 
 load_dotenv()
 
@@ -10,6 +10,8 @@ class BasePage:
     def __init__(self, page: Page):
         self.page = page
         self.base_url = BASE_URL
+        self.test_file_jpg = TEST_FILES['jpg']
+        self.test_file_png = TEST_FILES['png']
         # navbar locators
         self.nav_login_button = page.get_by_test_id('nav-login')
         self.nav_register_button = page.locator('[href="/register/"]')

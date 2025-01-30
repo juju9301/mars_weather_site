@@ -32,8 +32,7 @@ def test_login_and_add_post(page: Page, all_pages):
     home_page.add_post_button.click()
     expect(page).to_have_url(add_post_page.url)
     content = fake.text()
-    add_post_page.content_field.fill(content)
-    add_post_page.submit_button.click()
+    add_post_page.add_post(content=content)
     expect(page).to_have_url(home_page.url)
     expect(home_page.post).to_have_count(1)
     # expect(home_page.post).to_have_text('this is a demo text')
@@ -43,13 +42,9 @@ def test_post_with_custom_picture(page: Page, all_pages):
     login_page.navigate()
     login_page.login(login_page.success_user_login, login_page.success_user_password)
     home_page.add_post_button.click()
-    add_post_page.content_field.fill(fake.text())
-    with page.expect_file_chooser() as fc_info:
-        add_post_page.choose_image_input.click()
-        file_chooser = fc_info.value
-        file_chooser.set_files('mars1\media\test_images\test_image1.jpg')
-    add_post_page.submit_button.click()
-
+    text = fake.text()
+    add_post_page.add_post(text, add_post_page.test_file_jpg)
+    expect(page).to_have_url(home_page.url)
 
 
 
