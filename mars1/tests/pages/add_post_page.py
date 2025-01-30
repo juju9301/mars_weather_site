@@ -19,11 +19,12 @@ class AddPostPage(BasePage):
     def navigate(self):
         self.page.goto(self.url)
 
-    def add_post(self, content: str, file_path: str = None):
+    def create_post(self, content: str, file_path: str = None, submit: bool = True):
         self.content_field.fill(content)
         if file_path:
             with self.page.expect_file_chooser() as fc_info:
                 self.choose_image_input.click()
                 file_chooser = fc_info.value 
                 file_chooser.set_files(files=file_path)
-        self.submit_button.click()
+        if submit:
+            self.submit_button.click()

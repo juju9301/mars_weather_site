@@ -17,7 +17,7 @@
                     <div class="bg-white shadow rounded-lg p-4 mb-4" data-testid="post">
                         <p class="text-gray-700" data-testid="post-author"><strong>Posted by {{ post.author.username }}</strong> on {{ post.created_at }}</p>
                         {% if post.content %}
-                            <p class="text-gray-700" data-testid="post-content">{{ post.content|linebreaks }}</p>
+                            <p class="text-gray-700" data-testid="post-content">{{ post.content}}</p>
                         {% endif %}
                         {% if post.image %}
                             <img data-testid="post-image" src="{{ post.image.url }}" alt="Post Image" class="mt-2 max-w-full max-h-64 object-contain">
