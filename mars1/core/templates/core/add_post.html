@@ -114,7 +114,7 @@ document.getElementById('get-random-mars-picture').addEventListener('click', fun
         if (postContent) {
             const sol = document.querySelector('#random-mars-picture-container p').textContent.match(/sol (\d+)/)[1];
             const rover = document.querySelector('#random-mars-picture-container p').textContent.match(/by (\w+) rover/)[1];
-            postContent.value += `Mars pic from sol ${sol} by ${rover} rover.`;
+            postContent.value += `Mars pic from sol ${sol} by ${rover} rover`;
         } else {
             console.error('Post content textarea not found');
         }
