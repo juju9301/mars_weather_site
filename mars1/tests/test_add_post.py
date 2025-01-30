@@ -104,6 +104,19 @@ def test_mars_image_overrides_custome_image(page: Page, all_pages):
     expect(home_page.post_content).to_have_text(mars_info)
     expect(home_page.post_image).to_be_visible()
 
+def test_mars_info_gets_appended(page: Page, all_pages):
+     login_page, home_page, add_post_page = all_pages
+     login_page.navigate()
+     login_page.login(login_page.success_user_login, login_page.success_user_password)
+     add_post_page.navigate()
+     text = fake.text()
+     add_post_page.create_post(text, submit=False)
+     add_post_page.get_mars_picture_button.click()
+     add_post_page.add_to_post_button.click()
+     mars_info = add_post_page.mars_picture_info.text_content()
+     expect(add_post_page.content_field).to_have_value(text + mars_info)
+     
+
 
 
 
