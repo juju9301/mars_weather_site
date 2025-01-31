@@ -9,6 +9,7 @@ import requests
 from .models import Post, Comment
 from weather.models import Weather
 from .forms import RegisterForm, LoginForm, PostForm, CommentForm
+from .decorators import redirect_authenticated_user
 from django.contrib.auth.models import User
 
 from .serializers import PostSerializer, CommentSerializer, UserSerializer
@@ -16,6 +17,7 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 
 
+@redirect_authenticated_user
 def register(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
@@ -27,6 +29,7 @@ def register(request):
         form = RegisterForm()
     return render(request, 'core/register.html', {'form': form})
 
+@redirect_authenticated_user
 def login_view(request):
     if request.method == 'POST':
         form = LoginForm(request, data=request.POST)

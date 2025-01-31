@@ -3,6 +3,7 @@ from .utils.constants import BASE_URL
 import pytest
 
 from .pages.login_page import LoginPage
+from .pages.register_page import RegisterPage
 
 
 @pytest.fixture
@@ -48,3 +49,14 @@ def test_successful_login(page: Page, login_page: LoginPage):
     expect(login_page.nav_logout_button).to_be_visible()
     expect(login_page.nav_login_button).not_to_be_visible()
 
+def test_user_redirected_from_login_page_if_authenticated(page: Page, login_page: LoginPage):
+    login_page.login(login_page.success_user_login, login_page.success_user_password)
+    expect(login_page.nav_greeting).to_be_visible()
+    login_page.navigate()
+    expect(page).to_have_url(login_page.base_url)
+
+def test_user_redirected_from_register_page_if_authenticated(page: Page, login_page: LoginPage):
+    login_page.login(login_page.success_user_login, login_page.success_user_password)
+    expect(login_page.nav_greeting).to_be_visible()
+    RegisterPage(page).navigate()
+    expect(page).to_have_url(RegisterPage(page).base_url)
