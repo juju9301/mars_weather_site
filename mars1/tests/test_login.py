@@ -41,7 +41,7 @@ def test_error_message_if_incorrect_password(page: Page, login_page: LoginPage):
     expect(login_page.incorrect_credentials_error).to_have_text('Please enter a correct username and password. Note that both fields may be case-sensitive.')
 
 def test_successful_login(page: Page, login_page: LoginPage):
-    login_page.login()
+    login_page.login(login_page.success_user_login, login_page.success_user_password)
     expect(page).to_have_url(BASE_URL)
     expect(login_page.nav_greeting).to_be_visible()
     expect(login_page.nav_greeting).to_have_text(f'Hello, {login_page.success_user_login}')
