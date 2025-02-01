@@ -6,7 +6,7 @@
     <!-- Left side: Post form -->
     <div class="w-full md:w-1/2 pr-4 md:pr-4 md:pl-0 pl-4">
         <h1 class="text-3xl font-bold mb-4">Add Post</h1>
-        <form method="post" enctype="multipart/form-data">
+        <form method="post" enctype="multipart/form-data" data-testid="post-form">
             {% csrf_token %}
             
             <div class="mb-4">
@@ -90,6 +90,7 @@ document.getElementById('get-random-mars-picture').addEventListener('click', fun
                     const container = document.getElementById('random-mars-picture-container');
                     container.innerHTML = `<img src="${randomPhoto.img_src}" alt="Random Mars Picture" class="max-w-full max-h-64 object-contain mt-2">`;
                     const info = document.createElement('p');
+                    info.setAttribute('data-testid', 'mars-pic-info')
                     info.textContent = `Mars pic from sol ${sol} by ${rover} rover`;
                     container.appendChild(info);
                     const addToPostButton = document.getElementById('add-to-post');
@@ -113,7 +114,7 @@ document.getElementById('get-random-mars-picture').addEventListener('click', fun
         if (postContent) {
             const sol = document.querySelector('#random-mars-picture-container p').textContent.match(/sol (\d+)/)[1];
             const rover = document.querySelector('#random-mars-picture-container p').textContent.match(/by (\w+) rover/)[1];
-            postContent.value += `Mars pic from sol ${sol} by ${rover} rover.`;
+            postContent.value += `Mars pic from sol ${sol} by ${rover} rover`;
         } else {
             console.error('Post content textarea not found');
         }

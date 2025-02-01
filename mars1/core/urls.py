@@ -14,4 +14,5 @@ urlpatterns = [
     path('api/posts/delete', views.PostDeleteApiView.as_view(), name='post_delete'),
     path('api/comments/', views.CommentListCreateApiView.as_view(), name='comment_list_create'),
     path('api/comments/delete', views.CommentDeleteApiView.as_view(), name='comment_delete'),
+    path('api/users/delete', views.UserDeleteApiView.as_view(), name='user_delete'),
 ]
