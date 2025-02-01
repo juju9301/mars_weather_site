@@ -85,7 +85,7 @@ def test_mars_image_overrides_custome_image(page: Page, all_pages):
     login_page.login(login_page.success_user_login, login_page.success_user_password)
     add_post_page.navigate()
     add_post_page.create_post('', file_path=add_post_page.test_file_jpg, submit=False)
-    filename = add_post_page.test_file_jpg.split('\\')[-1]
+    filename = add_post_page.test_file_jpg.name
     expect(add_post_page.choose_image_input).to_have_value(fr'C:\fakepath\{filename}')
     # get mars image
     add_post_page.get_mars_picture_button.click()

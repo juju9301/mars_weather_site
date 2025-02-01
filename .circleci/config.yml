@@ -35,12 +35,12 @@ jobs:
             . venv/bin/activate
             cd mars1
             python manage.py create_test_user
-      - run:
-          name: Create test create_test_posts
-          command: |
-            . venv/bin/activate
-            cd mars1
-            python manage.py create_test_posts
+      # - run:
+      #     name: Create test create_test_posts
+      #     command: |
+      #       . venv/bin/activate
+      #       cd mars1
+      #       python manage.py create_test_posts
       - run:
           name: Start Django server
           command: |
