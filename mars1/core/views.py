@@ -162,4 +162,8 @@ class UserDeleteApiView(generics.DestroyAPIView):
         ids = list(users.values_list('id', flat=True))
         users.delete()
         return Response({'deleted': ids}, status=status.HTTP_204_NO_CONTENT)
+    
+class UserListApiView(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 

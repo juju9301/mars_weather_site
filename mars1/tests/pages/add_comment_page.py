@@ -27,6 +27,10 @@ class AddCommentPage(BasePage):
 
     def get_comment_page_path(self, post_id):
         return f'add_comment/{post_id}/'
+    
+    def get_comment_page_url(self, post_id):
+        return self.base_url + f'add_comment/{post_id}/'
+
 
 
 

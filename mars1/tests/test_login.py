@@ -36,27 +36,27 @@ def test_error_message_if_username_and_password_not_provided(page: Page):
     expect(page.get_by_text('This field is required.')).to_have_count(2)
 
 def test_error_message_if_incorrect_password(page: Page, login_page: LoginPage):
-    login_page.login(username=login_page.success_user_login, password='randomString123')
+    login_page.login(username=login_page.test_user_username, password='randomString123')
     expect(page).to_have_url(BASE_URL + 'login/')
     expect(login_page.incorrect_credentials_error).to_be_visible()
     expect(login_page.incorrect_credentials_error).to_have_text('Please enter a correct username and password. Note that both fields may be case-sensitive.')
 
 def test_successful_login(page: Page, login_page: LoginPage):
-    login_page.login(login_page.success_user_login, login_page.success_user_password)
+    login_page.login(login_page.test_user_username, login_page.test_user_password)
     expect(page).to_have_url(BASE_URL)
     expect(login_page.nav_greeting).to_be_visible()
-    expect(login_page.nav_greeting).to_have_text(f'Hello, {login_page.success_user_login}')
+    expect(login_page.nav_greeting).to_have_text(f'Hello, {login_page.test_user_username}')
     expect(login_page.nav_logout_button).to_be_visible()
     expect(login_page.nav_login_button).not_to_be_visible()
 
 def test_user_redirected_from_login_page_if_authenticated(page: Page, login_page: LoginPage):
-    login_page.login(login_page.success_user_login, login_page.success_user_password)
+    login_page.login(login_page.test_user_username, login_page.test_user_password)
     expect(login_page.nav_greeting).to_be_visible()
     login_page.navigate()
     expect(page).to_have_url(login_page.base_url)
 
 def test_user_redirected_from_register_page_if_authenticated(page: Page, login_page: LoginPage):
-    login_page.login(login_page.success_user_login, login_page.success_user_password)
+    login_page.login(login_page.test_user_username, login_page.test_user_password)
     expect(login_page.nav_greeting).to_be_visible()
     RegisterPage(page).navigate()
     expect(page).to_have_url(RegisterPage(page).base_url)

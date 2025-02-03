@@ -35,7 +35,7 @@ def test_login_and_add_post(page: Page, all_pages):
     expect(home_page.post).to_have_count(0)
     home_page.nav_login_button.click()
     expect(page).to_have_url(login_page.url)
-    login_page.login(login_page.success_user_login, login_page.success_user_password)
+    login_page.login(login_page.test_user_username, login_page.test_user_password)
     expect(page).to_have_url(home_page.url)
     home_page.add_post_button.click()
     expect(page).to_have_url(add_post_page.url)
@@ -48,7 +48,7 @@ def test_login_and_add_post(page: Page, all_pages):
 def test_post_with_custom_picture(page: Page, all_pages):
     login_page, home_page, add_post_page = all_pages
     login_page.navigate()
-    login_page.login(login_page.success_user_login, login_page.success_user_password)
+    login_page.login(login_page.test_user_username, login_page.test_user_password)
     home_page.add_post_button.click()
     text = fake.text()
     add_post_page.create_post(text, add_post_page.test_file_jpg)
@@ -61,7 +61,7 @@ def test_post_with_custom_picture(page: Page, all_pages):
 def test_post_with_fetched_image(page: Page, all_pages):
     login_page, home_page, add_post_page = all_pages
     login_page.navigate()
-    login_page.login(login_page.success_user_login, login_page.success_user_password)
+    login_page.login(login_page.test_user_username, login_page.test_user_password)
     home_page.add_post_button.click()
     add_post_page.get_mars_picture_button.click()
     expect(add_post_page.mars_picture).to_be_visible()
@@ -76,13 +76,13 @@ def test_post_with_fetched_image(page: Page, all_pages):
     expect(home_page.post).to_have_count(1)
     expect(home_page.post_content).to_have_text(mars_info)
     expect(home_page.post_image).to_be_visible()
-    expect(home_page.post_author).to_contain_text(f'Posted by {home_page.success_user_login}')
+    expect(home_page.post_author).to_contain_text(f'Posted by {home_page.test_user_username}')
     check_timestamp(home_page.post_author.text_content())
 
 def test_mars_image_overrides_custome_image(page: Page, all_pages):
     login_page, home_page, add_post_page = all_pages
     login_page.navigate()
-    login_page.login(login_page.success_user_login, login_page.success_user_password)
+    login_page.login(login_page.test_user_username, login_page.test_user_password)
     add_post_page.navigate()
     add_post_page.create_post('', file_path=add_post_page.test_file_jpg, submit=False)
     filename = add_post_page.test_file_jpg.name
@@ -107,7 +107,7 @@ def test_mars_image_overrides_custome_image(page: Page, all_pages):
 def test_mars_info_gets_appended(page: Page, all_pages):
     login_page, home_page, add_post_page = all_pages
     login_page.navigate()
-    login_page.login(login_page.success_user_login, login_page.success_user_password)
+    login_page.login(login_page.test_user_username, login_page.test_user_password)
     add_post_page.navigate()
     #  fill content text
     text = fake.text()

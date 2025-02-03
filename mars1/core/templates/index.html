@@ -26,8 +26,8 @@
                             <h3 class="text-xl font-bold mb-2">Comments</h3>
                             {% for comment in post.comments.all %}
                                 <div class="bg-gray-100 p-2 rounded mb-2" data-testid="comment">
-                                    <p class="text-gray-700" data-testid="comment-author"><strong>{{ comment.author.username }}</strong> on {{ comment.created_at }}</p>
-                                    <p class="text-gray-700" data-testid="comment-content">{{ comment.content|linebreaks }}</p>
+                                    <p class="text-gray-700" data-testid="comment-author-date"><strong>{{ comment.author.username }}</strong> on {{ comment.created_at }}</p>
+                                    <p class="text-gray-700" data-testid="comment-content">{{ comment.content}}</p>
                                 </div>
                             {% endfor %}
                             {% if user.is_authenticated %}
