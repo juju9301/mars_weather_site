@@ -1,8 +1,8 @@
 import requests
 from .constants import * 
 from faker import Faker
-from PIL import Image
 import os
+import re
 
 fake = Faker()
 
@@ -10,13 +10,13 @@ def get_test_user_id():
     resp = requests.get(url=API_GET_USERS_URL)
     return resp.json()[0]['id']
 
-def api_create_post(image=False):
+def api_create_post(image=False, many=False):
     """Create a test post with optional image and return its ID"""
     data = {
         'author': get_test_user_id(),
         'content': fake.text()
     }
-    
+
     if image:
         # Open the image file and prepare it for upload
         with open(TEST_FILES['jpg'], 'rb') as f:
@@ -31,4 +31,9 @@ def api_create_post(image=False):
     return resp.json()["id"]
 
 def api_delete_posts():
-    requests.delete(url=API_POST_DELETE_URL)
+    resp = requests.delete(url=API_POST_DELETE_URL)
+    assert resp.status_code == 204
+
+def check_timestamp(text):
+        timestamp_regex = r'on \w{3}\. \d{1,2}, \d{4}, \d{1,2}:\d{2} [ap]\.m\.'
+        assert re.search(timestamp_regex, text)
