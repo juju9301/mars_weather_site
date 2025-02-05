@@ -138,15 +138,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const apodContent = document.getElementById('apod-content');
             if (data.media_type === 'image') {
                 apodContent.innerHTML = `
-                    <img src="${data.url}" alt="${data.title}" class="max-w-full max-h-64 object-contain mb-4">
-                    <p class="font-bold">${data.title}</p>
-                    <p>${data.explanation}</p>
+                    <img src="${data.url}" alt="${data.title}" class="max-w-full max-h-64 object-contain mb-4" data-testid="apod-media">
+                    <p class="font-bold" data-testid="apod-text-title">${data.title}</p>
+                    <p data-testid="apod-text">${data.explanation}</p>
                 `;
             } else if (data.media_type === 'video') {
                 apodContent.innerHTML = `
-                    <iframe src="${data.url}" frameborder="0" allowfullscreen class="w-full max-h-64 mb-4"></iframe>
-                    <p class="font-bold">${data.title}</p>
-                    <p>${data.explanation}</p>
+                    <iframe src="${data.url}" frameborder="0" allowfullscreen class="w-full max-h-64 mb-4" data-testid="apod-media"></iframe>
+                    <p class="font-bold" data-testid="apod-text-title">${data.title}</p>
+                    <p data-testid="apod-text">${data.explanation}</p>
                 `;
             }
         })
