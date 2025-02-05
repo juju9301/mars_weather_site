@@ -48,7 +48,7 @@ def logout_view(request):
 
 def index(request):
     posts_list = Post.objects.all().order_by('-created_at')
-    paginator = Paginator(posts_list, 3)  # Show 10 posts per page
+    paginator = Paginator(posts_list, 5)  # Show 5 posts per page
 
     page_number = request.GET.get('page')
     posts = paginator.get_page(page_number)
@@ -162,4 +162,8 @@ class UserDeleteApiView(generics.DestroyAPIView):
         ids = list(users.values_list('id', flat=True))
         users.delete()
         return Response({'deleted': ids}, status=status.HTTP_204_NO_CONTENT)
+    
+class UserListApiView(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 

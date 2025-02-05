@@ -7,7 +7,8 @@ import pytest
 def home_page(page: Page):
     home_page = HomePage(page)
     home_page.navigate()
-    return home_page
+
+    yield home_page
 
 
 
@@ -29,3 +30,8 @@ def test_logout_user_cant_create_posts_and_comments(home_page: HomePage, page: P
     post_count = page.get_by_test_id('post').count()
     expect(home_page.login_to_add_comment).to_have_count(post_count)
 
+def test_nasa_pic_section_is_displayed(home_page: HomePage):
+    expect(home_page.apod_content).to_be_visible()
+    expect(home_page.apod_media).to_be_visible()
+    expect(home_page.apod_text_title).to_be_visible()
+    expect(home_page.apod_text).to_be_visible()

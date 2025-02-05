@@ -1,43 +1,44 @@
-from playwright.sync_api import Page, expect, sync_playwright
-import playwright
+from playwright.sync_api import Page, expect
 import pytest
 from faker import Faker
 from .pages.add_post_page import AddPostPage
 from .pages.login_page import LoginPage
 from .pages.home_page import HomePage
-import requests
-import re
+from .utils.helpers import check_timestamp, api_delete_posts
 # from core.models import Post
 
 fake = Faker()
 
 @pytest.fixture
-def all_pages(page: Page):
-    # initialize 3 pages required for test
+def setup(page: Page):
+
+    # Initialize 3 pages required for test
     login_page = LoginPage(page)
     home_page = HomePage(page)
     add_post_page = AddPostPage(page)
-    yield login_page, home_page, add_post_page 
-    
-    # delete all posts after each test 
-    url = home_page.base_url + 'api/posts/delete'
-    resp = requests.delete(url=url)
-    assert resp.status_code == 204
 
-def check_timestamp(text):
-        timestamp_regex = r'on \w{3}\. \d{1,2}, \d{4}, \d{1,2}:\d{2} [ap]\.m\.'
-        assert re.search(timestamp_regex, text)
-
-# @pytest.mark.e2e
-def test_login_and_add_post(page: Page, all_pages):
-    login_page, home_page, add_post_page = all_pages
+    # Navigate to home page
     page.goto(home_page.base_url)
     expect(home_page.post).to_have_count(0)
     home_page.nav_login_button.click()
     expect(page).to_have_url(login_page.url)
-    login_page.login(login_page.success_user_login, login_page.success_user_password)
+
+    # Login
+    login_page.login(login_page.test_user_username, login_page.test_user_password)
     expect(page).to_have_url(home_page.url)
+
+    # Navigate to add post page
     home_page.add_post_button.click()
+    expect(page).to_have_url(add_post_page.url)
+
+    yield home_page, add_post_page 
+    
+    #Delete all posts
+    api_delete_posts()
+
+def test_login_and_add_post(page: Page, setup):
+    home_page, add_post_page = setup
+
     expect(page).to_have_url(add_post_page.url)
     content = fake.text()
     add_post_page.create_post(content=content)
@@ -45,11 +46,9 @@ def test_login_and_add_post(page: Page, all_pages):
     expect(home_page.post).to_have_count(1)
     expect(home_page.post_content).to_have_text(content)
 
-def test_post_with_custom_picture(page: Page, all_pages):
-    login_page, home_page, add_post_page = all_pages
-    login_page.navigate()
-    login_page.login(login_page.success_user_login, login_page.success_user_password)
-    home_page.add_post_button.click()
+def test_post_with_custom_picture(page: Page, setup):
+    home_page, add_post_page = setup
+
     text = fake.text()
     add_post_page.create_post(text, add_post_page.test_file_jpg)
     expect(page).to_have_url(home_page.url)
@@ -58,11 +57,9 @@ def test_post_with_custom_picture(page: Page, all_pages):
     expect(home_page.post_image).to_be_visible()
 
 
-def test_post_with_fetched_image(page: Page, all_pages):
-    login_page, home_page, add_post_page = all_pages
-    login_page.navigate()
-    login_page.login(login_page.success_user_login, login_page.success_user_password)
-    home_page.add_post_button.click()
+def test_post_with_fetched_image(page: Page, setup):
+    home_page, add_post_page = setup
+    
     add_post_page.get_mars_picture_button.click()
     expect(add_post_page.mars_picture).to_be_visible()
     expect(add_post_page.mars_picture_info).to_be_visible()
@@ -76,14 +73,12 @@ def test_post_with_fetched_image(page: Page, all_pages):
     expect(home_page.post).to_have_count(1)
     expect(home_page.post_content).to_have_text(mars_info)
     expect(home_page.post_image).to_be_visible()
-    expect(home_page.post_author).to_contain_text(f'Posted by {home_page.success_user_login}')
+    expect(home_page.post_author).to_contain_text(f'Posted by {home_page.test_user_username}')
     check_timestamp(home_page.post_author.text_content())
 
-def test_mars_image_overrides_custome_image(page: Page, all_pages):
-    login_page, home_page, add_post_page = all_pages
-    login_page.navigate()
-    login_page.login(login_page.success_user_login, login_page.success_user_password)
-    add_post_page.navigate()
+def test_mars_image_overrides_custome_image(page: Page, setup):
+    home_page, add_post_page = setup
+
     add_post_page.create_post('', file_path=add_post_page.test_file_jpg, submit=False)
     filename = add_post_page.test_file_jpg.name
     expect(add_post_page.choose_image_input).to_have_value(fr'C:\fakepath\{filename}')
@@ -98,21 +93,22 @@ def test_mars_image_overrides_custome_image(page: Page, all_pages):
     expect(add_post_page.content_field).to_have_value(mars_info)
     expect(add_post_page.choose_image_input).to_be_hidden()
     expect(add_post_page.mars_image_url).to_have_text(mars_pic_url)
-    # submit post and verify that mars picture and content was posted
+
+    # Submit post and verify that mars picture and content was posted
     add_post_page.submit_button.click()
     expect(home_page.post).to_have_count(1)
     expect(home_page.post_content).to_have_text(mars_info)
     expect(home_page.post_image).to_be_visible()
 
-def test_mars_info_gets_appended(page: Page, all_pages):
-    login_page, home_page, add_post_page = all_pages
-    login_page.navigate()
-    login_page.login(login_page.success_user_login, login_page.success_user_password)
-    add_post_page.navigate()
-    #  fill content text
+def test_mars_info_gets_appended(page: Page, setup):
+    home_page, add_post_page = setup
+
+    # Fill content text
     text = fake.text()
     add_post_page.create_post(text, submit=False)
-    #  get random mars pic add add it to post
+
+    # Get random mars pic add add it to post
+    # For later - need to handle case if image can't be fetched or fetched image can't be displayed
     add_post_page.get_mars_picture_button.click()
     add_post_page.add_to_post_button.click()
     mars_info = add_post_page.mars_picture_info.text_content()
