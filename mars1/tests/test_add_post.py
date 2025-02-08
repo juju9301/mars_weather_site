@@ -117,6 +117,75 @@ def test_mars_info_gets_appended(page: Page, setup):
     expect(home_page.post).to_have_count(1)
     expect(home_page.post_content).to_have_text(text + mars_info)
 
+def test_after_page_refresh_form_content_not_preserved(page: Page, setup):
+    home_page, add_post_page = setup
+
+    # Fill form content, select image
+    content = fake.text()
+    image = add_post_page.test_file_png
+    add_post_page.create_post(content=content, file_path=image, submit=False)
+
+    # Reload page and check that form is empty
+    page.reload()
+    expect(add_post_page.content_field).to_be_empty()
+    expect(add_post_page.choose_image_input).not_to_have_value(fr'C:\fakepath\{image.name}')
+
+def test_after_page_refresh_with_custome_image_new_data_is_submitted(page: Page, setup):
+    home_page, add_post_page = setup
+
+    # Fill the form with custom image 
+    content = fake.text()
+    image = add_post_page.test_file_jpg
+    add_post_page.create_post(content=content, file_path=image, submit=False)
+
+    # Reload the page and fill form again with custom image, submit
+    new_content = fake.text()
+    new_image = add_post_page.test_file_png
+    add_post_page.create_post(content=new_content, file_path=new_image)
+
+    # Check that the post posted contains new data
+    expect(home_page.post_content).to_have_text(new_content)
+    image_src = home_page.post_image.get_attribute('src')
+    assert new_image.stem in image_src
+
+def test_after_page_refresh_mars_image_replaced_with_custom(page: Page, setup):
+    home_page, add_post_page = setup
+
+    # Fill the form with mars image
+    add_post_page.get_mars_picture_button.click()
+    add_post_page.add_to_post_button.click()
+    expect(add_post_page.mars_picture).to_be_visible()
+    expect(add_post_page.mars_image_url).to_be_visible()
+
+    # Refresh the page and fill with custom data, submit
+    page.reload()
+    content = fake.text()
+    image = add_post_page.test_file_jpg
+    add_post_page.create_post(content=content, file_path=image)
+
+    # Check that post created with latest data
+    expect(home_page.post_content).to_have_text(content)
+    image_src = home_page.post_image.get_attribute('src')
+    assert image.stem in image_src
+
+pytest.mark.xfail
+def test_after_adding_mars_image_to_post_on_return_image_is_preserved(page: Page, setup):
+    home_page, add_post_page = setup
+
+    # Get Mars image and add to post
+    add_post_page.get_mars_picture_button.click()
+    add_post_page.add_to_post_button.click()
+    expect(add_post_page.content_field).to_have_value(add_post_page.mars_picture_info)
+    expect(add_post_page.mars_image_url).to_be_visible()
+
+    # Go back and forth and checkif data is preserved
+    page.go_back()
+    page.go_forward()
+    info = add_post_page.mars_picture_info.text_content()
+    expect(add_post_page.content_field).to_have_value(info)
+    expect(add_post_page.mars_image_url).to_be_visible()
+
+
      
 
 
