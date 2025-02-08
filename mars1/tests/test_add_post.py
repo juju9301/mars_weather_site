@@ -168,20 +168,20 @@ def test_after_page_refresh_mars_image_replaced_with_custom(page: Page, setup):
     image_src = home_page.post_image.get_attribute('src')
     assert image.stem in image_src
 
-pytest.mark.xfail
+@pytest.mark.xfail
 def test_after_adding_mars_image_to_post_on_return_image_is_preserved(page: Page, setup):
     home_page, add_post_page = setup
 
     # Get Mars image and add to post
     add_post_page.get_mars_picture_button.click()
     add_post_page.add_to_post_button.click()
-    expect(add_post_page.content_field).to_have_value(add_post_page.mars_picture_info)
+    info = add_post_page.mars_picture_info.text_content()
+    expect(add_post_page.content_field).to_have_value(info)
     expect(add_post_page.mars_image_url).to_be_visible()
 
     # Go back and forth and checkif data is preserved
     page.go_back()
     page.go_forward()
-    info = add_post_page.mars_picture_info.text_content()
     expect(add_post_page.content_field).to_have_value(info)
     expect(add_post_page.mars_image_url).to_be_visible()
 
