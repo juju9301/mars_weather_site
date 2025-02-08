@@ -168,7 +168,7 @@ def test_after_page_refresh_mars_image_replaced_with_custom(page: Page, setup):
     image_src = home_page.post_image.get_attribute('src')
     assert image.stem in image_src
 
-@pytest.mark.xfail
+@pytest.mark.xfail(reason='known issue with image url preservation')
 def test_after_adding_mars_image_to_post_on_return_image_is_preserved(page: Page, setup):
     home_page, add_post_page = setup
 
@@ -183,7 +183,22 @@ def test_after_adding_mars_image_to_post_on_return_image_is_preserved(page: Page
     page.go_back()
     page.go_forward()
     expect(add_post_page.content_field).to_have_value(info)
-    expect(add_post_page.mars_image_url).to_be_visible()
+    expect(add_post_page.mars_image_url).to_be_visible() #This line causes test to fail, element is hidden
+
+def test_after_filling_post_form_with_custom_image_data_is_preserved(page: Page, setup):
+    home_page, add_post_page = setup
+
+    # Fill post form
+    content = fake.text()
+    image = add_post_page.test_file_jpg
+    add_post_page.create_post(content=content, file_path=image, submit=False)
+
+    # Check that after going back and forth the form data is preserved
+    page.go_back()
+    page.go_forward()
+    expect(add_post_page.content_field).to_have_value(content)
+    expect(add_post_page.choose_image_input).to_have_value((fr'C:\fakepath\{image.name}'))
+
 
 
      
