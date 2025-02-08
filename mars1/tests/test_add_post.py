@@ -82,9 +82,11 @@ def test_mars_image_overrides_custome_image(page: Page, setup):
     add_post_page.create_post('', file_path=add_post_page.test_file_jpg, submit=False)
     filename = add_post_page.test_file_jpg.name
     expect(add_post_page.choose_image_input).to_have_value(fr'C:\fakepath\{filename}')
+
     # get mars image
     add_post_page.get_mars_picture_button.click()
     expect(add_post_page.mars_picture).to_be_visible()
+
     # add mars image to post and verify that image is overriden and content added
     mars_info = add_post_page.mars_picture_info.text_content()
     mars_pic_url = add_post_page.mars_picture.get_attribute('src')
@@ -169,7 +171,7 @@ def test_after_page_refresh_mars_image_replaced_with_custom(page: Page, setup):
     assert image.stem in image_src
 
 @pytest.mark.xfail(reason='known issue with image url preservation')
-def test_after_adding_mars_image_to_post_on_return_image_is_preserved(page: Page, setup):
+def test_mars_image_data_is_preserved_after_going_back_to_homepage(page: Page, setup):
     home_page, add_post_page = setup
 
     # Get Mars image and add to post
@@ -185,7 +187,12 @@ def test_after_adding_mars_image_to_post_on_return_image_is_preserved(page: Page
     expect(add_post_page.content_field).to_have_value(info)
     expect(add_post_page.mars_image_url).to_be_visible() #This line causes test to fail, element is hidden
 
-def test_after_filling_post_form_with_custom_image_data_is_preserved(page: Page, setup):
+    # Submit post
+    add_post_page.submit_button.click()
+    expect(home_page.post_content).to_have_text(info)
+    expect(home_page.post_image).to_be_visible()
+
+def test_custom_image_data_is_preserved_after_going_back_to_homepage(page: Page, setup):
     home_page, add_post_page = setup
 
     # Fill post form
@@ -199,9 +206,12 @@ def test_after_filling_post_form_with_custom_image_data_is_preserved(page: Page,
     expect(add_post_page.content_field).to_have_value(content)
     expect(add_post_page.choose_image_input).to_have_value((fr'C:\fakepath\{image.name}'))
 
+    # Submit post and check the post result
+    add_post_page.submit_button.click()
+    expect(home_page.post_content).to_have_text(content)
+    expect(home_page.post_image).to_be_visible()
 
 
-     
 
 
 
