@@ -53,4 +53,16 @@ def test_add_comment(page: Page, setup):
     expect(home_page.comment_author_date).to_be_visible()
     expect(home_page.comment_content).to_have_text(comment_text)
 
+def test_comment_message_is_preserved_after_going_back_to_home_page(page: Page, setup):
+    post_id, home_page, add_comment_page = setup
+
+    # Go to add comment page and fill comment form
+    home_page.add_comment_button.click()
+    content = fake.text()
+    add_comment_page.comment_form_content.fill(content)
+
+    # Go back to homepage and forward to the comment form
+    page.go_back()
+    page.go_forward()
+    expect(add_comment_page.comment_form_content).to_have_value(content)
 
