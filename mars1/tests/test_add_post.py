@@ -60,7 +60,7 @@ def test_post_with_custom_picture(page: Page, setup):
 def test_post_with_fetched_image(page: Page, setup):
     home_page, add_post_page = setup
     
-    add_post_page.get_mars_picture_button.click()
+    add_post_page.fetch_mars_image()
     expect(add_post_page.mars_picture).to_be_visible()
     expect(add_post_page.mars_picture_info).to_be_visible()
     mars_info = add_post_page.mars_picture_info.text_content()
@@ -84,7 +84,7 @@ def test_mars_image_overrides_custome_image(page: Page, setup):
     expect(add_post_page.choose_image_input).to_have_value(fr'C:\fakepath\{filename}')
 
     # get mars image
-    add_post_page.get_mars_picture_button.click()
+    add_post_page.fetch_mars_image()
     expect(add_post_page.mars_picture).to_be_visible()
 
     # add mars image to post and verify that image is overriden and content added
@@ -111,7 +111,7 @@ def test_mars_info_gets_appended(page: Page, setup):
 
     # Get random mars pic add add it to post
     # For later - need to handle case if image can't be fetched or fetched image can't be displayed
-    add_post_page.get_mars_picture_button.click()
+    add_post_page.fetch_mars_image()
     add_post_page.add_to_post_button.click()
     mars_info = add_post_page.mars_picture_info.text_content()
     expect(add_post_page.content_field).to_have_value(text + mars_info)
@@ -154,7 +154,7 @@ def test_after_page_refresh_mars_image_replaced_with_custom(page: Page, setup):
     home_page, add_post_page = setup
 
     # Fill the form with mars image
-    add_post_page.get_mars_picture_button.click()
+    add_post_page.fetch_mars_image()
     add_post_page.add_to_post_button.click()
     expect(add_post_page.mars_picture).to_be_visible()
     expect(add_post_page.mars_image_url).to_be_visible()
@@ -175,7 +175,7 @@ def test_mars_image_data_is_preserved_after_going_back_to_homepage(page: Page, s
     home_page, add_post_page = setup
 
     # Get Mars image and add to post
-    add_post_page.get_mars_picture_button.click()
+    add_post_page.fetch_mars_image()
     add_post_page.add_to_post_button.click()
     info = add_post_page.mars_picture_info.text_content()
     expect(add_post_page.content_field).to_have_value(info)
@@ -210,7 +210,6 @@ def test_custom_image_data_is_preserved_after_going_back_to_homepage(page: Page,
     add_post_page.submit_button.click()
     expect(home_page.post_content).to_have_text(content)
     expect(home_page.post_image).to_be_visible()
-
 
 
 

@@ -70,8 +70,10 @@ def test_error_messages_disappear_on_page_refresh(page: Page, login_page: LoginP
     expect(login_page.incorrect_credentials_error).not_to_be_visible()
 
 def test_user_can_login_using_only_keyboard(page: Page, login_page: LoginPage):
+    expect(login_page.username_input).to_be_focused()
     page.keyboard.type(text=login_page.test_user_username)
     page.keyboard.press(key='Tab')
+    expect(login_page.password_input).to_be_focused()
     page.keyboard.type(text=login_page.test_user_password)
     page.keyboard.press(key='Tab')
     page.keyboard.press(key='Enter')

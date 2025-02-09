@@ -41,45 +41,19 @@ class AddPostPage(BasePage):
 
         # yield file_path
 
-    def fetch_mars_image(self, add_to_post: bool = True):
-        max_attempts = 10
+    def fetch_mars_image(self):
+        max_attempts = 5
         current_attempt = 0
-        
+
+        self.page.on('dialog', lambda dialog: dialog.accept())
+
         while current_attempt < max_attempts:
-            # Set up dialog handler for each attempt
-            dialog_appeared = False
-            
-            def handle_dialog(dialog):
-                nonlocal dialog_appeared
-                dialog_appeared = True
-                dialog.accept()
-                
-            self.page.on('dialog', handle_dialog)
-            
             try:
-                self.rover_selector.select_option('spirit')
                 self.get_mars_picture_button.click()
-                
-                # Wait a bit to see if dialog appears
-                self.page.wait_for_timeout(1000)
-                
-                # If dialog appeared, click the button again
-                if dialog_appeared:
-                    self.page.wait_for_timeout(500)  # Give time for dialog to close
-                    self.get_mars_picture_button.click()
-                    
-                # Wait for the image to appear
-                self.mars_picture.wait_for(state='visible')
-                
-                if add_to_post:
-                    self.add_to_post_button.click()
-                return True
-                
-            except TimeoutError:
+                expect(self.mars_picture).to_be_visible()
+                print(f'Found image on {current_attempt} attempt')
+                break
+            except AssertionError:               
                 current_attempt += 1
                 if current_attempt == max_attempts:
-                    raise Exception('Failed to fetch Mars image after multiple attempts')
-                continue
-            finally:
-                # Remove the dialog listener
-                self.page.remove_listener('dialog', handle_dialog)
+                    raise TimeoutError(f'Failed to fetch mars image after {current_attempt} attempts')
