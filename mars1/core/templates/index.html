@@ -132,10 +132,17 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const apiKey = '{{ nasa_api_key }}';
+    const apodSection = document.getElementById('apod');
+    const apodContent = document.getElementById('apod-content');
+
     fetch(`https://api.nasa.gov/planetary/apod?api_key=${apiKey}`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
-            const apodContent = document.getElementById('apod-content');
             if (data.media_type === 'image') {
                 apodContent.innerHTML = `
                     <img src="${data.url}" alt="${data.title}" class="max-w-full max-h-64 object-contain mb-4" data-testid="apod-media">
@@ -150,7 +157,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
             }
         })
-        .catch(error => console.error('Error fetching NASA APOD:', error));
+        .catch(error => {
+            console.error('Error fetching NASA APOD:', error);
+            apodSection.style.display = 'none';  // Hide the section if the API call fails
+        });
 });
 </script>
 {% endblock content %}

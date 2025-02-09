@@ -43,11 +43,11 @@ class AddPostPage(BasePage):
 
     def fetch_mars_image(self):
         max_attempts = 5
-        current_attempt = 0
+        current_attempt = 1
 
         self.page.on('dialog', lambda dialog: dialog.accept())
 
-        while current_attempt < max_attempts:
+        while current_attempt <= max_attempts:
             try:
                 self.get_mars_picture_button.click()
                 expect(self.mars_picture).to_be_visible()
