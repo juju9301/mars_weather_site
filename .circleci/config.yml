@@ -44,7 +44,7 @@ jobs:
       - run:
           name: Populate Weather table
           command: |
-            .venv/bin/activate
+            . venv/bin/activate
             cd mars1
             python manage.py loaddata weather/fixtures/test_weather_fixture.json
       - run:
