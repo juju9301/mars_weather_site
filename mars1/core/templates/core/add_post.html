@@ -36,6 +36,16 @@
                 {% endif %}
             </div>
             
+            <div class="mb-4">
+                <label for="{{ form.background_color.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Post Background Color</label>
+                {{ form.background_color }}
+            </div>
+            
+            <div class="mb-4">
+                <label for="{{ form.font_color.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Post Font Color</label>
+                {{ form.font_color }}
+            </div>
+            
             <input type="hidden" id="random_mars_image_url" name="random_mars_image_url">
             <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded">Submit</button>
         </form>
