@@ -211,6 +211,27 @@ def test_custom_image_data_is_preserved_after_going_back_to_homepage(page: Page,
     expect(home_page.post_content).to_have_text(content)
     expect(home_page.post_image).to_be_visible()
 
+def test_submit_resulted_in_500(page: Page, setup):
+    home_page, add_post_page = setup
+    page.route('**/add_post/', lambda route: route.fulfill(
+    status=500, content_type='text/html', body='''
+<!doctype html>
+<html lang="en">
+<head>
+  <title>500 Internal Server Error</title>
+</head>
+<body>
+  <h1>Internal Server Error</h1>
+</body>
+''' if route.request.method == 'POST' else route.continue_()
+    ))
+    # Fill post content and submit
+    content = fake.text()
+    add_post_page.content_field.fill(content)
+    add_post_page.submit_button.click()
+    expect(page).to_have_url(add_post_page.url)
+    expect(add_post_page.content_field).not_to_be_visible()
+    expect(page.get_by_text('Internal Server Error')).to_be_visible()
 
 
 
