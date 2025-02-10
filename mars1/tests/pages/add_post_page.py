@@ -15,6 +15,10 @@ class AddPostPage(BasePage):
         self.content_field = page.get_by_role('textbox', name='content')
         self.choose_image_input = page.locator('input[type="file"]')
         self.submit_button = page.get_by_role('button', name='Submit')
+        self.bg_color_input = page.locator('#id_background_color')
+        self.font_color_input = page.locator('#id_font_color')
+
+        self.form_error = page.get_by_text('You must provide either content or an image.')
 
         # Random Mars image section locators
         self.get_mars_picture_button = page.get_by_role('button', name='Get Random Mars Picture')
