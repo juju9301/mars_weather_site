@@ -14,10 +14,10 @@
             {% endif %}
             <div class="mt-4">
                 {% for post in posts %}
-                    <div class="bg-white shadow rounded-lg p-4 mb-4" data-testid="post">
-                        <p class="text-gray-700" data-testid="post-author"><strong>Posted by {{ post.author.username }}</strong> on {{ post.created_at }}</p>
+                    <div class="bg-white shadow rounded-lg p-4 mb-4" data-testid="post" style="background-color: {{ post.background_color }};">
+                        <p class="text-gray-700" data-testid="post-author" style="color: {{ form.post_color }};"><strong>Posted by {{ post.author.username }}</strong> on {{ post.created_at }}</p>
                         {% if post.content %}
-                            <p class="text-gray-700" data-testid="post-content">{{ post.content}}</p>
+                            <p class="text-gray-700" data-testid="post-content" style="color: {{ post.font_color }};">{{ post.content }}</p>
                         {% endif %}
                         {% if post.image %}
                             <img data-testid="post-image" src="{{ post.image.url }}" alt="Post Image" class="mt-2 max-w-full max-h-64 object-contain">
@@ -27,7 +27,7 @@
                             {% for comment in post.comments.all %}
                                 <div class="bg-gray-100 p-2 rounded mb-2" data-testid="comment">
                                     <p class="text-gray-700" data-testid="comment-author-date"><strong>{{ comment.author.username }}</strong> on {{ comment.created_at }}</p>
-                                    <p class="text-gray-700" data-testid="comment-content">{{ comment.content}}</p>
+                                    <p class="text-gray-700" data-testid="comment-content">{{ comment.content }}</p>
                                 </div>
                             {% endfor %}
                             {% if user.is_authenticated %}
@@ -132,10 +132,17 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const apiKey = '{{ nasa_api_key }}';
+    const apodSection = document.getElementById('apod');
+    const apodContent = document.getElementById('apod-content');
+
     fetch(`https://api.nasa.gov/planetary/apod?api_key=${apiKey}`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
-            const apodContent = document.getElementById('apod-content');
             if (data.media_type === 'image') {
                 apodContent.innerHTML = `
                     <img src="${data.url}" alt="${data.title}" class="max-w-full max-h-64 object-contain mb-4" data-testid="apod-media">
@@ -150,7 +157,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
             }
         })
-        .catch(error => console.error('Error fetching NASA APOD:', error));
+        .catch(error => {
+            console.error('Error fetching NASA APOD:', error);
+            apodSection.style.display = 'none';  // Hide the section if the API call fails
+        });
 });
 </script>
 {% endblock content %}

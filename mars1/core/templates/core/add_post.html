@@ -8,14 +8,16 @@
         <h1 class="text-3xl font-bold mb-4">Add Post</h1>
         <form method="post" enctype="multipart/form-data" data-testid="post-form">
             {% csrf_token %}
-            
-            <div class="mb-4">
+            {% if form.errors %}
+            <div class="text-red-500 text-xs italic">{{ form.non_field_errors }}</div>
+            {% endif %}
+            {% comment %} <div class="mb-4">
                 <label for="{{ form.title.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ form.title.label }}</label>
                 {{ form.title }}
                 {% if form.title.errors %}
                     <div class="text-red-500 text-xs italic">{{ form.title.errors }}</div>
                 {% endif %}
-            </div>
+            </div> {% endcomment %}
             
             <div class="mb-4">
                 <label for="{{ form.content.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ form.content.label }}</label>
@@ -34,6 +36,16 @@
                 {% if form.image.errors %}
                     <div class="text-red-500 text-xs italic">{{ form.image.errors }}</div>
                 {% endif %}
+            </div>
+            
+            <div class="mb-4">
+                <label for="{{ form.background_color.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Post Background Color</label>
+                {{ form.background_color }}
+            </div>
+            
+            <div class="mb-4">
+                <label for="{{ form.font_color.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Post Font Color</label>
+                {{ form.font_color }}
             </div>
             
             <input type="hidden" id="random_mars_image_url" name="random_mars_image_url">

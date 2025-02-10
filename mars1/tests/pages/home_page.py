@@ -31,10 +31,15 @@ class HomePage(BasePage):
         self.pag_previous = page.get_by_role('link', name='Previous')
 
         # NASA's picture of the day 
+        self.apod_section = page.locator('#apod')
+        self.apod_title = page.get_by_text('NASA\'s Space Picture of the Day')
         self.apod_content = page.locator('#apod-content')
         self.apod_text_title = page.get_by_test_id('apod-text-title')
         self.apod_text = page.get_by_test_id('apod-text')
         self.apod_media = page.get_by_test_id('apod-media')
+
+        # Most recent sol weather section locators
+        self.recent_sol_title = page.get_by_text('Most Recent Sol Weather')
 
     def navigate(self):
         self.page.goto(self.base_url)

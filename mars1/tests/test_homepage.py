@@ -35,3 +35,40 @@ def test_nasa_pic_section_is_displayed(home_page: HomePage):
     expect(home_page.apod_media).to_be_visible()
     expect(home_page.apod_text_title).to_be_visible()
     expect(home_page.apod_text).to_be_visible()
+
+def test_apod_section_hidden_if_nasa_pic_request_resulted_in_404(page: Page):
+    home_page = HomePage(page)
+    page.route('https://api.nasa.gov/planetary/*', lambda route: route.fulfill(
+        status=404,
+        content_type='text/plain',
+        body='Not Found'
+    ))
+    home_page.navigate()
+    expect(home_page.apod_section).not_to_be_visible()
+    expect(home_page.apod_title).not_to_be_visible()
+    expect(home_page.apod_content).not_to_be_visible()
+    expect(home_page.recent_sol_title).to_be_visible()
+
+def test_apod_section_hidden_if_nasa_pic_request_resulted_in_500(page: Page):
+    home_page = HomePage(page)
+    page.route('https://api.nasa.gov/planetary/*', lambda route: route.fulfill(
+        content_type='text/html;', status=500,
+        body='''
+<!doctype html>
+<html lang="en">
+<head>
+  <title>500 Internal Server Error</title>
+</head>
+<body>
+  <h1>Internal Server Error</h1>
+  <p>The server was unable to complete your request. Please try again later.</p>
+  <p>If this problem persists, please <a href="https://example.com/support">contact support</a>.</p>
+  <p>Server logs contain details of this error with request ID: ABC-123.</p>
+</body>
+</html>
+'''))
+    home_page.navigate()
+    expect(home_page.apod_section).not_to_be_visible()
+    expect(home_page.apod_title).not_to_be_visible()
+    expect(home_page.apod_content).not_to_be_visible()
+    expect(home_page.recent_sol_title).to_be_visible()

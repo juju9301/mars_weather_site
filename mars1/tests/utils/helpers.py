@@ -3,6 +3,7 @@ from .constants import *
 from faker import Faker
 import os
 import re
+import playwright
 
 fake = Faker()
 

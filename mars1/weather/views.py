@@ -4,7 +4,10 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from matplotlib import pyplot as plt
 from django.urls import reverse
 from django.http import HttpResponseBadRequest, JsonResponse
-
+from .serializers import WeatherSerializer
+from rest_framework import generics, status
+from rest_framework.response import Response
+from datetime import datetime
 
 from io import BytesIO
 import base64
@@ -164,3 +167,55 @@ def update_weather_data(request):
             return JsonResponse({'error': 'Failed to fetch data from the API'}, status=500)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
+    
+# API views
+
+class WeatherGetApiView(generics.ListAPIView):
+    serializer_class = WeatherSerializer
+
+    def get_queryset(self):
+        queryset = Weather.objects.all()
+        ids = self.request.data.get('ids')
+        sols = self.request.data.get('sols')
+        terrestrial_dates = self.request.data.get('terrestrial_dates')
+
+        if ids:
+            if not isinstance(ids, list):
+                raise ValueError("'ids' must be a list of integers")
+            if not all(isinstance(id, int) for id in ids):
+                raise ValueError("All values in 'ids' must be integers")
+            queryset = queryset.filter(id__in=ids)
+
+        if sols:
+            if not isinstance(sols, list):
+                raise ValueError("'sols' must be a list of integers")
+            if not all(isinstance(sol, int) for sol in sols):
+                raise ValueError("All values in 'sols' must be integers")
+            queryset = queryset.filter(sol__in=sols)
+
+        if terrestrial_dates:
+            if not isinstance(terrestrial_dates, list):
+                raise ValueError("'terrestrial_dates' must be a list of strings")
+            if not all(isinstance(date, str) for date in terrestrial_dates):
+                raise ValueError("All values in 'terrestrial_dates' must be strings")
+            # Validate date format (YYYY-MM-DD)
+            for date in terrestrial_dates:
+                try:
+                    datetime.strptime(date, '%Y-%m-%d')
+                except ValueError:
+                    raise ValueError(f"Invalid date format: {date}. Expected format: YYYY-MM-DD")
+            queryset = queryset.filter(terrestrial_date__in=terrestrial_dates)
+
+        return queryset
+
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = self.get_queryset()
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data)
+        except ValueError as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+

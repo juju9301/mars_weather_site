@@ -6,16 +6,16 @@ import os
 
 load_dotenv()
 
-success_user_login, success_user_password = os.getenv('SUCCESS_TEST_USER_LOGIN'), os.getenv('SUCCESS_TEST_USER_PASS')
+test_user_username, test_user_password = os.getenv('TEST_USER_USERNAME'), os.getenv('TEST_USER_PASSWORD')
 
 class Command(BaseCommand):
     help = 'Create a test user'
 
     def handle(self, *args, **kwargs):
-        if not User.objects.filter(username=success_user_login).exists():
+        if not User.objects.filter(username=test_user_username).exists():
             User.objects.create_user(
-                username=success_user_login,
-                password=success_user_password,
+                username=test_user_username,
+                password=test_user_password,
                 email='testuser@example.com'
             )
             self.stdout.write(self.style.SUCCESS('Successfully created test user'))

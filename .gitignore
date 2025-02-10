@@ -14,3 +14,4 @@ mars1/weather/__pycache__/
 */allure-results/*
 .coverage
 report.html
+notes.txt
