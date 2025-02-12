@@ -1,9 +1,9 @@
 from playwright.sync_api import Page, expect
-from .utils.constants import BASE_URL
+from ..utils.constants import BASE_URL
 import pytest
 
-from .pages.login_page import LoginPage
-from .pages.register_page import RegisterPage
+from ..pages.login_page import LoginPage
+from ..pages.register_page import RegisterPage
 
 
 @pytest.fixture

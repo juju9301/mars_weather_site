@@ -2,7 +2,7 @@ from playwright.sync_api import Page, expect
 import pytest
 from faker import Faker
 
-from .pages.register_page import RegisterPage
+from ..pages.register_page import RegisterPage
 
 fake = Faker()
 

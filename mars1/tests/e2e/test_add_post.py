@@ -1,10 +1,10 @@
 from playwright.sync_api import Page, expect
 import pytest
 from faker import Faker
-from .pages.add_post_page import AddPostPage
-from .pages.login_page import LoginPage
-from .pages.home_page import HomePage
-from .utils.helpers import check_timestamp, api_delete_posts
+from ..pages.add_post_page import AddPostPage
+from ..pages.login_page import LoginPage
+from ..pages.home_page import HomePage
+from ..utils.helpers import check_timestamp, api_delete_posts
 # from core.models import Post
 
 fake = Faker()
