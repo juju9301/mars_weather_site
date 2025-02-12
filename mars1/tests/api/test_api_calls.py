@@ -1,5 +1,5 @@
 from playwright.sync_api import Page, Response, Request, expect
-from .utils.constants import BASE_URL, API_GET_USERS_URL
+from ..utils.constants import BASE_URL, API_GET_USERS_URL
 from playwright.sync_api import Playwright
 # def test_request_response(page: Page):
 #     response: Response = page.goto(BASE_URL)

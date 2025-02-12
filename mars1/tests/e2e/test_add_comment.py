@@ -1,11 +1,11 @@
-from .pages.add_comment_page import AddCommentPage
-from .pages.home_page import HomePage
-from .pages.login_page import LoginPage
-from .pages.base_page import BasePage
+from ..pages.add_comment_page import AddCommentPage
+from ..pages.home_page import HomePage
+from ..pages.login_page import LoginPage
+from ..pages.base_page import BasePage
 from playwright.sync_api import Page, expect
 import pytest
 from faker import Faker
-from .utils.helpers import api_create_post, api_delete_posts
+from ..utils.helpers import api_create_post, api_delete_posts
 
 fake = Faker()
 
