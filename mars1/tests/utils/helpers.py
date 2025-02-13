@@ -48,11 +48,15 @@ def get_weather_from_fixture(index):
             return [data[i] for i in index]
      
 def get_latest_weather_from_fixture():
-    
-    with open(r'mars1\weather\fixtures\weather_fixture.json', 'r') as file:
+    with open(r'weather\fixtures\weather_fixture.json', 'r') as file:
         data = json.load(file)
         latest = data[0]
         for entry in data:
             if int(entry['fields']['sol']) > int(latest['fields']['sol']):
                 latest = entry
     return latest
+
+def get_weather_fixture_len():
+    with open(r'weather\fixtures\weather_fixture.json', 'r') as file:
+        data = json.load(file)
+        return len(data)
