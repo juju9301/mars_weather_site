@@ -1,13 +1,14 @@
 from playwright.sync_api import Page, expect, Response, APIResponse, APIRequestContext
 import pytest
 from ..utils.constants import BASE_URL
+from ..utils.helpers import get_weather_from_fixture
 
 api_url = BASE_URL + 'api/get_weather_data'
 
-test_data = [
-    {"terrestrial_date": "2025-01-06", "sol": 4415},
-    {"terrestrial_date": "2025-01-04", "sol": 4413}
-]
+# test_data = [
+#     {"terrestrial_date": "2025-01-06", "sol": 4415},
+#     {"terrestrial_date": "2025-01-04", "sol": 4413}
+# ]
 
 def test_return_all_sols(page: Page):
     # response: Response = page.goto(api_url)
@@ -16,16 +17,26 @@ def test_return_all_sols(page: Page):
     expect(api_response).to_be_ok()
     assert len(api_response.json()) > 10
 
-@pytest.mark.parametrize('key', [
-    ('terrestrial_date'),
-    ('sol')
-])
-def test_get_weather_data_by_single_param(page: Page, key):
-    data = [item[key] for item in test_data]
-    api_response = page.request.get(api_url, data={f'{key}s': data})
+def test_get_weather_data_by_id(page: Page):
+    weather = get_weather_from_fixture([2, 4, 6])
+    data = {'ids': [int(record['pk']) for record in weather]}
+    api_response = page.request.get(api_url, data=data)
     expect(api_response).to_be_ok()
-    assert len(api_response.json()) == len(data)
-    assert [record[key] for record in api_response.json()] == data
+    assert [record['id'] for record in api_response.json()] == data['ids']
+
+def test_get_weather_data_by_sol(page: Page):
+    weather = get_weather_from_fixture([2, 4, 6])
+    data = {'sols': [int(record['fields']['sol']) for record in weather]}
+    api_response = page.request.get(api_url, data=data)
+    expect(api_response).to_be_ok()
+    assert [record['sol'] for record in api_response.json()] == data['sols']
+
+def test_get_weather_data_by_terrestrial_date(page: Page):
+    weather = get_weather_from_fixture([2, 4, 6])
+    data = {'terrestrial_dates': [record['fields']['terrestrial_date'] for record in weather]}
+    api_response = page.request.get(api_url, data=data)
+    expect(api_response).to_be_ok()
+    assert [record['terrestrial_date'] for record in api_response.json()] == data['terrestrial_dates']
 
 @pytest.mark.parametrize('data,error_message', [
     ({'ids': 1}, "'ids' must be a list of integers"),
@@ -33,7 +44,7 @@ def test_get_weather_data_by_single_param(page: Page, key):
     ({'ids': [1, 'hello', 5]}, "All values in 'ids' must be integers"),
     ({'ids': [1, None, 5]}, "All values in 'ids' must be integers"),
     ({'sols': 14}, "'sols' must be a list of integers"),
-    ({'sols': 56}, "'sols' must be a list of integers"),
+    ({'sols': 'randomstring'}, "'sols' must be a list of integers"),
     ({'sols': [45, '633', 90]}, "All values in 'sols' must be integers"),
     ({'terrestrial_dates': '2001-11-11'}, "'terrestrial_dates' must be a list of strings"),
     ({'terrestrial_dates': 25}, "'terrestrial_dates' must be a list of strings"),
