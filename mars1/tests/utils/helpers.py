@@ -40,7 +40,7 @@ def check_timestamp(text):
         assert re.search(timestamp_regex, text)
 
 def get_weather_from_fixture(index):
-     with open(r'weather\fixtures\weather_fixture.json', 'r') as file:  
+     with open(WEATHER_FIXTURE_PATH, 'r') as file:  
         data = json.load(file)
         if isinstance(index, int):
             return data[index]
@@ -48,7 +48,7 @@ def get_weather_from_fixture(index):
             return [data[i] for i in index]
      
 def get_latest_weather_from_fixture():
-    with open(r'weather\fixtures\weather_fixture.json', 'r') as file:
+    with open(WEATHER_FIXTURE_PATH, 'r') as file:
         data = json.load(file)
         latest = data[0]
         for entry in data:
@@ -57,6 +57,6 @@ def get_latest_weather_from_fixture():
     return latest
 
 def get_weather_fixture_len():
-    with open(r'weather\fixtures\weather_fixture.json', 'r') as file:
+    with open(WEATHER_FIXTURE_PATH, 'r') as file:
         data = json.load(file)
         return len(data)
