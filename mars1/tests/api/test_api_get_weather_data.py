@@ -1,5 +1,4 @@
-from typing import Literal
-from playwright.sync_api import Page, expect, Response, APIResponse, APIRequestContext
+from playwright.sync_api import Page, expect, APIResponse
 import pytest
 from ..utils.constants import BASE_URL
 from ..utils.helpers import get_weather_from_fixture, get_weather_fixture_len
@@ -8,8 +7,7 @@ api_url = BASE_URL + 'api/get_weather_data'
 
 
 def test_return_all_sols(page: Page):
-    api_ctx: APIRequestContext = page.request
-    api_response: APIResponse = api_ctx.get(api_url)
+    api_response: APIResponse = page.request.get(api_url)
     expect(api_response).to_be_ok()
     assert len(api_response.json()) == get_weather_fixture_len()
 
@@ -47,8 +45,17 @@ def test_response_is_empty_if_attrs_from_different_sols(page: Page):
     expect(api_response).to_be_ok()
     assert api_response.json() == []
 
-def test_match_by_sol_and_terrestrial_date(page: Page):
-    pass
+def test_response_contains_only_record_with_all_three_params_matching(page: Page):
+    weather = get_weather_from_fixture([3, 4, 8])
+    data = {
+        'ids': [int(weather[0]['pk']), int(weather[1]['pk'])],
+        'sols': [int(weather[1]['fields']['sol']), int(weather[2]['fields']['sol'])],
+        'terrestrial_dates': [weather[1]['fields']['terrestrial_date'], weather[0]['fields']['terrestrial_date']]
+    }
+    api_response = page.request.get(api_url, data=data)
+    expect(api_response).to_be_ok()
+    assert len(api_response.json()) == 1
+    assert api_response.json()[0]['id'] == int(weather[1]['pk'])
 
 # Test cases for error messages
 
