@@ -1,6 +1,5 @@
 from playwright.sync_api import APIRequestContext, APIResponse
 from ...utils.constants import BASE_URL, WEATHER_FIXTURE_PATH
-import json
 
 class WeatherAPI:
     def __init__(self, api_context: APIRequestContext):
