@@ -3,7 +3,7 @@ from .constants import *
 from faker import Faker
 import os
 import re
-import playwright
+import json
 
 fake = Faker()
 
@@ -38,3 +38,25 @@ def api_delete_posts():
 def check_timestamp(text):
         timestamp_regex = r'on \w{3}\. \d{1,2}, \d{4}, \d{1,2}:\d{2} [ap]\.m\.'
         assert re.search(timestamp_regex, text)
+
+def get_weather_from_fixture(index):
+     with open(WEATHER_FIXTURE_PATH, 'r') as file:  
+        data = json.load(file)
+        if isinstance(index, int):
+            return data[index]
+        if isinstance(index, list):
+            return [data[i] for i in index]
+     
+def get_latest_weather_from_fixture():
+    with open(WEATHER_FIXTURE_PATH, 'r') as file:
+        data = json.load(file)
+        latest = data[0]
+        for entry in data:
+            if int(entry['fields']['sol']) > int(latest['fields']['sol']):
+                latest = entry
+    return latest
+
+def get_weather_fixture_len():
+    with open(WEATHER_FIXTURE_PATH, 'r') as file:
+        data = json.load(file)
+        return len(data)
