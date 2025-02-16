@@ -11,7 +11,7 @@
             {% if form.errors %}
             <div class="text-red-500 text-xs italic">{{ form.non_field_errors }}</div>
             {% endif %}
-            {% comment %} <div class="mb-4">
+            {% comment %}             <div class="mb-4">
                 <label for="{{ form.title.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ form.title.label }}</label>
                 {{ form.title }}
                 {% if form.title.errors %}
@@ -119,22 +119,19 @@ document.getElementById('get-random-mars-picture').addEventListener('click', fun
         .catch(error => {
             console.error('Error fetching data:', error);
         });
-
-    document.getElementById('add-to-post').addEventListener('click', function() {
-        const imageUrl = this.dataset.imageUrl;
-        const postContent = document.getElementById('id_content');
-        if (postContent) {
-            const sol = document.querySelector('#random-mars-picture-container p').textContent.match(/sol (\d+)/)[1];
-            const rover = document.querySelector('#random-mars-picture-container p').textContent.match(/by (\w+) rover/)[1];
-            postContent.value += `Mars pic from sol ${sol} by ${rover} rover`;
-        } else {
-            console.error('Post content textarea not found');
-        }
-    });
 });
 
 document.getElementById('add-to-post').addEventListener('click', function() {
     const imageUrl = this.dataset.imageUrl;
+    const postContent = document.getElementById('id_content');
+    if (postContent) {
+        const sol = document.querySelector('#random-mars-picture-container p').textContent.match(/sol (\d+)/)[1];
+        const rover = document.querySelector('#random-mars-picture-container p').textContent.match(/by (\w+) rover/)[1];
+        postContent.value += `Mars pic from sol ${sol} by ${rover} rover`;
+    } else {
+        console.error('Post content textarea not found');
+    }
+
     const imageInput = document.querySelector('input[name="random_mars_image_url"]');
     imageInput.value = imageUrl;
     const fileInput = document.querySelector('input[type="file"]');
