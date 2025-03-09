@@ -233,8 +233,17 @@ def test_submit_resulted_in_500(page: Page, setup):
     expect(add_post_page.content_field).not_to_be_visible()
     expect(page.get_by_text('Internal Server Error')).to_be_visible()
 
-
-
+def test_post_colors(page: Page, setup):
+    home_page, add_post_page = setup
+    content = fake.text()
+    # add_post_page.bg_color_input.click()
+    bg_color = '#000000'
+    font_color = '#ffff00'
+    add_post_page.bg_color_input.evaluate(f'element => element.value = "{bg_color}"')
+    add_post_page.font_color_input.evaluate(f'element => element.value = "{font_color}"')
+    add_post_page.create_post(content=content)
+    expect(home_page.post).to_have_attribute('style', f'background-color: {bg_color};')
+    expect(home_page.post_content).to_have_attribute('style', f'color: {font_color};')
 
 
 
