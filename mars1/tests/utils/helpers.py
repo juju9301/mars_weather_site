@@ -36,7 +36,8 @@ def api_delete_posts():
     assert resp.status_code == 204
 
 def check_timestamp(text):
-        timestamp_regex = r'on \w{3}\. \d{1,2}, \d{4}, \d{1,2}:\d{2} [ap]\.m\.'
+        timestamp_regex = r'on [A-Z][a-z]+ \d{1,2}, \d{4}, \d{1,2}:\d{2} [ap]\.m\.'
+        # timestamp_regex = r'on \w{3}\. \d{1,2}, \d{4}, \d{1,2}:\d{2} [ap]\.m\.'
         assert re.search(timestamp_regex, text)
 
 def get_weather_from_fixture(index):
