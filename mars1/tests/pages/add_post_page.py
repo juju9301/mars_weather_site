@@ -1,8 +1,5 @@
 from playwright.sync_api import Page, expect
 from .base_page import BasePage
-from faker import Faker
-
-fake = Faker()
 
 
 class AddPostPage(BasePage):
@@ -33,7 +30,7 @@ class AddPostPage(BasePage):
     def navigate(self):
         self.page.goto(self.url)
 
-    def create_post(self, content: str = fake.text(), file_path: str = None, submit: bool = True):
+    def create_post(self, content: str, file_path: str = None, submit: bool = True):
         self.content_field.fill(content)
         if file_path:
             with self.page.expect_file_chooser() as fc_info:
@@ -46,6 +43,8 @@ class AddPostPage(BasePage):
         # yield file_path
 
     def fetch_mars_image(self):
+        # Fetching Mars rover image can result in an error or invalid image. 
+        # Here we attempt to fetch it 5 times in order to decrease test flakiness.
         max_attempts = 5
         current_attempt = 1
 

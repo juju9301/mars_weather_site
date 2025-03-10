@@ -5,7 +5,7 @@ from ..pages.add_post_page import AddPostPage
 from ..pages.login_page import LoginPage
 from ..pages.home_page import HomePage
 from ..utils.helpers import check_timestamp, api_delete_posts
-# from core.models import Post
+
 
 fake = Faker()
 
@@ -19,7 +19,13 @@ def setup(page: Page):
 
     # Navigate to home page
     page.goto(home_page.base_url)
-    expect(home_page.post).to_have_count(0)
+
+    # A temporary solution with post deletion for local testing
+    try:
+        expect(home_page.post).to_have_count(0)
+    except AssertionError:
+        api_delete_posts()
+
     home_page.nav_login_button.click()
     expect(page).to_have_url(login_page.url)
 
@@ -36,45 +42,66 @@ def setup(page: Page):
     #Delete all posts
     api_delete_posts()
 
-def test_login_and_add_post(page: Page, setup):
+def test_add_post_without_image(page: Page, setup):
     home_page, add_post_page = setup
-
-    expect(page).to_have_url(add_post_page.url)
     content = fake.text()
     add_post_page.create_post(content=content)
     expect(page).to_have_url(home_page.url)
     expect(home_page.post).to_have_count(1)
     expect(home_page.post_content).to_have_text(content)
+    expect(home_page.post_author).to_contain_text(f'Posted by {home_page.test_user_username}')
+    check_timestamp(home_page.post_author.text_content())
 
-def test_post_with_custom_picture(page: Page, setup):
+def test_post_with_custom_image(page: Page, setup):
     home_page, add_post_page = setup
-
-    text = fake.text()
-    add_post_page.create_post(text, add_post_page.test_file_jpg)
+    content = fake.text()
+    add_post_page.create_post(content, add_post_page.test_file_jpg)
     expect(page).to_have_url(home_page.url)
     expect(home_page.post).to_have_count(1)
-    expect(home_page.post_content).to_have_text(text)
+    expect(home_page.post_content).to_have_text(content)
     expect(home_page.post_image).to_be_visible()
 
 
 def test_post_with_fetched_image(page: Page, setup):
     home_page, add_post_page = setup
-    
+
+    # Fetch random Mars image and check presence of all related elements
     add_post_page.fetch_mars_image()
     expect(add_post_page.mars_picture).to_be_visible()
     expect(add_post_page.mars_picture_info).to_be_visible()
     mars_info = add_post_page.mars_picture_info.text_content()
     mars_pic_url = add_post_page.mars_picture.get_attribute('src')
+
+    # Add Mars image to post and check all relevant changes
     add_post_page.add_to_post_button.click()
     expect(add_post_page.content_field).to_have_value(mars_info)
     expect(add_post_page.choose_image_input).to_be_hidden()
     expect(add_post_page.mars_image_url).to_have_text(mars_pic_url)
+
+    # Submit post and verify correct post creation on home page
     add_post_page.submit_button.click()
     expect(home_page.post).to_have_count(1)
     expect(home_page.post_content).to_have_text(mars_info)
     expect(home_page.post_image).to_be_visible()
     expect(home_page.post_author).to_contain_text(f'Posted by {home_page.test_user_username}')
     check_timestamp(home_page.post_author.text_content())
+
+def test_add_post_without_text(page: Page, setup):
+    home_page, add_post_page = setup
+    add_post_page.create_post('', file_path=add_post_page.test_file_jpg)
+    expect(home_page.post).to_be_visible()
+
+def test_post_require_content_or_image(page: Page, setup):
+    home_page, add_post_page = setup
+
+    # Verify failed post submission if image and content are absent
+    add_post_page.create_post('')
+    expect(page).to_have_url(add_post_page.url)
+    expect(add_post_page.form_error).to_be_visible()
+
+    # Verify absence of new posts on home page
+    home_page.navigate()
+    expect(home_page.post).not_to_be_visible()
 
 def test_mars_image_overrides_custome_image(page: Page, setup):
     home_page, add_post_page = setup
@@ -83,11 +110,11 @@ def test_mars_image_overrides_custome_image(page: Page, setup):
     filename = add_post_page.test_file_jpg.name
     expect(add_post_page.choose_image_input).to_have_value(fr'C:\fakepath\{filename}')
 
-    # get mars image
+    # Get mars image
     add_post_page.fetch_mars_image()
     expect(add_post_page.mars_picture).to_be_visible()
 
-    # add mars image to post and verify that image is overriden and content added
+    # Add mars image to post and verify that image is overriden and content added
     mars_info = add_post_page.mars_picture_info.text_content()
     mars_pic_url = add_post_page.mars_picture.get_attribute('src')
     add_post_page.add_to_post_button.click()
@@ -106,18 +133,18 @@ def test_mars_info_gets_appended(page: Page, setup):
     home_page, add_post_page = setup
 
     # Fill content text
-    text = fake.text()
-    add_post_page.create_post(text, submit=False)
+    content = fake.text()
+    add_post_page.create_post(content, submit=False)
 
     # Get random mars pic add add it to post
     # For later - need to handle case if image can't be fetched or fetched image can't be displayed
     add_post_page.fetch_mars_image()
     add_post_page.add_to_post_button.click()
     mars_info = add_post_page.mars_picture_info.text_content()
-    expect(add_post_page.content_field).to_have_value(text + mars_info)
+    expect(add_post_page.content_field).to_have_value(content + mars_info)
     add_post_page.submit_button.click()
     expect(home_page.post).to_have_count(1)
-    expect(home_page.post_content).to_have_text(text + mars_info)
+    expect(home_page.post_content).to_have_text(content + mars_info)
 
 def test_after_page_refresh_form_content_not_preserved(page: Page, setup):
     home_page, add_post_page = setup
@@ -225,6 +252,7 @@ def test_submit_resulted_in_500(page: Page, setup):
 </body>
 ''' if route.request.method == 'POST' else route.continue_()
     ))
+
     # Fill post content and submit
     content = fake.text()
     add_post_page.content_field.fill(content)
@@ -233,8 +261,20 @@ def test_submit_resulted_in_500(page: Page, setup):
     expect(add_post_page.content_field).not_to_be_visible()
     expect(page.get_by_text('Internal Server Error')).to_be_visible()
 
+def test_post_colors(page: Page, setup):
+    home_page, add_post_page = setup
+    content = fake.text()
+    bg_color = '#000000'
+    font_color = '#ffff00'
 
+    # Set the color values to both inputs and submit
+    add_post_page.bg_color_input.evaluate(f'element => element.value = "{bg_color}"')
+    add_post_page.font_color_input.evaluate(f'element => element.value = "{font_color}"')
 
+    # Submit form and assert
+    add_post_page.create_post(content=content)
+    expect(home_page.post).to_have_attribute('style', f'background-color: {bg_color};')
+    expect(home_page.post_content).to_have_attribute('style', f'color: {font_color};')
 
 
 
