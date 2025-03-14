@@ -15,23 +15,27 @@ def setup(page: Page):
 def test_plot_is_generated(page: Page, setup):
     plot_page = setup
     sol_from, sol_to, temp_type = '10', '1000', 'min_temp'
-    plot_page.sol_from_selector.select_option('10')
-    plot_page.sol_to_selector.select_option('1000')
-    plot_page.temp_type_selector.select_option('Min Temp')
-    plot_page.generate_plot_button.click()
+    plot_page.fill_plot_from_and_submit(sol_from, sol_to, temp_type)
     plot_url = plot_page.get_plot_url(sol_from, sol_to, temp_type)
     expect(page).to_have_url(plot_url)
     plot_img = plot_page.get_plot_img()
     expect(plot_img).to_be_visible()
+    page.wait_for_timeout(5000)
+
+@pytest.mark.parametrize('sol_from,sol_to,temp_type', [
+    ('10', '9', 'Min Temp'),
+    ('10', '10', 'Max Temp')
+])
+def test_error_if_sol_to_lt_sol_from(page: Page, setup, sol_from, sol_to, temp_type):
+    plot_page = setup
+    plot_page.fill_plot_from_and_submit(sol_from, sol_to, temp_type)
+    expect(plot_page.invalid_sol_range_error_message).to_be_visible()
 
 @pytest.mark.skip(reason='Image analysis is very expensive and works best with GPU. Left for demo purpose')
 def test_generate_plot_with_image_analysis(page: Page, setup):
     plot_page = setup
     sol_from, sol_to, temp_type = '10', '1000', 'min_temp'
-    plot_page.sol_from_selector.select_option('10')
-    plot_page.sol_to_selector.select_option('1000')
-    plot_page.temp_type_selector.select_option('Min Temp')
-    plot_page.generate_plot_button.click()
+    plot_page.fill_plot_from_and_submit(sol_from, sol_to, temp_type)
     plot_url = plot_page.get_plot_url(sol_from, sol_to, temp_type)
     expect(page).to_have_url(plot_url)
     plot_img = plot_page.get_plot_img()
