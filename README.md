@@ -1,7 +1,11 @@
-a basic django site:
-- showing the weather on Mars (data is being fetched manually via mars_weather_site\mars1\weather\fixtures\getdbfixture.py from http://cab.inta-csic.es/rems/wp-content/plugins/marsweather-widget/api.php)
-- plotting the graph for min, max avg temperature with matplotlib
-- basic auth with ability to compose posts and post it on home page. ability to fetch the random picture taken by one of the three Mars rovers and add it to post
-- pytest + playwright tests, test reports with pytest-cov and pytest-html
-- integrated with circle CI
-- deployed at https://iancatface.pythonanywhere.com/ (not atm though)
+This is a Django-based web app I built to explore Playwright automation while incorporating some fun Mars-related data. 🚀
+
+Features:
+🌌 Mars Weather Dashboard – Displays the latest weather on Mars, fetched manually from REMS API (http://cab.inta-csic.es/rems/wp-content/plugins/marsweather-widget/api.php).
+📈 Temperature Graphs – Uses matplotlib to visualize min, max, and avg temperatures.
+📝 Basic Blog System – Users can authenticate, compose posts, and attach a random Mars rover image to their entries.
+🧪 Automated Testing – pytest + playwright tests, with reports generated via pytest-cov and pytest-html.
+🔄 CI/CD Integration – Configured with CircleCI for automated testing and deployment.
+🚀 Live Deployment – Hosted on PythonAnywhere (currently inactive due to becoming too large for free tier).
+
+This project was primarily a learning exercise for Playwright, but it also brings some cool Mars insights to life! 🌍🔄🔴
