@@ -6,15 +6,14 @@ This is a Django-based web app I built to explore Playwright automation while in
 - [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
-- [Contributing](#contributing)
 - [License](#license)
 
 ## Features
 - 🌌 **Mars Weather Dashboard** – Displays the latest weather on Mars, fetched manually from REMS API (http://cab.inta-csic.es/rems/wp-content/plugins/marsweather-widget/api.php).
 - 📈 **Temperature Graphs** – Uses matplotlib to visualize min, max, and avg temperatures.
 - 📝 **Basic Blog System** – Users can authenticate, compose posts, and attach a random Mars rover image to their entries.
-- 🧪 **Automated Testing** – pytest + playwright tests, with reports generated via pytest-cov and pytest-html.
-- 🔄 **CI/CD Integration** – Configured with CircleCI for automated testing and deployment.
+- 🧪 **Automated Testing** – Pytest + Playwright tests, with reports generated via pytest-cov and pytest-html. Include basic tests, tests using overwritten request query parameters, overwritten response body, image text recognition
+- 🔄 **CI/CD Integration** – Configured with CircleCI for automated testing.
 - 🚀 **Live Deployment** – Hosted on PythonAnywhere (currently inactive due to becoming too large for free tier).
 
 ## Installation
@@ -42,17 +41,10 @@ This is a Django-based web app I built to explore Playwright automation while in
     ```
 
 ## Usage
-- **Mars Weather Dashboard**: Navigate to `/weather` to view the latest Mars weather.
-- **Temperature Graphs**: Access the temperature graphs at `/temperatures`.
-- **Blog System**: Authenticate and start creating blog posts at `/blog`.
-
-## Contributing
-Contributions are welcome! Please follow these steps to contribute:
-1. Fork the repository.
-2. Create a new branch (`git checkout -b feature-branch`).
-3. Make your changes and commit them (`git commit -am 'Add new feature'`).
-4. Push to the branch (`git push origin feature-branch`).
-5. Create a new Pull Request.
+- **Mars Weather Dashboard**: Navigate to `/` to see the weather data for the latest sol available, as well as NASA's picture of the day and the posts submitted so far
+- **Mars Weather Data**: Navigate to `/list` to see all the weather data available. Click [Update weather data] for latest weather data to get fetched and saved into the database
+- **Temperature Graphs**: Access the temperature graphs at `/plot`. You can plot data for max, min and avg temperature. 
+- **Blog System**: Authenticate and start creating blog posts at `/add_post`. You can fetch a random Mars picture taken by one of the three Mars rovers and attach it to the post. You can also leave comments for each post.
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
