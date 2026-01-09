@@ -4,6 +4,8 @@ from faker import Faker
 import os
 import re
 import json
+import easyocr
+
 
 fake = Faker()
 
@@ -61,3 +63,16 @@ def get_weather_fixture_len():
     with open(WEATHER_FIXTURE_PATH, 'r') as file:
         data = json.load(file)
         return len(data)
+    
+def compare_texts(text1, text2):
+    return True if text1.lower() == text2.lower() else False
+
+def assert_text_in_image(target_text: str, img_path: str):   
+    # Returns True if any of the text snippets found in an image matches the target string 
+    result_list = []
+    reader = easyocr.Reader(['en'])
+    info = reader.readtext(str(img_path))
+    for element in info:
+        text_to_check = element[1]
+        result_list.append(compare_texts(target_text, text_to_check))
+    assert any(result_list)

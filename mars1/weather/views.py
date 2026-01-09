@@ -1,8 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Weather
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from matplotlib import pyplot as plt
-from django.urls import reverse
 from django.http import HttpResponseBadRequest, JsonResponse
 from .serializers import WeatherSerializer
 from rest_framework import generics, status
@@ -12,6 +10,10 @@ from datetime import datetime
 from io import BytesIO
 import base64
 import requests
+
+import matplotlib
+matplotlib.use('Agg')
+from matplotlib import pyplot as plt
 
 def weather_list(request):
     sol_query = request.GET.get('sol')
@@ -63,6 +65,13 @@ def generate_weather_plot(request):
 
         # Fetch weather data for the given sol range
         weather_data = Weather.objects.filter(sol__gte=sol_from, sol__lte=sol_to).order_by('sol')
+
+        if sol_from > sol_to or sol_from == sol_to:
+            error_message = 'Sol range is invalid. Please make sure sol_to is greater than sol_from'
+            return render(request, 'weather/weather_plot.html', {
+                'error': error_message,
+                'available_sols': available_sols,
+            })
         
         if not weather_data.exists():
             return render(request, 'weather/weather_plot.html', {

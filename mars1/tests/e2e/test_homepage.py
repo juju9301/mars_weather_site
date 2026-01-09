@@ -10,9 +10,6 @@ def home_page(page: Page):
 
     yield home_page
 
-
-
-
 def test_homepage_title(home_page: HomePage, page: Page):
     expect(page).to_have_title('Mars Weather - Home')
 
