@@ -60,8 +60,7 @@
             <label for="rover-selector" class="block text-gray-700 text-sm font-bold mb-2">Select Rover</label>
             <select id="rover-selector" class="block w-full mt-1">
                 <option value="curiosity">Curiosity</option>
-                <option value="opportunity">Opportunity</option>
-                <option value="spirit">Spirit</option>
+                <option value="perseverance">Perseverance</option>
             </select>
         </div>
         <button id="get-random-mars-picture" class="bg-gray-600 text-white px-4 py-2 rounded mt-4">Get Random Mars Picture</button>
@@ -79,19 +78,15 @@ document.getElementById('get-random-mars-picture').addEventListener('click', fun
         case 'curiosity':
             solRange = 3000; // Example sol range for Curiosity
             break;
-        case 'opportunity':
-            solRange = 5000; // Example sol range for Opportunity
-            break;
-        case 'spirit':
-            solRange = 2000; // Example sol range for Spirit
+        case 'perseverance':
+            solRange = 5000; // Example sol range for Perseverance
             break;
         default:
             solRange = 1000;
     }
     const sol = Math.floor(Math.random() * solRange) + 1; // Random sol within the range
-    const apiKey = '{{ nasa_api_key }}'; // Use the API key passed from the view
 
-    fetch(`https://api.nasa.gov/mars-photos/api/v1/rovers/${rover}/photos?sol=${sol}&api_key=${apiKey}`)
+    fetch(`https://rovers.nebulum.one/api/v1/rovers/${rover}/photos?sol=${sol}`)
         .then(response => response.json())
         .then(data => {
             if (data.photos.length > 0) {
