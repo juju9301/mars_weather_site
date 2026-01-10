@@ -25,7 +25,7 @@ class AddPostPage(BasePage):
         self.mars_image_url = page.locator('span#mars-image-url')
 
         self.rover_selector = page.locator('#rover-selector')
-        self.rover_options = ['curiosity', 'opportunity', 'spirit']
+        self.rover_options = ['curiosity', 'perseverance']
 
     def navigate(self):
         self.page.goto(self.url)
