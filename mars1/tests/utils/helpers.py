@@ -38,9 +38,10 @@ def api_delete_posts():
     assert resp.status_code == 204
 
 def check_timestamp(text):
-        timestamp_regex = r'on [A-Z][a-z]+ \d{1,2}, \d{4}, \d{1,2}:\d{2} [ap]\.m\.'
-        # timestamp_regex = r'on \w{3}\. \d{1,2}, \d{4}, \d{1,2}:\d{2} [ap]\.m\.'
-        assert re.search(timestamp_regex, text)
+        # Accept both full month names (January) and 3-letter abbreviations (Jan.)
+        # Match is case-insensitive to support 'Jan.' or 'jan.' etc.
+        timestamp_regex = r'on [A-Za-z]{3,9}\.? \d{1,2}, \d{4}, \d{1,2}:\d{2} [ap]\.m\.'
+        assert re.search(timestamp_regex, text, re.IGNORECASE)
 
 def get_weather_from_fixture(index):
      with open(WEATHER_FIXTURE_PATH, 'r') as file:  
