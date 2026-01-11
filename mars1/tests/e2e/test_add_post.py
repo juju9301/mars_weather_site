@@ -108,7 +108,8 @@ def test_mars_image_overrides_custome_image(page: Page, setup):
 
     add_post_page.create_post('', file_path=add_post_page.test_file_jpg, submit=False)
     filename = add_post_page.test_file_jpg.name
-    expect(add_post_page.choose_image_input).to_have_value(fr'C:\fakepath\{filename}')
+    value = add_post_page.choose_image_input.evaluate("el => (el.files && el.files[0]) ? el.files[0].name : ''")
+    assert filename in (value or '')
 
     # Get mars image
     add_post_page.fetch_mars_image()
@@ -157,7 +158,8 @@ def test_after_page_refresh_form_content_not_preserved(page: Page, setup):
     # Reload page and check that form is empty
     page.reload()
     expect(add_post_page.content_field).to_be_empty()
-    expect(add_post_page.choose_image_input).not_to_have_value(fr'C:\fakepath\{image.name}')
+    value = add_post_page.choose_image_input.evaluate("el => (el.files && el.files[0]) ? el.files[0].name : ''")
+    assert not value
 
 def test_after_page_refresh_with_custome_image_new_data_is_submitted(page: Page, setup):
     home_page, add_post_page = setup
@@ -231,7 +233,8 @@ def test_custom_image_data_is_preserved_after_going_back_to_homepage(page: Page,
     page.go_back()
     page.go_forward()
     expect(add_post_page.content_field).to_have_value(content)
-    expect(add_post_page.choose_image_input).to_have_value((fr'C:\fakepath\{image.name}'))
+    value = add_post_page.choose_image_input.evaluate("el => (el.files && el.files[0]) ? el.files[0].name : ''")
+    assert image.name in (value or '')
 
     # Submit post and check the post result
     add_post_page.submit_button.click()

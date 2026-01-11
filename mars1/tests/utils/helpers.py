@@ -68,12 +68,18 @@ def get_weather_fixture_len():
 def compare_texts(text1, text2):
     return True if text1.lower() == text2.lower() else False
 
+_reader = None
+
 def assert_text_in_image(target_text: str, img_path: str):   
+    # Heavy operation: initialize easyocr reader once and reuse to speed up tests
+    global _reader
+    if _reader is None:
+        _reader = easyocr.Reader(['en'])
+
     # Returns True if any of the text snippets found in an image matches the target string 
     result_list = []
-    reader = easyocr.Reader(['en'])
-    info = reader.readtext(str(img_path))
+    info = _reader.readtext(str(img_path))
     for element in info:
         text_to_check = element[1]
         result_list.append(compare_texts(target_text, text_to_check))
-    assert any(result_list)
+    assert any(result_list), f"'{target_text}' not found in image {img_path}"

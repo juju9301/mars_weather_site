@@ -48,8 +48,9 @@ def test_no_data_available(page: Page, setup):
     no_data_message = plot_page.get_no_data_error_message('2', '8')
     expect(no_data_message).to_be_visible()
     
-@pytest.mark.skip(reason='Image analysis is very expensive and works best with GPU. Left for demo purpose')
+@pytest.mark.ocr
 def test_generate_plot_with_image_analysis(page: Page, setup):
+    # Image analysis is expensive and works best with GPU; run with `pytest -m ocr` when needed.
     plot_page = setup
     sol_from, sol_to, temp_type = '10', '1000', 'min_temp'
     plot_page.fill_plot_from_and_submit(sol_from, sol_to, temp_type)

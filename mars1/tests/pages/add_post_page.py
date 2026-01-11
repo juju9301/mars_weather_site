@@ -50,13 +50,12 @@ class AddPostPage(BasePage):
 
         self.page.on('dialog', lambda dialog: dialog.accept())
 
-        while current_attempt <= max_attempts:
+        for attempt in range(1, max_attempts + 1):
             try:
                 self.get_mars_picture_button.click()
                 expect(self.mars_picture).to_be_visible()
-                print(f'Found image on {current_attempt} attempt')
+                # Found image
                 break
-            except AssertionError:               
-                current_attempt += 1
-                if current_attempt == max_attempts:
-                    raise TimeoutError(f'Failed to fetch mars image after {current_attempt} attempts')
+            except AssertionError:
+                if attempt == max_attempts:
+                    raise TimeoutError(f'Failed to fetch mars image after {max_attempts} attempts')
