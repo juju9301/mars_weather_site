@@ -27,31 +27,31 @@ jobs:
           name: Run Django migrations
           command: |
             . venv/bin/activate
-            cd mars1  # Change to the directory containing manage.py
+            cd mars_weather_app  # Change to the directory containing manage.py
             python manage.py migrate
       - run:
           name: Create test user
           command: |
             . venv/bin/activate
-            cd mars1
+            cd mars_weather_app
             python manage.py create_test_user
       # - run:
       #     name: Create test create_test_posts
       #     command: |
       #       . venv/bin/activate
-      #       cd mars1
+      #       cd mars_weather_app
       #       python manage.py create_test_posts
       - run:
           name: Populate Weather table
           command: |
             . venv/bin/activate
-            cd mars1
+            cd mars_weather_app
             python manage.py loaddata weather/fixtures/weather_fixture.json
       - run:
           name: Start Django server
           command: |
             . venv/bin/activate
-            cd mars1  # Change to the directory containing manage.py
+            cd mars_weather_app  # Change to the directory containing manage.py
             python manage.py runserver 0.0.0.0:8000
           background: true
       - run:
@@ -67,14 +67,14 @@ jobs:
           name: Run tests
           command: |
             . venv/bin/activate
-            cd mars1
+            cd mars_weather_app
             export DISPLAY=:99
             export PYTHONPATH=$PYTHONPATH:$(pwd)/tests
             pytest --junitxml=reports/test-results.xml
       - store_test_results:
-          path: mars1/reports
+          path: mars_weather_app/reports
       - store_artifacts:
-          path: mars1/reports
+          path: mars_weather_app/reports
 
 workflows:
   version: 2
