@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Add Post{% endblock title %}
+{% block content %}
+<div class="container mx-auto mt-5 flex flex-col md:flex-row">
+    <!-- Left side: Post form -->
+    <div class="w-full md:w-1/2 pr-4 md:pr-4 md:pl-0 pl-4">
+        <h1 class="text-3xl font-bold mb-4">Add Post</h1>
+        <form method="post" enctype="multipart/form-data" data-testid="post-form">
+            {% csrf_token %}
+            {% if form.errors %}
+            <div class="text-red-500 text-xs italic">{{ form.non_field_errors }}</div>
+            {% endif %}
+            {% comment %}             <div class="mb-4">
+                <label for="{{ form.title.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ form.title.label }}</label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                    <div class="text-red-500 text-xs italic">{{ form.title.errors }}</div>
+                {% endif %}
+            </div> {% endcomment %}
+            
+            <div class="mb-4">
+                <label for="{{ form.content.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ form.content.label }}</label>
+                {{ form.content }}
+                {% if form.content.errors %}
+                    <div class="text-red-500 text-xs italic">{{ form.content.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="mb-4">
+                <label for="{{ form.image.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ form.image.label }}</label>
+                <div class="flex items-center">
+                    {{ form.image }}
+                    <span id="mars-image-url" class="ml-4 text-gray-700 w-1/2 truncate"></span>
+                </div>
+                {% if form.image.errors %}
+                    <div class="text-red-500 text-xs italic">{{ form.image.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="mb-4">
+                <label for="{{ form.background_color.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Post Background Color</label>
+                {{ form.background_color }}
+            </div>
+            
+            <div class="mb-4">
+                <label for="{{ form.font_color.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Post Font Color</label>
+                {{ form.font_color }}
+            </div>
+            
+            <input type="hidden" id="random_mars_image_url" name="random_mars_image_url">
+            <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded">Submit</button>
+        </form>
+    </div>
+
+    <!-- Right side: Random Mars picture section -->
+    <div class="w-full md:w-1/2 pl-4 mt-8 md:mt-0">
+        <h2 class="text-2xl font-bold mb-4">Get Random Mars Picture</h2>
+        <div class="mb-4">
+            <label for="rover-selector" class="block text-gray-700 text-sm font-bold mb-2">Select Rover</label>
+            <select id="rover-selector" class="block w-full mt-1">
+                <option value="curiosity">Curiosity</option>
+                <option value="perseverance">Perseverance</option>
+            </select>
+        </div>
+        <button id="get-random-mars-picture" class="bg-gray-600 text-white px-4 py-2 rounded mt-4">Get Random Mars Picture</button>
+        <div id="random-mars-picture-container" class="mt-4"></div>
+        <button id="add-to-post" class="bg-gray-600 text-white px-4 py-2 rounded mt-4 hidden">Add to Post</button>
+        <div id="image-url-display" class="mt-4 text-gray-700"></div>
+    </div>
+</div>
+
+<script>
+document.getElementById('get-random-mars-picture').addEventListener('click', function() {
+    const rover = document.getElementById('rover-selector').value;
+    let solRange;
+    switch (rover) {
+        case 'curiosity':
+            solRange = 3000; // Example sol range for Curiosity
+            break;
+        case 'perseverance':
+            solRange = 5000; // Example sol range for Perseverance
+            break;
+        default:
+            solRange = 1000;
+    }
+    const sol = Math.floor(Math.random() * solRange) + 1; // Random sol within the range
+
+    fetch(`https://rovers.nebulum.one/api/v1/rovers/${rover}/photos?sol=${sol}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.photos.length > 0) {
+                const randomPhoto = data.photos[Math.floor(Math.random() * data.photos.length)];
+                const img = new Image();
+                img.src = randomPhoto.img_src;
+                img.onload = function() {
+                    const container = document.getElementById('random-mars-picture-container');
+                    container.innerHTML = `<img src="${randomPhoto.img_src}" alt="Random Mars Picture" class="max-w-full max-h-64 object-contain mt-2">`;
+                    const info = document.createElement('p');
+                    info.setAttribute('data-testid', 'mars-pic-info')
+                    info.textContent = `Mars pic from sol ${sol} by ${rover} rover`;
+                    container.appendChild(info);
+                    const addToPostButton = document.getElementById('add-to-post');
+                    addToPostButton.classList.remove('hidden');
+                    addToPostButton.dataset.imageUrl = randomPhoto.img_src;
+                };
+                img.onerror = function() {
+                    alert('Failed to load image. Try again.');
+                };
+            } else {
+                alert('No photos found for this sol.');
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+        });
+});
+
+document.getElementById('add-to-post').addEventListener('click', function() {
+    const imageUrl = this.dataset.imageUrl;
+    const postContent = document.getElementById('id_content');
+    if (postContent) {
+        const sol = document.querySelector('#random-mars-picture-container p').textContent.match(/sol (\d+)/)[1];
+        const rover = document.querySelector('#random-mars-picture-container p').textContent.match(/by (\w+) rover/)[1];
+        postContent.value += `Mars pic from sol ${sol} by ${rover} rover`;
+    } else {
+        console.error('Post content textarea not found');
+    }
+
+    const imageInput = document.querySelector('input[name="random_mars_image_url"]');
+    imageInput.value = imageUrl;
+    const fileInput = document.querySelector('input[type="file"]');
+    fileInput.classList.add('hidden');
+    const marsImageUrlSpan = document.getElementById('mars-image-url');
+    marsImageUrlSpan.innerText = imageUrl;
+});
+</script>
+{% endblock content %}

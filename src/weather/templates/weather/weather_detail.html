@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Sol {{ sol.sol }}{% endblock title %}
+{% block content %}
+<div class="container mx-auto mt-5">
+    <h1 class="text-3xl font-bold mb-4">Sol {{ sol.sol }} Weather Details</h1>
+    <div class="bg-white shadow rounded-lg p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <p class="text-gray-700"><strong>Terrestrial date:</strong> {{ sol.terrestrial_date }}</p>
+                <p class="text-gray-700"><strong>Season:</strong> {{ sol.season }}</p>
+                <p class="text-gray-700"><strong>Min temperature:</strong> {{ sol.min_temp }}</p>
+                <p class="text-gray-700"><strong>Max temperature:</strong> {{ sol.max_temp }}</p>
+            </div>
+            <div>
+                <p class="text-gray-700"><strong>Sunrise:</strong> {{ sol.sunrise }}</p>
+                <p class="text-gray-700"><strong>Sunset:</strong> {{ sol.sunset }}</p>
+                <p class="text-gray-700"><strong>Pressure:</strong> {{ sol.pressure }}</p>
+                <p class="text-gray-700"><strong>Pressure string:</strong> {{ sol.pressure_string }}</p>
+                <p class="text-gray-700"><strong>Local UV irradiance index:</strong> {{ sol.local_uv_irradiance_index }}</p>
+            </div>
+        </div>
+    </div>
+    <a href="{% url 'weather:weather_list' %}" class="text-orange-600 mt-3 inline-block">Back to Weather List</a>
+</div>
+{% endblock content %}

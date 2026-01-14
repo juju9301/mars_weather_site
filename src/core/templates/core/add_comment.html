@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Add Comment{% endblock title %}
+{% block content %}
+<div class="container mx-auto mt-5">
+    <h1 class="text-3xl font-bold mb-4">Add Comment</h1>
+    
+    <!-- Display the relevant post -->
+    <div class="mb-4 p-4 border rounded" data-testid="post">
+        <h2 class="text-2xl font-bold" data-testid="post-author">{{ post.author.username }}</h2>
+        <p data-testid="post-content">{{ post.content }}</p>
+        {% if post.image %}
+            <img data-testid="post-image" src="{{ post.image.url }}" alt="Post Image" class="max-w-full h-auto mt-2">
+        {% endif %}
+        <p class="text-gray-600 text-sm mt-2" data-testid="post-date">{{ post.created_at }}</p>
+    </div>
+    
+    <!-- Display existing comments -->
+    <div class="mb-4">
+        <h3 class="text-xl font-bold mb-2">Comments</h3>
+        {% for comment in comments %}
+            <div class="mb-2 p-2 border rounded" data-testid="comment">
+                <p class="font-bold" data-testid="comment-username">{{ comment.author.username }}</p>
+                <p data-testid="comment-content">{{ comment.content }}</p>
+                <p class="text-gray-600 text-sm" data-testid="comment-date">{{ comment.created_at }}</p>
+            </div>
+        {% empty %}
+            <p>No comments yet.</p>
+        {% endfor %}
+    </div>
+    
+    <!-- Add comment form -->
+    <form method="post" data-testid="comment-form">
+        {% csrf_token %}
+        
+        <div class="mb-4">
+            <label for="{{ form.content.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ form.content.label }}</label>
+            {{ form.content }}
+            {% if form.content.errors %}
+                <div class="text-red-500 text-xs italic">{{ form.content.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded">Submit</button>
+    </form>
+</div>
+{% endblock content %}
