@@ -4,7 +4,7 @@ executors:
   python-executor:
     docker:
       - image: cimg/python:3.11
-    working_directory: ~/repo/src
+    working_directory: ~/repo
 
 jobs:
   test:
@@ -27,11 +27,13 @@ jobs:
           name: Run Django migrations
           command: |
             . venv/bin/activate
+            cd src
             python manage.py migrate
       - run:
           name: Create test user
           command: |
             . venv/bin/activate
+            cd src
             python manage.py create_test_user
       # - run:
       #     name: Create test create_test_posts
@@ -43,11 +45,13 @@ jobs:
           name: Populate Weather table
           command: |
             . venv/bin/activate
+            cd src
             python manage.py loaddata weather/fixtures/weather_fixture.json
       - run:
           name: Start Django server
           command: |
             . venv/bin/activate
+            cd src
             python manage.py runserver 0.0.0.0:8000
           background: true
       - run:
@@ -63,13 +67,14 @@ jobs:
           name: Run tests
           command: |
             . venv/bin/activate
+            cd src
             export DISPLAY=:99
             export PYTHONPATH=$PYTHONPATH:$(pwd)/tests
             pytest --junitxml=reports/test-results.xml
       - store_test_results:
-          path: reports
+          path: src/reports
       - store_artifacts:
-          path: reports
+          path: src/reports
 
 workflows:
   version: 2
