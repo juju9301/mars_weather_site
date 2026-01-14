@@ -4,7 +4,7 @@ executors:
   python-executor:
     docker:
       - image: cimg/python:3.11
-    working_directory: ~/repo
+    working_directory: ~/repo/src
 
 jobs:
   test:
@@ -27,13 +27,11 @@ jobs:
           name: Run Django migrations
           command: |
             . venv/bin/activate
-            cd mars_weather_app  # Change to the directory containing manage.py
             python manage.py migrate
       - run:
           name: Create test user
           command: |
             . venv/bin/activate
-            cd mars_weather_app
             python manage.py create_test_user
       # - run:
       #     name: Create test create_test_posts
@@ -45,13 +43,11 @@ jobs:
           name: Populate Weather table
           command: |
             . venv/bin/activate
-            cd mars_weather_app
             python manage.py loaddata weather/fixtures/weather_fixture.json
       - run:
           name: Start Django server
           command: |
             . venv/bin/activate
-            cd mars_weather_app  # Change to the directory containing manage.py
             python manage.py runserver 0.0.0.0:8000
           background: true
       - run:
@@ -67,14 +63,13 @@ jobs:
           name: Run tests
           command: |
             . venv/bin/activate
-            cd mars_weather_app
             export DISPLAY=:99
             export PYTHONPATH=$PYTHONPATH:$(pwd)/tests
             pytest --junitxml=reports/test-results.xml
       - store_test_results:
-          path: mars_weather_app/reports
+          path: reports
       - store_artifacts:
-          path: mars_weather_app/reports
+          path: reports
 
 workflows:
   version: 2
