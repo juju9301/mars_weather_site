@@ -3,7 +3,7 @@ version: 2.1
 executors:
   python-executor:
     docker:
-      - image: cimg/python:3.11
+      - image: cimg/python:3.15.2
     working_directory: ~/repo
 
 jobs:
@@ -11,18 +11,31 @@ jobs:
     executor: python-executor
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - pip-v1-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
       - run:
           name: Install system dependencies
           command: |
             sudo apt-get update
+            sudo apt-get install -y xvfb
       - run:
           name: Install dependencies
           command: |
             python -m venv venv
             . venv/bin/activate
-            pip install -r requirements.txt
-            playwright install
-            playwright install-deps
+            python -m pip install -U pip
+            pip install -r requirements.txt -r requirements-dev.txt
+            playwright install --with-deps chromium
+      - save_cache:
+          key: pip-v1-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          paths:
+            - ~/.cache/pip
+      - run:
+          name: Audit runtime dependencies
+          command: |
+            . venv/bin/activate
+            pip-audit -r requirements.txt
       - run:
           name: Run Django migrations
           command: |
@@ -75,9 +88,24 @@ jobs:
           path: src/reports
       - store_artifacts:
           path: src/reports
+  deploy:
+    executor: python-executor
+    steps:
+      - checkout
+      - run:
+          name: Deploy
+          command: |
+            # Replace with your real deploy step, see notes below.
+            curl -fsS -X POST "$DEPLOY_HOOK_URL"
 
 workflows:
   version: 2
-  test:
+  test-and-deploy:
     jobs:
       - test
+      - deploy:
+          requires:
+            - test
+          filters:
+            branches:
+              only: main
