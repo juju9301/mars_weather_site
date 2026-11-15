@@ -1,6 +1,9 @@
 marsenv/
+marsenv_new/
+.vscode/
 mars_weather_app/db.sqlite3
 */__pycache__/*
+.pytest_cache/
 __pycache__/
 *.py[cod]
 __pycache__/

@@ -1,0 +1,6 @@
+-c requirements.txt
+pytest
+pytest-playwright
+Faker
+pip-tools
+pip-audit
