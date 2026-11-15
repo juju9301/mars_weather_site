@@ -37,6 +37,9 @@ jobs:
             . venv/bin/activate
             pip-audit -r requirements.txt
       - run:
+          name: Prepare clean test database
+          command: rm -f src/db.sqlite3
+      - run:
           name: Run Django migrations
           command: |
             . venv/bin/activate
