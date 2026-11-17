@@ -1,4 +1,5 @@
 import csv
+import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -119,3 +120,20 @@ class RemsParserTests(TestCase):
         weather = Weather.objects.get(sol=SOL)
         self.assertIsNone(weather.orig_id)
         self.assertEqual(weather.source, "NASA PDS REMS RDR")
+
+    def test_all_ci_weather_fixtures_load_together(self):
+        fixture_dir = Path(__file__).resolve().parents[1] / "weather" / "fixtures"
+        fixture_paths = [
+            fixture_dir / "weather_fixture.json",
+            *sorted(fixture_dir.glob("weather_sol_*.json")),
+        ]
+        call_command("loaddata", *(str(path) for path in fixture_paths), verbosity=0)
+
+        from weather.models import Weather
+
+        expected_count = sum(
+            len(json.loads(path.read_text(encoding="utf-8")))
+            for path in fixture_paths
+        )
+        self.assertEqual(Weather.objects.count(), expected_count)
+        self.assertTrue(Weather.objects.filter(sol=SOL).exists())
