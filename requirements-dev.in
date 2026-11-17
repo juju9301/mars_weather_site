@@ -1,5 +1,6 @@
 -c requirements.txt
 pytest
+pytest-django
 pytest-playwright
 Faker
 pip-tools

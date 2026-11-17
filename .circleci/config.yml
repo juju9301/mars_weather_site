@@ -59,7 +59,7 @@ jobs:
           command: |
             . venv/bin/activate
             cd src
-            python manage.py loaddata weather/fixtures/weather_fixture.json
+            python manage.py loaddata weather/fixtures/weather_fixture.json weather/fixtures/weather_sol_*.json
       - run:
           name: Start Django server
           command: |
