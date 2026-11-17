@@ -2,7 +2,7 @@ from django.db import models
 from django.urls import reverse
 
 class Weather(models.Model):
-    orig_id = models.IntegerField()
+    orig_id = models.IntegerField(null=True, blank=True)
     terrestrial_date = models.DateField()
     sol = models.IntegerField(unique=True)
     ls = models.IntegerField(null=True)

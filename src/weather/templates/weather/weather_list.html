@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container mx-auto mt-5">
     <h1 class="text-3xl font-bold mb-4">Sol Weather</h1>
-    <p>We use data from <a href="https://cab.inta-csic.es/" class="text-orange-600">https://cab.inta-csic.es/</a>. They're awesome</p>
+    <p>Weather data is imported from calibrated REMS products published in the <a href="https://atmos.nmsu.edu/PDS/data/PDS4/msl_rems_bundle/data_calibrated/SOL_04710_04843/" class="text-orange-600">NASA Planetary Data System</a>.</p>
 
     <form method="get" action="" class="flex items-center mb-4 space-x-4">
         <div class="flex items-center space-x-2">
@@ -15,11 +15,6 @@
             <input type="date" id="date_search" name="terrestrial_date" class="form-input" value="{{ request.GET.terrestrial_date }}">
         </div>
         <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded">Search</button>
-    </form>
-
-    <form method="post" action="{% url 'weather:update_weather_data' %}" class="mb-4">
-        {% csrf_token %}
-        <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded">Update Weather Data</button>
     </form>
 
     {% if page_obj %}
