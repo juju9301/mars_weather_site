@@ -1,5 +1,6 @@
-marsenv/
+marsenv_py313/
 marsenv_new/
+
 .vscode/
 mars_weather_app/db.sqlite3
 src/db.sqlite3

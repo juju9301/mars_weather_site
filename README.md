@@ -20,7 +20,7 @@ This is a Django-based web app I built to explore Playwright automation while in
 
 ## Installation
 
-**Requirements:** Python 3.13 (the lockfiles were compiled with this version; check the header of `requirements.txt`, and use the same version in CI). Lockfiles are only guaranteed to install on the Python version that produced them.
+**Requirements:** Python 3.13–3.14 with Django 5.2 LTS. CI targets Python 3.13, which is available on PythonAnywhere's newer `innit` system image. Select manual configuration and install this project's dependencies in a virtualenv rather than relying on PythonAnywhere's bundled Django version.
 
 1. Clone the repository:
     ```bash
@@ -32,7 +32,7 @@ This is a Django-based web app I built to explore Playwright automation while in
     python -m venv .venv
     source .venv/bin/activate  # On Windows use `.venv\Scripts\activate`
     ```
-    On Windows, `py -3.13 -m venv .venv` guarantees the interpreter version.
+    On Windows, `py -3.13 -m venv .venv` creates the deployment-compatible environment.
 3. Install the dependencies:
     ```bash
     # Running the app only (what production uses)
