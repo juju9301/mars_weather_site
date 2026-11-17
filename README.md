@@ -11,7 +11,7 @@ This is a Django-based web app I built to explore Playwright automation while in
 - [License](#license)
 
 ## Features
-- 🌌 **Mars Weather Dashboard** – Displays the latest weather on Mars, fetched manually from REMS API (http://cab.inta-csic.es/rems/wp-content/plugins/marsweather-widget/api.php).
+- 🌌 **Mars Weather Dashboard** – Displays the latest imported REMS weather, using calibrated products from the NASA Planetary Data System.
 - 📈 **Temperature Graphs** – Uses matplotlib to visualize min, max, and avg temperatures.
 - 📝 **Basic Blog System** – Users can authenticate, compose posts, and attach a random Mars rover image to their entries.
 - 🧪 **Automated Testing** – Pytest + Playwright tests, with reports generated via pytest-cov and pytest-html. Include basic tests, tests using overwritten request query parameters, overwritten response body, image text recognition
@@ -59,7 +59,7 @@ Dependencies are managed with [pip-tools](https://github.com/jazzband/pip-tools)
 | File | Purpose | Installed in |
 |------|---------|--------------|
 | `requirements.in` / `requirements.txt` | Runtime dependencies of the app | Production, CI, development |
-| `requirements-dev.in` / `requirements-dev.txt` | Testing and tooling (pytest, Playwright, Faker, pip-tools, pip-audit) | CI, development |
+| `requirements-dev.in` / `requirements-dev.txt` | Testing and tooling (pytest, pytest-django, Playwright, Faker, pip-tools, pip-audit) | CI, development |
 | `requirements-experiments.in` / `requirements-experiments.txt` | Heavy, optional packages for experiments (easyocr, torch) | Only when running the experimental tests |
 
 The dev and experiments files start with `-c requirements.txt` (and the experiments file also with `-c requirements-dev.txt`). These are *constraint* lines: they make sure a package shared between files resolves to the same version everywhere, without installing the other file's packages.
@@ -110,9 +110,21 @@ pip-sync requirements.txt requirements-dev.txt requirements-experiments.txt
 
 ## Usage
 - **Mars Weather Dashboard**: Navigate to `/` to see the weather data for the latest sol available, as well as NASA's picture of the day and the posts submitted so far
-- **Mars Weather Data**: Navigate to `/list` to see all the weather data available. Click [Update weather data] for latest weather data to get fetched and saved into the database
+- **Mars Weather Data**: Navigate to `/list` to see all the weather data available. New sols are imported from downloaded REMS products with the management command described below.
 - **Temperature Graphs**: Access the temperature graphs at `/plot`. You can plot data for max, min and avg temperature. 
 - **Blog System**: Authenticate and start creating blog posts at `/add_post`. You can fetch a random Mars picture taken by one of the three Mars rovers and attach it to the post. You can also leave comments for each post.
+
+### Importing REMS data
+
+Place each sol's calibrated RMD and ADR products (the `.TAB`, `.xml`, and `.LBL` files) under `data/sols/<sol>/`. The local `data/` directory is ignored by Git. From `src`, generate a one-record Django fixture and load it:
+
+```bash
+python manage.py migrate
+python manage.py export_rems_fixture --sol 4843
+python manage.py loaddata weather_sol_4843
+```
+
+The parser checks its column definitions and record counts against the PDS XML labels. It derives sunrise and sunset from the ADR solar-zenith crossings. Values that aren't directly available are left unset rather than guessed: in particular, the ADR field named `SOLAR_LONGITUDE_ANGLE` is rover-relative solar azimuth, not Mars solar longitude (`ls`). The generated fixture is written to `weather/fixtures/weather_sol_<sol>.json`.
 
 ## Running tests
 Install the dev dependencies (see [Installation](#installation)), start the dev server, and run pytest from `src`:

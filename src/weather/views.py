@@ -1,7 +1,7 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404
 from .models import Weather
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.http import HttpResponseBadRequest, JsonResponse
+from django.http import HttpResponseBadRequest
 from .serializers import WeatherSerializer
 from rest_framework import generics, status
 from rest_framework.response import Response
@@ -9,8 +9,6 @@ from datetime import datetime
 
 from io import BytesIO
 import base64
-import requests
-
 import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
@@ -143,40 +141,6 @@ def _generate_plot(weather_data, sol_from, sol_to, temp_type):
 
     return f'data:image/png;base64,{image_base64}'
 
-def update_weather_data(request):
-    if request.method == 'POST':
-        response = requests.get('http://cab.inta-csic.es/rems/wp-content/plugins/marsweather-widget/api.php')
-        if response.status_code == 200:
-            data = response.json()
-            for entry in data['soles']:
-                sol = entry['sol']
-                if not Weather.objects.filter(sol=sol).exists():
-                    Weather.objects.create(
-                        orig_id=entry['id'],
-                        terrestrial_date=entry['terrestrial_date'],
-                        sol=entry['sol'],
-                        ls=entry['ls'],
-                        season=entry['season'],
-                        min_temp=entry['min_temp'],
-                        max_temp=entry['max_temp'],
-                        pressure=entry['pressure'],
-                        pressure_string=entry['pressure_string'],
-                        abs_humidity=entry['abs_humidity'],
-                        wind_speed=entry['wind_speed'],
-                        wind_direction=entry['wind_direction'],
-                        atmo_opacity=entry['atmo_opacity'],
-                        sunrise=entry['sunrise'],
-                        sunset=entry['sunset'],
-                        local_uv_irradiance_index=entry['local_uv_irradiance_index'],
-                        min_gts_temp=entry['min_gts_temp'],
-                        max_gts_temp=entry['max_gts_temp']
-                    )
-            return redirect('weather:weather_list')
-        else:
-            return JsonResponse({'error': 'Failed to fetch data from the API'}, status=500)
-    else:
-        return JsonResponse({'error': 'Invalid request method'}, status=400)
-    
 # API views
 
 class WeatherGetApiView(generics.ListAPIView):

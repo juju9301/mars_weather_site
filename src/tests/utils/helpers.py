@@ -65,9 +65,12 @@ def get_latest_weather_from_fixture():
 
 
 def get_weather_fixture_len():
-    with open(WEATHER_FIXTURE_PATH, "r") as file:
-        data = json.load(file)
-        return len(data)
+    fixture_paths = [WEATHER_FIXTURE_PATH]
+    fixture_paths.extend(WEATHER_FIXTURE_PATH.parent.glob("weather_sol_*.json"))
+    return sum(
+        len(json.loads(path.read_text(encoding="utf-8")))
+        for path in fixture_paths
+    )
 
 
 def compare_texts(text1, text2):
