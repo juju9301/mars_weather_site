@@ -35,24 +35,6 @@
         <dt class="font-semibold text-gray-600">Pressure category</dt>
         <dd>{{ sol.pressure_string|default_if_none:"Not available" }}</dd>
     </div>
-    {% if sol.abs_humidity is not None %}
-        <div>
-            <dt class="font-semibold text-gray-600">Absolute humidity (unit not provided)</dt>
-            <dd>{{ sol.abs_humidity }}</dd>
-        </div>
-    {% endif %}
-    <div>
-        <dt class="font-semibold text-gray-600">Wind speed</dt>
-        <dd>{% if sol.wind_speed is not None %}{{ sol.wind_speed }} m/s{% else %}Not available{% endif %}</dd>
-    </div>
-    <div>
-        <dt class="font-semibold text-gray-600">Wind direction</dt>
-        <dd>{% if sol.wind_direction is not None %}{{ sol.wind_direction }}°{% else %}Not available{% endif %}</dd>
-    </div>
-    <div>
-        <dt class="font-semibold text-gray-600">Atmospheric opacity</dt>
-        <dd>{{ sol.atmo_opacity|default_if_none:"Not available" }}</dd>
-    </div>
     <div>
         <dt class="font-semibold text-gray-600">Sunrise</dt>
         <dd>{{ sol.sunrise }} LTST</dd>
