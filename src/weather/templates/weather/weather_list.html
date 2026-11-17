@@ -20,9 +20,9 @@
     {% if page_obj %}
         <div class="bg-white shadow rounded-lg p-4">
             {% for sol in page_obj %}
-                <a href="{{ sol.get_absolute_url }}" class="block border-b border-gray-200 py-2 hover:bg-gray-100">
-                    <h5 class="text-xl font-bold text-gray-900">Sol {{ sol.sol }}</h5>
-                    <p class="text-gray-600">{{ sol.terrestrial_date }}</p>
+                <a href="{{ sol.get_absolute_url }}" class="block border-b border-gray-200 py-3 hover:bg-gray-100">
+                    <h2 class="text-lg font-bold text-gray-900 mb-2">Sol {{ sol.sol }}</h2>
+                    {% include "weather/_weather_data.html" with compact=True %}
                 </a>
             {% endfor %}
         </div>
