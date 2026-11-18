@@ -161,27 +161,6 @@ def _celsius(value_kelvin: float) -> int:
     return round(value_kelvin - 273.15)
 
 
-def _wind_direction(rows: list[dict[str, str]]) -> str | None:
-    directions = []
-    for index, row in enumerate(rows, start=1):
-        direction = _measurement(row, "WIND_DIRECTION", index)
-        if direction is not None:
-            directions.append(math.radians(direction))
-    if not directions:
-        return None
-
-    east = sum(math.sin(direction) for direction in directions)
-    north = sum(math.cos(direction) for direction in directions)
-    if math.isclose(east, 0.0, abs_tol=1e-12) and math.isclose(
-        north, 0.0, abs_tol=1e-12
-    ):
-        return None
-    degrees = math.degrees(math.atan2(east, north)) % 360
-    if math.isclose(degrees, 360.0, abs_tol=1e-10):
-        degrees = 0.0
-    return f"{degrees:.2f}"
-
-
 def _ltst_seconds(value: str) -> float:
     try:
         hours, minutes, seconds = value.strip().split()[-1].split(":")
@@ -259,8 +238,6 @@ def parse_weather_record(data_root: Path, sol: int) -> dict[str, Any]:
             "AMBIENT_TEMP",
             "BRIGHTNESS_TEMP",
             "PRESSURE",
-            "HORIZONTAL_WIND_SPEED",
-            "WIND_DIRECTION",
         },
         "RMD",
     )
@@ -277,13 +254,6 @@ def parse_weather_record(data_root: Path, sol: int) -> dict[str, Any]:
     ambient_temps = _valid_measurements(rmd_rows, "AMBIENT_TEMP")
     gts_temps = _valid_measurements(rmd_rows, "BRIGHTNESS_TEMP")
     pressures = _valid_measurements(rmd_rows, "PRESSURE")
-    wind_speeds = [
-        value
-        for index, row in enumerate(rmd_rows, start=1)
-        if (value := _measurement(row, "HORIZONTAL_WIND_SPEED", index))
-        is not None
-    ]
-
     fields = {
         "orig_id": None,
         "terrestrial_date": terrestrial_date.isoformat(),
@@ -294,12 +264,6 @@ def parse_weather_record(data_root: Path, sol: int) -> dict[str, Any]:
         "max_temp": _celsius(max(ambient_temps)),
         "pressure": round(statistics.mean(pressures)),
         "pressure_string": None,
-        "abs_humidity": None,
-        "wind_speed": (
-            f"{statistics.mean(wind_speeds):.2f}" if wind_speeds else None
-        ),
-        "wind_direction": _wind_direction(rmd_rows),
-        "atmo_opacity": None,
         "sunrise": _format_solar_crossing(adr_rows, sunrise=True),
         "sunset": _format_solar_crossing(adr_rows, sunrise=False),
         "local_uv_irradiance_index": None,

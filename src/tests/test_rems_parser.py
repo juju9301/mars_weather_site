@@ -14,8 +14,6 @@ RMD_COLUMNS = [
     "TIMESTAMP",
     "LMST",
     "LTST",
-    "HORIZONTAL_WIND_SPEED",
-    "WIND_DIRECTION",
     "BRIGHTNESS_TEMP",
     "AMBIENT_TEMP",
     "PRESSURE",
@@ -77,15 +75,15 @@ class RemsParserTests(TestCase):
             [
                 [
                     "1", "04843M05:00:00", "04843 05:00:00",
-                    "2", "350", "180", "200", "800",
+                    "180", "200", "800",
                 ],
                 [
                     "2", "04843M12:00:00", "04843 12:00:00",
-                    "4", "10", "200", "220", "1000",
+                    "200", "220", "1000",
                 ],
                 [
                     "3", "04843M13:00:00", "04843 13:00:00",
-                    "-999", "-999", "-999", "-999", "-999",
+                    "-999", "-999", "-999",
                 ],
             ],
         )
@@ -99,15 +97,16 @@ class RemsParserTests(TestCase):
         self.assertIsNone(fields["season"])
         self.assertEqual((fields["min_temp"], fields["max_temp"]), (-73, -53))
         self.assertEqual(fields["pressure"], 900)
-        self.assertEqual(fields["wind_speed"], "3.00")
-        self.assertEqual(fields["wind_direction"], "0.00")
         self.assertEqual((fields["sunrise"], fields["sunset"]), ("05:30", "17:30"))
         self.assertEqual((fields["min_gts_temp"], fields["max_gts_temp"]), (-93, -73))
-        self.assertIsNone(fields["atmo_opacity"])
+        self.assertNotIn("abs_humidity", fields)
+        self.assertNotIn("wind_speed", fields)
+        self.assertNotIn("wind_direction", fields)
+        self.assertNotIn("atmo_opacity", fields)
 
     def test_generated_fixture_loads_without_a_source_primary_key(self):
         self._write_sample_tables(
-            [["1", "04843M05:00:00", "04843 05:00:00", "2", "180", "180", "200", "800"]],
+            [["1", "04843M05:00:00", "04843 05:00:00", "180", "200", "800"]],
         )
         record = parse_weather_record(self.data_root, SOL)
         fixture_path = self.directory / "weather_sol_4843.json"
