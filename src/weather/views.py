@@ -1,8 +1,9 @@
 from django.shortcuts import render, get_object_or_404
 from .models import Weather
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.http import HttpResponseBadRequest
+from django.db.models import Max, Min
 from .serializers import WeatherSerializer
+from .forms import PLOT_METRIC_CHOICES, PlotForm
 from rest_framework import generics, status
 from rest_framework.response import Response
 from datetime import datetime
@@ -12,6 +13,32 @@ import base64
 import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
+from matplotlib.ticker import FuncFormatter
+
+
+PLOT_METRIC_LABELS = dict(PLOT_METRIC_CHOICES)
+PLOT_Y_AXIS_LABELS = {
+    'ls': 'Solar longitude (°)',
+    'max_temp': 'Air temperature (°C)',
+    'min_temp': 'Air temperature (°C)',
+    'max_gts_temp': 'Ground temperature (°C)',
+    'min_gts_temp': 'Ground temperature (°C)',
+    'pressure': 'Pressure (Pa)',
+    'sunrise': 'Local true solar time (LTST)',
+    'sunset': 'Local true solar time (LTST)',
+}
+PLOT_COLORS = {
+    'ls': 'darkorange',
+    'max_temp': 'firebrick',
+    'min_temp': 'royalblue',
+    'max_gts_temp': 'saddlebrown',
+    'min_gts_temp': 'peru',
+    'pressure': 'slateblue',
+    'sunrise': 'darkorange',
+    'sunset': 'midnightblue',
+}
+LTST_METRICS = frozenset(('sunrise', 'sunset'))
+
 
 def weather_list(request):
     sol_query = request.GET.get('sol')
@@ -43,103 +70,111 @@ def weather_detail(request, sol):
     return render(request, 'weather/weather_detail.html', {'sol': sol_to_show})
 
 def generate_weather_plot(request):
-    sol_from = request.GET.get('sol_from')
-    sol_to = request.GET.get('sol_to')
-    temp_type = request.GET.get('temp_type')  # New parameter for temperature type
+    sol_bounds = Weather.objects.aggregate(min_sol=Min('sol'), max_sol=Max('sol'))
+    form = PlotForm(
+        request.GET if request.GET else None,
+        min_sol=sol_bounds['min_sol'],
+        max_sol=sol_bounds['max_sol'],
+    )
+    context = {
+        'form': form,
+        'available_min_sol': sol_bounds['min_sol'],
+        'available_max_sol': sol_bounds['max_sol'],
+    }
 
-    # Fetch all available sols for dropdown options
-    available_sols = Weather.objects.values_list('sol', flat=True).order_by('sol')
-
-    if (sol_from and sol_to and temp_type):
-        try:
-            sol_from = int(sol_from)
-            sol_to = int(sol_to)
-            terr_dates = {
-                'date_from': Weather.objects.get(sol=sol_from).terrestrial_date,
-                'date_to': Weather.objects.get(sol=sol_to).terrestrial_date
-            }
-        except ValueError:
-            return HttpResponseBadRequest("Invalid sol range.")
-
-        # Fetch weather data for the given sol range
-        weather_data = Weather.objects.filter(sol__gte=sol_from, sol__lte=sol_to).order_by('sol')
-
-        if sol_from > sol_to or sol_from == sol_to:
-            error_message = 'Sol range is invalid. Please make sure sol_to is greater than sol_from'
-            return render(request, 'weather/weather_plot.html', {
-                'error': error_message,
-                'available_sols': available_sols,
+    if request.GET and form.is_valid():
+        sol_from = form.cleaned_data['sol_from']
+        sol_to = form.cleaned_data['sol_to']
+        metric = form.cleaned_data['metric']
+        weather_data = list(
+            Weather.objects.filter(sol__gte=sol_from, sol__lte=sol_to)
+            .only('sol', 'terrestrial_date', metric)
+            .order_by('sol')
+        )
+        plot_image = _generate_plot(weather_data, sol_from, sol_to, metric)
+        if plot_image is None:
+            metric_label = PLOT_METRIC_LABELS[metric]
+            context['error'] = (
+                f'No {metric_label.lower()} data is available between '
+                f'Sol {sol_from} and Sol {sol_to}.'
+            )
+        else:
+            records_by_sol = {record.sol: record for record in weather_data}
+            context.update({
+                'plot_image': plot_image,
+                'sol_from': sol_from,
+                'sol_to': sol_to,
+                'metric_label': PLOT_METRIC_LABELS[metric],
+                'date_from': records_by_sol[sol_from].terrestrial_date,
+                'date_to': records_by_sol[sol_to].terrestrial_date,
             })
-        
-        if not weather_data.exists():
-            return render(request, 'weather/weather_plot.html', {
-                'error': f'No weather data available for Sol range {sol_from} to {sol_to}.',
-                'available_sols': available_sols,
-            })
 
-        # Generate plot for the selected range and temperature type
-        plot_image = _generate_plot(weather_data, sol_from, sol_to, temp_type)
-        return render(request, 'weather/weather_plot.html', {
-            'plot_image': plot_image,
-            'sol_from': sol_from,
-            'sol_to': sol_to,
-            'temp_type': temp_type,
-            'available_sols': available_sols,
-            'terr_dates': terr_dates
-        })
-
-    return render(request, 'weather/weather_plot.html', {
-        'available_sols': available_sols,
-    })
+    return render(request, 'weather/weather_plot.html', context)
 
 
-def _generate_plot(weather_data, sol_from, sol_to, temp_type):
-    """
-    Generate a plot for the given weather data and temperature type.
-    """
+def _generate_plot(weather_data, sol_from, sol_to, metric):
+    points = []
+    has_data = False
+    for record in weather_data:
+        value = getattr(record, metric)
+        if metric in LTST_METRICS:
+            value = _ltst_to_hours(value)
+        if value is not None:
+            has_data = True
+        points.append((record.sol, value if value is not None else float('nan')))
+    if not has_data:
+        return None
 
-    if temp_type == 'min_temp':
-        sols = [w.sol for w in weather_data]
-        temps = [w.min_temp for w in weather_data]
-        temp_label = 'Min Temp'
-        color = 'blue'
-    elif temp_type == 'max_temp':
-        sols = [w.sol for w in weather_data]
-        temps = [w.max_temp for w in weather_data]
-        temp_label = 'Max Temp'
-        color = 'red'
-    elif temp_type == 'average_temp':
-        # Filter both sols and temps for rows where min_temp and max_temp are not None
-        filtered_data = [
-            (w.sol, (w.min_temp + w.max_temp) / 2)
-            for w in weather_data
-            if w.min_temp is not None and w.max_temp is not None
-        ]
-        sols, temps = zip(*filtered_data)  # Unpack filtered data into two lists
-        temp_label = 'Average Temp'
-        color = 'green'
-    else:
-        raise ValueError("Invalid temperature type selected.")
-
-    plt.figure(figsize=(10, 6))
-    plt.plot(sols, temps, label=temp_label, color=color)
-    plt.xlabel('Sol')
-    plt.ylabel('Temperature (°C)')
-    plt.title(f'{temp_label} Trend from Sol {sol_from} to Sol {sol_to}')
-    plt.legend()
-    plt.grid()
-
-    # Save plot to BytesIO buffer
+    sols, values = zip(*points)
+    figure, axis = plt.subplots(figsize=(10, 6))
     buffer = BytesIO()
-    plt.savefig(buffer, format='png')
-    buffer.seek(0)
-    plt.close()
+    try:
+        axis.plot(
+            sols,
+            values,
+            label=PLOT_METRIC_LABELS[metric],
+            color=PLOT_COLORS[metric],
+            marker='o',
+        )
+        axis.set_xlabel('Sol')
+        axis.set_ylabel(PLOT_Y_AXIS_LABELS[metric])
+        axis.set_title(
+            f'{PLOT_METRIC_LABELS[metric]} from Sol {sol_from} to Sol {sol_to}'
+        )
+        if metric in LTST_METRICS:
+            axis.set_ylim(0, 24)
+            axis.set_yticks(range(0, 24, 2))
+            axis.yaxis.set_major_formatter(
+                FuncFormatter(lambda value, _: _format_ltst_tick(value))
+            )
+        axis.legend()
+        axis.grid()
+        figure.savefig(buffer, format='png')
+        buffer.seek(0)
+        image_base64 = base64.b64encode(buffer.read()).decode('utf-8')
+        return f'data:image/png;base64,{image_base64}'
+    finally:
+        plt.close(figure)
+        buffer.close()
 
-    # Convert the buffer to a base64 string for inline rendering
-    image_base64 = base64.b64encode(buffer.read()).decode('utf-8')
-    buffer.close()
 
-    return f'data:image/png;base64,{image_base64}'
+def _ltst_to_hours(value):
+    if not isinstance(value, str) or ':' not in value:
+        return None
+    try:
+        hour_text, minute_text = value.split(':', maxsplit=1)
+        hour = int(hour_text)
+        minute = int(minute_text)
+    except ValueError:
+        return None
+    if not 0 <= hour < 24 or not 0 <= minute < 60:
+        return None
+    return hour + minute / 60
+
+
+def _format_ltst_tick(hours):
+    total_minutes = round(hours * 60)
+    return f'{total_minutes // 60:02d}:{total_minutes % 60:02d}'
 
 # API views
 
