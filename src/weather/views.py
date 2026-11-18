@@ -24,7 +24,7 @@ def weather_list(request):
     else:
         soles = Weather.objects.all()
     
-    paginator = Paginator(soles, 10)  # Show 10 sols per page
+    paginator = Paginator(soles, 50)  # Show 50 sols per page
     page_number = request.GET.get('page')
     
     try:
