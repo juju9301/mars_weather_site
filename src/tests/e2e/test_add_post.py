@@ -69,9 +69,37 @@ def test_post_with_custom_image(page: Page, setup):
 
 def test_post_with_fetched_image(page: Page, setup):
     home_page, add_post_page = setup
+    rover_requests = []
+    cors_headers = {'access-control-allow-origin': '*'}
+
+    def rover_response(route):
+        rover_requests.append(route.request.url)
+        if len(rover_requests) == 1:
+            route.fulfill(json={'photos': []}, headers=cors_headers)
+        else:
+            image_name = 'unavailable.svg' if len(rover_requests) == 2 else 'rover.svg'
+            route.fulfill(json={
+                'photos': [{
+                    'img_src': f'https://images.example/{image_name}',
+                    'sol': 3200,
+                }]
+            }, headers=cors_headers)
+
+    def image_response(route):
+        if route.request.url.endswith('unavailable.svg'):
+            route.fulfill(status=404, content_type='image/svg+xml', body='')
+        else:
+            route.fulfill(
+                content_type='image/svg+xml',
+                body='<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"></svg>',
+            )
+
+    page.route('https://rovers.nebulum.one/**', rover_response)
+    page.route('https://images.example/**', image_response)
 
     # Fetch random Mars image and check presence of all related elements
     add_post_page.fetch_mars_image()
+    assert len(rover_requests) == 3
     expect(add_post_page.mars_picture).to_be_visible()
     expect(add_post_page.mars_picture_info).to_be_visible()
     mars_info = add_post_page.mars_picture_info.text_content()
