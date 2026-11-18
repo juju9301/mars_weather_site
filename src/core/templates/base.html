@@ -26,6 +26,20 @@
             border-bottom: 1px solid #827d75;
         }
 
+        .nav-links > * + * {
+            position: relative;
+        }
+
+        .nav-links > * + *::before {
+            content: "";
+            position: absolute;
+            left: -0.5rem;
+            top: 50%;
+            height: 1rem;
+            border-left: 1px solid #a8a29e;
+            transform: translateY(-50%);
+        }
+
         .site-footer {
             background-color: transparent;
             border-top: 1px solid #827d75;
@@ -37,9 +51,10 @@
     <nav class="site-nav">
         <div class="container mx-auto px-4 py-2 flex justify-between items-center">
             <a class="text-xl font-bold text-orange-600" href="{% url 'core:index' %}">Mars Weather</a>
-            <div class="space-x-4 flex items-center">
+            <div class="nav-links space-x-4 flex items-center">
                 <a class="text-gray-700 hover:text-orange-600" href="{% url 'weather:weather_list' %}">Weather List</a>
                 <a class="text-gray-700 hover:text-orange-600" href="{% url 'weather:generate_weather_plot' %}">Generate Weather Plot</a>
+                <a class="text-gray-700 hover:text-orange-600" data-testid="nav-community-posts" href="{% url 'core:community_posts' %}">Community Posts</a>
                 {% if user.is_authenticated %}
                     <span data-testid="nav-greeting" class="text-gray-700">Hello, {{ user.username }}</span>
                     <form method="post" action="{% url 'core:logout' %}" class="inline">

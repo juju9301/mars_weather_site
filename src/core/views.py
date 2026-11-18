@@ -46,14 +46,16 @@ def logout_view(request):
         return redirect('core:index')
 
 def index(request):
+    recent_sol = Weather.objects.latest('sol') if Weather.objects.exists() else None
+    return render(request, 'index.html', {'recent_sol': recent_sol})
+
+def community_posts(request):
     posts_list = Post.objects.all().order_by('-created_at')
     paginator = Paginator(posts_list, 5)  # Show 5 posts per page
 
     page_number = request.GET.get('page')
     posts = paginator.get_page(page_number)
-
-    recent_sol = Weather.objects.latest('sol') if Weather.objects.exists() else None
-    return render(request, 'index.html', {'posts': posts, 'recent_sol': recent_sol})
+    return render(request, 'core/community_posts.html', {'posts': posts})
 
 @login_required
 def add_post(request):
@@ -68,7 +70,7 @@ def add_post(request):
                 if response.status_code == 200:
                     post.image.save(f"random_mars_image_{post.id}.jpg", ContentFile(response.content), save=False)
             post.save()
-            return redirect('core:index')
+            return redirect('core:community_posts')
     else:
         form = PostForm()
     return render(request, 'core/add_post.html', {'form': form})
@@ -83,7 +85,7 @@ def add_comment(request, post_id):
             comment.post = post
             comment.author = request.user
             comment.save()
-            return redirect('core:index')
+            return redirect('core:community_posts')
     else:
         form = CommentForm()
     return render(request, 'core/add_comment.html', {'form': form, 'post': post, 'comments': post.comments.all()})

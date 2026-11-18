@@ -2,6 +2,7 @@ from playwright.sync_api import Page, expect
 import pytest
 from faker import Faker
 from ..pages.add_post_page import AddPostPage
+from ..pages.community_posts_page import CommunityPostsPage
 from ..pages.login_page import LoginPage
 from ..pages.home_page import HomePage
 from ..utils.helpers import check_timestamp, api_delete_posts
@@ -12,9 +13,10 @@ fake = Faker()
 @pytest.fixture
 def setup(page: Page):
 
-    # Initialize 3 pages required for test
+    # Initialize the pages required for the test
     login_page = LoginPage(page)
     home_page = HomePage(page)
+    community_posts_page = CommunityPostsPage(page)
     add_post_page = AddPostPage(page)
 
     # Navigate to home page
@@ -22,9 +24,11 @@ def setup(page: Page):
 
     # A temporary solution with post deletion for local testing
     try:
-        expect(home_page.post).to_have_count(0)
+        community_posts_page.navigate()
+        expect(community_posts_page.post).to_have_count(0)
     except AssertionError:
         api_delete_posts()
+        community_posts_page.navigate()
 
     home_page.nav_login_button.click()
     expect(page).to_have_url(login_page.url)
@@ -33,11 +37,12 @@ def setup(page: Page):
     login_page.login(login_page.test_user_username, login_page.test_user_password)
     expect(page).to_have_url(home_page.url)
 
-    # Navigate to add post page
-    home_page.add_post_button.click()
+    # Navigate to the community feed and then the add-post page
+    community_posts_page.navigate()
+    community_posts_page.add_post_button.click()
     expect(page).to_have_url(add_post_page.url)
 
-    yield home_page, add_post_page 
+    yield community_posts_page, add_post_page
     
     #Delete all posts
     api_delete_posts()
@@ -78,7 +83,7 @@ def test_post_with_fetched_image(page: Page, setup):
     expect(add_post_page.choose_image_input).to_be_hidden()
     expect(add_post_page.mars_image_url).to_have_text(mars_pic_url)
 
-    # Submit post and verify correct post creation on home page
+    # Submit post and verify it appears in the community feed
     add_post_page.submit_button.click()
     expect(home_page.post).to_have_count(1)
     expect(home_page.post_content).to_have_text(mars_info)
@@ -99,7 +104,7 @@ def test_post_require_content_or_image(page: Page, setup):
     expect(page).to_have_url(add_post_page.url)
     expect(add_post_page.form_error).to_be_visible()
 
-    # Verify absence of new posts on home page
+    # Verify absence of new posts in the community feed
     home_page.navigate()
     expect(home_page.post).not_to_be_visible()
 
@@ -200,7 +205,7 @@ def test_after_page_refresh_mars_image_replaced_with_custom(page: Page, setup):
     assert image.stem in image_src
 
 @pytest.mark.xfail(reason='known issue with image url preservation')
-def test_mars_image_data_is_preserved_after_going_back_to_homepage(page: Page, setup):
+def test_mars_image_data_is_preserved_after_going_back_to_community_feed(page: Page, setup):
     home_page, add_post_page = setup
 
     # Get Mars image and add to post
@@ -221,7 +226,7 @@ def test_mars_image_data_is_preserved_after_going_back_to_homepage(page: Page, s
     expect(home_page.post_content).to_have_text(info)
     expect(home_page.post_image).to_be_visible()
 
-def test_custom_image_data_is_preserved_after_going_back_to_homepage(page: Page, setup):
+def test_custom_image_data_is_preserved_after_going_back_to_community_feed(page: Page, setup):
     home_page, add_post_page = setup
 
     # Fill post form

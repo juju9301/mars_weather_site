@@ -58,66 +58,6 @@
         </div>
     </section>
 
-    <section class="border-t border-gray-500 mt-10 pt-8" aria-labelledby="community-heading">
-        <div class="flex flex-wrap items-center justify-between gap-4 mb-5">
-            <h2 id="community-heading" class="text-2xl font-bold">Community posts</h2>
-            {% if user.is_authenticated %}
-                <a href="{% url 'core:add_post' %}" class="border border-gray-700 px-4 py-2 hover:bg-gray-800 hover:text-white" data-testid="add-post">Add Post</a>
-            {% else %}
-                <p data-testid="login-to-add-post">Please <a href="{% url 'core:login' %}" class="underline text-orange-800">login</a> to add a post.</p>
-            {% endif %}
-        </div>
-
-        {% for post in posts %}
-            <article class="border border-gray-500 p-4 mb-5" data-testid="post" style="background-color: {{ post.background_color }};">
-                <p class="mb-3" data-testid="post-author" style="color: {{ post.font_color }};"><strong>Posted by {{ post.author.username }}</strong> on {{ post.created_at }}</p>
-                {% if post.content %}
-                    <p data-testid="post-content" style="color: {{ post.font_color }};">{{ post.content }}</p>
-                {% endif %}
-                {% if post.image %}
-                    <img data-testid="post-image" src="{{ post.image.url }}" alt="Post image" class="mt-3 max-w-full max-h-64 object-contain">
-                {% endif %}
-                <div class="mt-5 border-t border-gray-500 pt-4">
-                    <h3 class="text-lg font-bold mb-2">Comments</h3>
-                    {% for comment in post.comments.all %}
-                        <div class="border border-gray-400 p-3 mb-2" data-testid="comment">
-                            <p data-testid="comment-author-date"><strong>{{ comment.author.username }}</strong> on {{ comment.created_at }}</p>
-                            <p data-testid="comment-content">{{ comment.content }}</p>
-                        </div>
-                    {% endfor %}
-                    {% if user.is_authenticated %}
-                        <a href="{% url 'core:add_comment' post.id %}" class="inline-block underline text-orange-800">Add Comment</a>
-                    {% else %}
-                        <p data-testid="login-to-add-comment">Please <a href="{% url 'core:login' %}" class="underline text-orange-800">login</a> to add a comment.</p>
-                    {% endif %}
-                </div>
-            </article>
-        {% empty %}
-            <p class="mb-5">No community posts yet.</p>
-        {% endfor %}
-
-        {% if posts.paginator.num_pages > 1 %}
-            <nav aria-label="Post pagination" class="py-4">
-                <ul class="flex flex-wrap justify-center gap-2">
-                    {% if posts.has_previous %}
-                        <li><a href="?page=1" class="border border-gray-700 px-3 py-2">First</a></li>
-                        <li><a href="?page={{ posts.previous_page_number }}" class="border border-gray-700 px-3 py-2">Previous</a></li>
-                    {% endif %}
-                    {% for num in posts.paginator.page_range %}
-                        {% if posts.number == num %}
-                            <li><span class="bg-gray-800 text-white px-3 py-2">{{ num }}</span></li>
-                        {% elif num > posts.number|add:'-3' and num < posts.number|add:'3' %}
-                            <li><a href="?page={{ num }}" class="border border-gray-700 px-3 py-2">{{ num }}</a></li>
-                        {% endif %}
-                    {% endfor %}
-                    {% if posts.has_next %}
-                        <li><a href="?page={{ posts.next_page_number }}" class="border border-gray-700 px-3 py-2">Next</a></li>
-                        <li><a href="?page={{ posts.paginator.num_pages }}" class="border border-gray-700 px-3 py-2">Last</a></li>
-                    {% endif %}
-                </ul>
-            </nav>
-        {% endif %}
-    </section>
 </div>
 
 <script>
