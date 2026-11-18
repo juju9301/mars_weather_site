@@ -12,6 +12,10 @@ class HomePage(BasePage):
         self.login_to_add_post = page.get_by_text('Please login to add a post.')
         self.login_to_add_comment = page.get_by_text('Please login to add a comment.')
         self.hero_header = page.get_by_test_id('hero-header')
+        self.rover_selector = page.get_by_test_id('rover-selector')
+        self.rover_photo = page.get_by_test_id('rover-photo')
+        self.rover_photo_info = page.get_by_test_id('rover-photo-info')
+        self.rover_image_status = page.get_by_test_id('rover-image-status')
 
         # Post locators
         self.post = page.get_by_test_id('post')
@@ -30,16 +34,7 @@ class HomePage(BasePage):
         self.pag_last = page.get_by_role('link', name='Last')
         self.pag_previous = page.get_by_role('link', name='Previous')
 
-        # NASA's picture of the day 
-        self.apod_section = page.locator('#apod')
-        self.apod_title = page.get_by_text('NASA\'s Space Picture of the Day')
-        self.apod_content = page.locator('#apod-content')
-        self.apod_text_title = page.get_by_test_id('apod-text-title')
-        self.apod_text = page.get_by_test_id('apod-text')
-        self.apod_media = page.get_by_test_id('apod-media')
-
-        # Most recent sol weather section locators
-        self.recent_sol_title = page.get_by_text('Most Recent Sol Weather')
+        self.recent_sol_title = page.get_by_test_id('recent-sol-title')
 
     def navigate(self):
         self.page.goto(self.base_url)

@@ -2,165 +2,190 @@
 
 {% block title %}Mars Weather - Home{% endblock title %}
 {% block content %}
-<div class="container mx-auto mt-5">
-    <h1 class="text-3xl font-bold mb-4">Home</h1>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Left Column: Posts -->
-        <div>
-            {% if user.is_authenticated %}
-                <a href="{% url 'core:add_post' %}" class="bg-gray-600 text-white px-4 py-2 rounded" data-testid="add-post">Add Post</a>
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <h1 class="text-4xl sm:text-5xl font-bold text-center mb-8" data-testid="hero-header">Mars Weather</h1>
+
+    <section class="grid grid-cols-1 md:grid-cols-5 gap-6 items-stretch" aria-labelledby="intro-heading">
+        <div class="md:col-span-3 border border-gray-500 p-6 sm:p-8 flex flex-col justify-center">
+            <h2 id="intro-heading" class="text-2xl font-bold mb-4">Hey there!</h2>
+            <div class="space-y-4 leading-relaxed">
+                <p>This is my small pet project dedicated to Mars weather, which was initially made to learn Python + Playwright automation and contained various unrelated functionality. Currently I work on cleaning it up from unrelated functionality and introducing new related features.</p>
+                <p>Previously weather data was pulled from <a class="underline text-orange-800" href="https://cab.inta-csic.es/en/" target="_blank" rel="noopener noreferrer">CAB INTA-CSIC</a>, which had a dedicated API endpoint. Currently that API seems to be deprecated, therefore I switched to the original data source - <a class="underline text-orange-800" href="https://atmos.nmsu.edu/PDS/data/PDS4/msl_rems_bundle/" target="_blank" rel="noopener noreferrer">the Mars Science Laboratory REMS data bundle</a>. It’s being updated very slowly, and the data is downloaded by hand (as the site doesn’t support robotic access) and parsed.</p>
+                <p>Project’s code can be found here → <a class="underline text-orange-800" href="https://github.com/juju9301/mars_weather_site" target="_blank" rel="noopener noreferrer">GitHub repository</a>.</p>
+            </div>
+        </div>
+        <div class="md:col-span-2 min-h-64 border border-gray-500 overflow-hidden">
+            <img
+                src="{{ MEDIA_URL }}static/astronaut.jpg"
+                alt="An astronaut sheltering from falling meteors on Mars"
+                class="w-full h-full object-cover"
+                data-testid="intro-illustration"
+            >
+        </div>
+    </section>
+
+    <hr class="border-gray-500 my-8">
+
+    <section class="grid grid-cols-1 md:grid-cols-2" aria-label="Mars rover image and latest weather">
+        <div class="md:pr-8 md:border-r border-gray-500">
+            <h2 class="text-2xl font-bold mb-4">Random Mars Rover Image</h2>
+            <label for="rover-selector" class="block font-bold mb-2">Select rover</label>
+            <select id="rover-selector" data-testid="rover-selector" class="w-full sm:w-auto border border-gray-500 bg-transparent px-3 py-2 mb-4">
+                <option value="curiosity">Curiosity</option>
+                <option value="perseverance">Perseverance</option>
+            </select>
+            <div id="rover-image-status" class="text-sm mb-3" role="status" aria-live="polite" data-testid="rover-image-status">Loading a rover image…</div>
+            <div id="rover-image-container" class="border border-gray-500 p-3 min-h-64 flex flex-col items-center justify-center">
+                <img id="rover-photo" class="hidden max-w-full max-h-96 object-contain" alt="" data-testid="rover-photo">
+                <p id="rover-photo-info" class="text-sm mt-3 text-center" data-testid="rover-photo-info"></p>
+            </div>
+        </div>
+
+        <div class="md:pl-8 mt-8 md:mt-0">
+            <h2 class="text-2xl font-bold mb-4" data-testid="recent-sol-title">Most Recent Sol Weather</h2>
+            {% if recent_sol %}
+                <article class="border border-gray-500 bg-white bg-opacity-30 p-5 sm:p-6" data-testid="recent-sol-document">
+                    <header class="flex flex-wrap justify-between items-baseline border-b border-gray-500 pb-3 mb-2">
+                        <h3 class="text-xl font-bold">Sol {{ recent_sol.sol }}</h3>
+                        <p>{{ recent_sol.terrestrial_date|date:"Y-m-d" }}</p>
+                    </header>
+                    {% include "weather/_weather_data.html" with sol=recent_sol compact=True %}
+                    <a href="{{ recent_sol.get_absolute_url }}" class="inline-block mt-4 underline text-orange-800">View sol details</a>
+                </article>
             {% else %}
-                <p>Please <a href="{% url 'core:login' %}" class="text-orange-600">login</a> to add a post.</p>
+                <p class="border border-gray-500 p-6" data-testid="no-recent-weather">No recent weather data available.</p>
             {% endif %}
-            <div class="mt-4">
-                {% for post in posts %}
-                    <div class="bg-white shadow rounded-lg p-4 mb-4" data-testid="post" style="background-color: {{ post.background_color }};">
-                        <p class="text-gray-700" data-testid="post-author" style="color: {{ form.post_color }};"><strong>Posted by {{ post.author.username }}</strong> on {{ post.created_at }}</p>
-                        {% if post.content %}
-                            <p class="text-gray-700" data-testid="post-content" style="color: {{ post.font_color }};">{{ post.content }}</p>
-                        {% endif %}
-                        {% if post.image %}
-                            <img data-testid="post-image" src="{{ post.image.url }}" alt="Post Image" class="mt-2 max-w-full max-h-64 object-contain">
-                        {% endif %}
-                        <div class="mt-4">
-                            <h3 class="text-xl font-bold mb-2">Comments</h3>
-                            {% for comment in post.comments.all %}
-                                <div class="bg-gray-100 p-2 rounded mb-2" data-testid="comment">
-                                    <p class="text-gray-700" data-testid="comment-author-date"><strong>{{ comment.author.username }}</strong> on {{ comment.created_at }}</p>
-                                    <p class="text-gray-700" data-testid="comment-content">{{ comment.content }}</p>
-                                </div>
-                            {% endfor %}
-                            {% if user.is_authenticated %}
-                                <a href="{% url 'core:add_comment' post.id %}" class="bg-gray-600 text-white px-4 py-2 rounded">Add Comment</a>
-                            {% else %}
-                                <p>Please <a href="{% url 'core:login' %}" class="text-orange-600">login</a> to add a comment.</p>
-                            {% endif %}
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-            <!-- Pagination Controls -->
-            <div class="mt-4">
-                <nav class="bg-white shadow rounded-lg p-4">
-                    <ul class="flex justify-center space-x-2">
-                        {% if posts.has_previous %}
-                            <li>
-                                <a href="?page=1" class="bg-gray-600 text-white px-4 py-2 rounded">First</a>
-                            </li>
-                            <li>
-                                <a href="?page={{ posts.previous_page_number }}" class="bg-gray-600 text-white px-4 py-2 rounded">Previous</a>
-                            </li>
-                        {% endif %}
-                        {% for num in posts.paginator.page_range %}
-                            {% if posts.number == num %}
-                                <li>
-                                    <span class="bg-orange-600 text-white px-4 py-2 rounded">{{ num }}</span>
-                                </li>
-                            {% elif num > posts.number|add:'-3' and num < posts.number|add:'3' %}
-                                <li>
-                                    <a href="?page={{ num }}" class="bg-gray-600 text-white px-4 py-2 rounded">{{ num }}</a>
-                                </li>
-                            {% endif %}
-                        {% endfor %}
-                        {% if posts.has_next %}
-                            <li>
-                                <a href="?page={{ posts.next_page_number }}" class="bg-gray-600 text-white px-4 py-2 rounded">Next</a>
-                            </li>
-                            <li>
-                                <a href="?page={{ posts.paginator.num_pages }}" class="bg-gray-600 text-white px-4 py-2 rounded">Last</a>
-                            </li>
-                        {% endif %}
-                    </ul>
-                </nav>
-            </div>
+        </div>
+    </section>
+
+    <section class="border-t border-gray-500 mt-10 pt-8" aria-labelledby="community-heading">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-5">
+            <h2 id="community-heading" class="text-2xl font-bold">Community posts</h2>
+            {% if user.is_authenticated %}
+                <a href="{% url 'core:add_post' %}" class="border border-gray-700 px-4 py-2 hover:bg-gray-800 hover:text-white" data-testid="add-post">Add Post</a>
+            {% else %}
+                <p data-testid="login-to-add-post">Please <a href="{% url 'core:login' %}" class="underline text-orange-800">login</a> to add a post.</p>
+            {% endif %}
         </div>
 
-        <!-- Right Column: NASA's Space Picture of the Day and Most Recent Sol Weather -->
-        <div>
-            <!-- NASA's Space Picture of the Day -->
-            <div id="apod" class="bg-white shadow rounded-lg p-4 mb-4">
-                <h2 class="text-2xl font-bold mb-4">NASA's Space Picture of the Day</h2>
-                <div id="apod-content" class="text-gray-700"></div>
-            </div>
-
-            <!-- Most Recent Sol Weather -->
-            <div class="bg-white shadow rounded-lg p-4">
-                <h2 class="text-2xl font-bold mb-4">Most Recent Sol Weather</h2>
-                {% if recent_sol %}
-                    <div class="grid grid-cols-1 gap-4">
-                        <div class="bg-gray-100 p-4 rounded flex items-center">
-                            <i class="fas fa-calendar-day text-orange-600 mr-2"></i>
-                            <p class="text-gray-700"><strong>Sol:</strong> {{ recent_sol.sol }}</p>
-                        </div>
-                        <div class="bg-gray-100 p-4 rounded flex items-center">
-                            <i class="fas fa-calendar-alt text-orange-600 mr-2"></i>
-                            <p class="text-gray-700"><strong>Terrestrial Date:</strong> {{ recent_sol.terrestrial_date }}</p>
-                        </div>
-                        <div class="bg-gray-100 p-4 rounded flex items-center">
-                            <i class="fas fa-thermometer-empty text-orange-600 mr-2"></i>
-                            <p class="text-gray-700"><strong>Min Temperature:</strong> {{ recent_sol.min_temp }}</p>
-                        </div>
-                        <div class="bg-gray-100 p-4 rounded flex items-center">
-                            <i class="fas fa-thermometer-full text-orange-600 mr-2"></i>
-                            <p class="text-gray-700"><strong>Max Temperature:</strong> {{ recent_sol.max_temp }}</p>
-                        </div>
-                        <div class="bg-gray-100 p-4 rounded flex items-center">
-                            <i class="fas fa-tachometer-alt text-orange-600 mr-2"></i>
-                            <p class="text-gray-700"><strong>Pressure:</strong> {{ recent_sol.pressure }}</p>
-                        </div>
-                        <div class="bg-gray-100 p-4 rounded flex items-center">
-                            <i class="fas fa-leaf text-orange-600 mr-2"></i>
-                            <p class="text-gray-700"><strong>Season:</strong> {{ recent_sol.season }}</p>
-                        </div>
-                        <div class="bg-gray-100 p-4 rounded flex items-center">
-                            <i class="fas fa-sun text-orange-600 mr-2"></i>
-                            <p class="text-gray-700"><strong>Sunrise:</strong> {{ recent_sol.sunrise }}</p>
-                        </div>
-                        <div class="bg-gray-100 p-4 rounded flex items-center">
-                            <i class="fas fa-moon text-orange-600 mr-2"></i>
-                            <p class="text-gray-700"><strong>Sunset:</strong> {{ recent_sol.sunset }}</p>
-                        </div>
-                    </div>
-                {% else %}
-                    <p class="text-gray-700">No recent weather data available.</p>
+        {% for post in posts %}
+            <article class="border border-gray-500 p-4 mb-5" data-testid="post" style="background-color: {{ post.background_color }};">
+                <p class="mb-3" data-testid="post-author" style="color: {{ post.font_color }};"><strong>Posted by {{ post.author.username }}</strong> on {{ post.created_at }}</p>
+                {% if post.content %}
+                    <p data-testid="post-content" style="color: {{ post.font_color }};">{{ post.content }}</p>
                 {% endif %}
-            </div>
-        </div>
-    </div>
+                {% if post.image %}
+                    <img data-testid="post-image" src="{{ post.image.url }}" alt="Post image" class="mt-3 max-w-full max-h-64 object-contain">
+                {% endif %}
+                <div class="mt-5 border-t border-gray-500 pt-4">
+                    <h3 class="text-lg font-bold mb-2">Comments</h3>
+                    {% for comment in post.comments.all %}
+                        <div class="border border-gray-400 p-3 mb-2" data-testid="comment">
+                            <p data-testid="comment-author-date"><strong>{{ comment.author.username }}</strong> on {{ comment.created_at }}</p>
+                            <p data-testid="comment-content">{{ comment.content }}</p>
+                        </div>
+                    {% endfor %}
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'core:add_comment' post.id %}" class="inline-block underline text-orange-800">Add Comment</a>
+                    {% else %}
+                        <p data-testid="login-to-add-comment">Please <a href="{% url 'core:login' %}" class="underline text-orange-800">login</a> to add a comment.</p>
+                    {% endif %}
+                </div>
+            </article>
+        {% empty %}
+            <p class="mb-5">No community posts yet.</p>
+        {% endfor %}
+
+        {% if posts.paginator.num_pages > 1 %}
+            <nav aria-label="Post pagination" class="py-4">
+                <ul class="flex flex-wrap justify-center gap-2">
+                    {% if posts.has_previous %}
+                        <li><a href="?page=1" class="border border-gray-700 px-3 py-2">First</a></li>
+                        <li><a href="?page={{ posts.previous_page_number }}" class="border border-gray-700 px-3 py-2">Previous</a></li>
+                    {% endif %}
+                    {% for num in posts.paginator.page_range %}
+                        {% if posts.number == num %}
+                            <li><span class="bg-gray-800 text-white px-3 py-2">{{ num }}</span></li>
+                        {% elif num > posts.number|add:'-3' and num < posts.number|add:'3' %}
+                            <li><a href="?page={{ num }}" class="border border-gray-700 px-3 py-2">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    {% if posts.has_next %}
+                        <li><a href="?page={{ posts.next_page_number }}" class="border border-gray-700 px-3 py-2">Next</a></li>
+                        <li><a href="?page={{ posts.paginator.num_pages }}" class="border border-gray-700 px-3 py-2">Last</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+    </section>
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const apiKey = '{{ nasa_api_key }}';
-    const apodSection = document.getElementById('apod');
-    const apodContent = document.getElementById('apod-content');
+document.addEventListener("DOMContentLoaded", () => {
+    const roverSelector = document.getElementById("rover-selector");
+    const status = document.getElementById("rover-image-status");
+    const photo = document.getElementById("rover-photo");
+    const photoInfo = document.getElementById("rover-photo-info");
+    const roverNames = {
+        curiosity: "Curiosity",
+        perseverance: "Perseverance"
+    };
+    const solRanges = {
+        curiosity: [3000, 5500],
+        perseverance: [1900, 3500]
+    };
+    const maxAttempts = 10;
 
-    fetch(`https://api.nasa.gov/planetary/apod?api_key=${apiKey}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
+    async function loadRandomRoverPhoto() {
+        const rover = roverSelector.value;
+        const [firstSol, lastSol] = solRanges[rover];
+        status.textContent = "Looking for a photo…";
+        photo.classList.add("hidden");
+        photoInfo.textContent = "";
+        let lastError;
+
+        for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+            const sol = Math.floor(Math.random() * (lastSol - firstSol + 1)) + firstSol;
+            try {
+                const response = await fetch(
+                    `https://rovers.nebulum.one/api/v1/rovers/${rover}/photos?sol=${sol}`
+                );
+                if (!response.ok) {
+                    throw new Error(`Rover photo service returned ${response.status}`);
+                }
+
+                const data = await response.json();
+                if (!Array.isArray(data.photos) || data.photos.length === 0) {
+                    continue;
+                }
+
+                const selectedPhoto = data.photos[Math.floor(Math.random() * data.photos.length)];
+                const image = new Image();
+                await new Promise((resolve) => {
+                    image.onload = resolve;
+                    image.onerror = resolve;
+                    image.src = selectedPhoto.img_src;
+                });
+                if (image.naturalWidth > 0) {
+                    photo.src = selectedPhoto.img_src;
+                    photo.alt = `${roverNames[rover]} rover photo from sol ${selectedPhoto.sol || sol}`;
+                    photo.classList.remove("hidden");
+                    photoInfo.textContent = `${roverNames[rover]} · sol ${selectedPhoto.sol || sol}`;
+                    status.textContent = "";
+                    return;
+                }
+                lastError = new Error("The rover image could not be loaded.");
+            } catch (error) {
+                lastError = error;
             }
-            return response.json();
-        })
-        .then(data => {
-            if (data.media_type === 'image') {
-                apodContent.innerHTML = `
-                    <img src="${data.url}" alt="${data.title}" class="max-w-full max-h-64 object-contain mb-4" data-testid="apod-media">
-                    <p class="font-bold" data-testid="apod-text-title">${data.title}</p>
-                    <p data-testid="apod-text">${data.explanation}</p>
-                `;
-            } else if (data.media_type === 'video') {
-                apodContent.innerHTML = `
-                    <iframe src="${data.url}" frameborder="0" allowfullscreen class="w-full max-h-64 mb-4" data-testid="apod-media"></iframe>
-                    <p class="font-bold" data-testid="apod-text-title">${data.title}</p>
-                    <p data-testid="apod-text">${data.explanation}</p>
-                `;
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching NASA APOD:', error);
-            apodSection.style.display = 'none';  // Hide the section if the API call fails
-        });
+        }
+
+        console.error("Could not load a random Mars rover photo.", lastError);
+        status.textContent = "Could not load a rover photo. Try choosing a rover again or refreshing the page.";
+    }
+
+    roverSelector.addEventListener("change", loadRandomRoverPhoto);
+    loadRandomRoverPhoto();
 });
 </script>
 {% endblock content %}

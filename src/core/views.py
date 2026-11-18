@@ -4,7 +4,6 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.core.files.base import ContentFile
 from django.core.paginator import Paginator
-from django.conf import settings
 import requests
 from .models import Post, Comment
 from weather.models import Weather
@@ -54,7 +53,7 @@ def index(request):
     posts = paginator.get_page(page_number)
 
     recent_sol = Weather.objects.latest('sol') if Weather.objects.exists() else None
-    return render(request, 'index.html', {'posts': posts, 'recent_sol': recent_sol, 'nasa_api_key': settings.NASA_API_KEY})
+    return render(request, 'index.html', {'posts': posts, 'recent_sol': recent_sol})
 
 @login_required
 def add_post(request):
@@ -72,7 +71,7 @@ def add_post(request):
             return redirect('core:index')
     else:
         form = PostForm()
-    return render(request, 'core/add_post.html', {'form': form, 'nasa_api_key': settings.NASA_API_KEY})
+    return render(request, 'core/add_post.html', {'form': form})
 
 @login_required
 def add_comment(request, post_id):
