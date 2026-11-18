@@ -16,7 +16,7 @@ This is a Django-based web app I built to explore Playwright automation while in
 - 📝 **Basic Blog System** – Users can authenticate, compose posts, and attach a random Mars rover image to their entries.
 - 🧪 **Automated Testing** – Pytest + Playwright tests, with reports generated via pytest-cov and pytest-html. Include basic tests, tests using overwritten request query parameters, overwritten response body, image text recognition
 - 🔄 **CI/CD Integration** – Configured with CircleCI for automated testing.
-- 🚀 **Live Deployment** – Hosted on PythonAnywhere (currently inactive due to becoming too large for free tier).
+- 🚀 **Live Deployment** – Hosted on PythonAnywhere --> https://juju9301.pythonanywhere.com/.
 
 ## Installation
 
@@ -103,17 +103,6 @@ pip install -r requirements-experiments.txt
 pip-sync requirements.txt requirements-dev.txt requirements-experiments.txt
 ```
 
-### Troubleshooting
-- **pip tries to compile a package from source** (Meson / "Unknown compiler" errors): the pinned version has no prebuilt wheel for your Python. Recompile with `--upgrade` and `--only-binary=:all:`, or use a Python version the package supports.
-- **`No matching distribution found` for a pinned version**: you are probably using a different Python than the one the lockfile was compiled with. Check `python --version` against the header of `requirements.txt`.
-- **`-c requirements.txt` is not recognized as a command**: that line belongs inside a `.in` file, not in the terminal.
-
-## Usage
-- **Mars Weather Dashboard**: Navigate to `/` to see the weather data for the latest sol available, as well as NASA's picture of the day and the posts submitted so far
-- **Mars Weather Data**: Navigate to `/list` to see all the weather data available. New sols are imported from downloaded REMS products with the management command described below.
-- **Temperature Graphs**: Access the temperature graphs at `/plot`. You can plot data for max, min and avg temperature. 
-- **Blog System**: Authenticate and start creating blog posts at `/add_post`. You can fetch a random Mars picture taken by one of the three Mars rovers and attach it to the post. You can also leave comments for each post.
-
 ### Importing REMS data
 
 Place each sol's calibrated RMD and ADR products (the `.TAB`, `.xml`, and `.LBL` files) under `data/sols/<sol>/`. The local `data/` directory is ignored by Git. From `src`, generate a one-record Django fixture and load it:
@@ -126,14 +115,8 @@ python manage.py loaddata weather_sol_4843
 
 The parser checks its column definitions and record counts against the PDS XML labels. It derives sunrise and sunset from the ADR solar-zenith crossings. Values that aren't directly available are left unset rather than guessed: in particular, the ADR field named `SOLAR_LONGITUDE_ANGLE` is rover-relative solar azimuth, not Mars solar longitude (`ls`). The generated fixture is written to `weather/fixtures/weather_sol_<sol>.json`.
 
-## Running tests
-Install the dev dependencies (see [Installation](#installation)), start the dev server, and run pytest from `src`:
-```bash
-cd src
-python manage.py runserver        # in a separate terminal
-pytest
-```
-CircleCI runs the same steps on every push: it installs `requirements.txt` and `requirements-dev.txt`, audits the runtime dependencies with `pip-audit`, runs the migrations, loads the fixtures, and executes the Playwright tests. The experiments file is not installed in CI.
+
+CircleCI installs `requirements.txt` and `requirements-dev.txt`, audits the runtime dependencies with `pip-audit`, runs the migrations, loads the fixtures, and executes the Playwright tests. The experiments file is not installed in CI.
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
