@@ -9,8 +9,8 @@
         <div class="md:col-span-3 border border-gray-500 p-6 sm:p-8 flex flex-col justify-center">
             <h2 id="intro-heading" class="text-2xl font-bold mb-4">Hey there!</h2>
             <div class="space-y-4 leading-relaxed">
-                <p>This is my small side project dedicated to the weather on Mars. It initially started as a way to learn Python + Playwright automation, and over time picked up various unrelated functionality. Currently I work on cleaning it up: removing what doesn't belong and introducing new features.</p>
-                <p>Originally weather readings were pulled from the <a class="underline text-orange-800" href="https://cab.inta-csic.es/en/" target="_blank" rel="noopener noreferrer">Centro de Astrobiología (CAB)</a>, which had a dedicated API endpoint. That endpoint has since been retired, so I switched to NASA's  - <a class="underline text-orange-800" href="https://atmos.nmsu.edu/PDS/data/PDS4/msl_rems_bundle/" target="_blank" rel="noopener noreferrer">Planetary Data System archive of measurements from the REMS instrument on the Curiosity rover</a>. NASA publishes new Curiosity data in batches about three times a year, so the latest readings are always several months behind. The archive's server also doesn't allow automated downloads, so I fetch the files by hand and then parse them.</p>
+                <p>This is a small side project dedicated to the weather on Mars. It initially started as a way to practice Python + Playwright automation, and over time picked up various unrelated functionality. Currently I work on cleaning it up: removing what doesn't belong and introducing new features.</p>
+                <p>Originally weather readings were pulled from the <a class="underline text-orange-800" href="https://cab.inta-csic.es/en/" target="_blank" rel="noopener noreferrer">Centro de Astrobiología (CAB)</a>, which had a dedicated API endpoint. That endpoint has since been retired, so I switched to NASA's <a class="underline text-orange-800" href="https://atmos.nmsu.edu/PDS/data/PDS4/msl_rems_bundle/" target="_blank" rel="noopener noreferrer">Planetary Data System archive of measurements from the REMS instrument on the Curiosity rover</a>. NASA publishes new Curiosity data in batches about three times a year, so the latest readings are always several months behind. The archive's server also doesn't allow automated downloads, so I fetch the files by hand and then parse them.</p>
                 <p>The project's code is on GitHub → <a class="underline text-orange-800" href="https://github.com/juju9301/mars_weather_site" target="_blank" rel="noopener noreferrer">GitHub repository</a>.</p>
             </div>
         </div>
@@ -55,6 +55,61 @@
             {% else %}
                 <p class="border border-gray-500 p-6" data-testid="no-recent-weather">No recent weather data available.</p>
             {% endif %}
+        </div>
+    </section>
+
+    <hr class="border-gray-500 my-8">
+
+    <section class="grid grid-cols-1 md:grid-cols-5 gap-6 items-stretch" aria-label="Weather archive statistics">
+        <div class="md:col-span-2 border border-gray-500 p-5 sm:p-6" aria-labelledby="data-coverage-heading" data-testid="data-coverage">
+            <h2 id="data-coverage-heading" class="text-2xl font-bold mb-4">Data Coverage</h2>
+            {% if coverage %}
+                <p class="mb-4">Weather observations are available for {{ coverage.record_count }} sols in the recorded range.</p>
+                <dl class="space-y-3">
+                    <div class="flex justify-between gap-4 border-b border-gray-400 pb-2">
+                        <dt>Sol range</dt>
+                        <dd class="font-bold">Sol {{ coverage.min_sol }}–{{ coverage.max_sol }}</dd>
+                    </div>
+                    <div class="flex justify-between gap-4 border-b border-gray-400 pb-2">
+                        <dt>Recorded sols</dt>
+                        <dd class="font-bold">{{ coverage.record_count }} / {{ coverage.sol_span }}</dd>
+                    </div>
+                    <div class="flex justify-between gap-4 border-b border-gray-400 pb-2">
+                        <dt>Missing sols in range</dt>
+                        <dd class="font-bold">{{ coverage.missing_count }}</dd>
+                    </div>
+                    <div class="flex justify-between gap-4">
+                        <dt>Range coverage</dt>
+                        <dd class="font-bold">{{ coverage.percentage }}%</dd>
+                    </div>
+                </dl>
+                <p class="mt-4 text-sm">Coverage is calculated between the earliest and latest recorded sols; sols outside this range are not counted as gaps.</p>
+            {% else %}
+                <p data-testid="no-weather-coverage">No weather observations are currently available.</p>
+            {% endif %}
+        </div>
+
+        <div class="md:col-span-3 border border-gray-500 p-5 sm:p-6" aria-labelledby="current-champions-heading" data-testid="current-champions">
+            <h2 id="current-champions-heading" class="text-2xl font-bold mb-2">Current Champions</h2>
+            <p class="mb-4 text-sm">Highest and lowest recorded values in the archive.</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {% for champion in champions %}
+                    <article class="border border-gray-400 p-3" data-testid="weather-champion">
+                        <h3 class="font-bold">{{ champion.label }}</h3>
+                        {% if champion.record %}
+                            <p class="text-xl">{{ champion.value }} {{ champion.unit }}</p>
+                            <p class="text-sm">
+                                <a href="{{ champion.record.get_absolute_url }}" class="underline text-orange-800">
+                                    Sol {{ champion.record.sol }}
+                                </a>
+                                · {{ champion.record.terrestrial_date|date:"Y-m-d" }}
+                            </p>
+                        {% else %}
+                            <p class="text-sm">No measurement available.</p>
+                        {% endif %}
+                    </article>
+                {% endfor %}
+            </div>
         </div>
     </section>
 

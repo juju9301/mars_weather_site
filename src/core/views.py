@@ -10,6 +10,7 @@ from weather.models import Weather
 from .forms import RegisterForm, LoginForm, PostForm, CommentForm
 from .decorators import redirect_authenticated_user
 from django.contrib.auth.models import User
+from django.db.models import Count, Max, Min
 
 from .serializers import PostSerializer, CommentSerializer, UserSerializer
 from rest_framework import generics, status
@@ -46,8 +47,58 @@ def logout_view(request):
         return redirect('core:index')
 
 def index(request):
-    recent_sol = Weather.objects.latest('sol') if Weather.objects.exists() else None
-    return render(request, 'index.html', {'recent_sol': recent_sol})
+    weather_summary = Weather.objects.aggregate(
+        sol_count=Count('id'),
+        min_sol=Min('sol'),
+        max_sol=Max('sol'),
+    )
+    recent_sol = (
+        Weather.objects.filter(sol=weather_summary['max_sol']).first()
+        if weather_summary['max_sol'] is not None
+        else None
+    )
+
+    champions = []
+    champion_fields = (
+        ('Warmest air', 'max_temp', True, '°C'),
+        ('Coldest air', 'min_temp', False, '°C'),
+        ('Warmest ground', 'max_gts_temp', True, '°C'),
+        ('Coldest ground', 'min_gts_temp', False, '°C'),
+        ('Highest pressure', 'pressure', True, 'Pa'),
+        ('Lowest pressure', 'pressure', False, 'Pa'),
+    )
+    for label, field, highest_first, unit in champion_fields:
+        ordering = f'-{field}' if highest_first else field
+        record = (
+            Weather.objects.filter(**{f'{field}__isnull': False})
+            .only('sol', 'terrestrial_date', field)
+            .order_by(ordering, 'sol')
+            .first()
+        )
+        champions.append({
+            'label': label,
+            'record': record,
+            'value': getattr(record, field) if record is not None else None,
+            'unit': unit,
+        })
+
+    coverage = None
+    if weather_summary['sol_count']:
+        sol_span = weather_summary['max_sol'] - weather_summary['min_sol'] + 1
+        coverage = {
+            'min_sol': weather_summary['min_sol'],
+            'max_sol': weather_summary['max_sol'],
+            'record_count': weather_summary['sol_count'],
+            'sol_span': sol_span,
+            'missing_count': sol_span - weather_summary['sol_count'],
+            'percentage': round(weather_summary['sol_count'] / sol_span * 100, 1),
+        }
+
+    return render(request, 'index.html', {
+        'recent_sol': recent_sol,
+        'champions': champions,
+        'coverage': coverage,
+    })
 
 def community_posts(request):
     posts_list = Post.objects.all().order_by('-created_at')
