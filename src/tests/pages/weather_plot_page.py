@@ -8,19 +8,21 @@ class WeatherPlotPage(BasePage):
         self.path = 'plot'
         self.url = self.base_url + self.path
 
-        self.sol_from_selector = page.locator('select#sol_from')
-        self.sol_to_selector = page.locator('select#sol_to')
-        self.temp_type_selector = page.locator('select#temp_type')
+        self.sol_from_input = page.locator('input#id_sol_from')
+        self.sol_to_input = page.locator('input#id_sol_to')
+        self.metric_selector = page.locator('select#id_metric')
         self.generate_plot_button = page.get_by_role('button', name='Generate Plot')
-        self.invalid_sol_range_error_message = page.get_by_text('Sol range is invalid. Please make sure sol_to is greater than sol_from')
+        self.invalid_sol_range_error_message = page.get_by_text(
+            'Sol to must be greater than Sol from.'
+        )
 
     def navigate(self):
         self.page.goto(self.url)
 
-    def fill_plot_from_and_submit(self, sol_from, sol_to, temp_type):
-        self.sol_from_selector.select_option(sol_from)
-        self.sol_to_selector.select_option(sol_to)
-        self.temp_type_selector.select_option(temp_type)
+    def fill_plot_from_and_submit(self, sol_from, sol_to, metric):
+        self.sol_from_input.fill(str(sol_from))
+        self.sol_to_input.fill(str(sol_to))
+        self.metric_selector.select_option(metric)
         self.generate_plot_button.click()
 
     def get_plot_img(self):
@@ -30,8 +32,8 @@ class WeatherPlotPage(BasePage):
         plot_img = self.get_plot_img()
         plot_img.get_attribute('src')
 
-    def get_plot_url(self, sol_from, sol_to, temp_type):
-        return f'{self.url}?sol_from={sol_from}&sol_to={sol_to}&temp_type={temp_type}'
+    def get_plot_url(self, sol_from, sol_to, metric):
+        return f'{self.url}?sol_from={sol_from}&sol_to={sol_to}&metric={metric}'
     
     def get_no_data_error_message(self, sol_from, sol_to):
         return self.page.get_by_text(f'No weather data available for Sol range {sol_from} to {sol_to}.')
