@@ -1,7 +1,6 @@
 from ..pages.add_comment_page import AddCommentPage
-from ..pages.home_page import HomePage
+from ..pages.community_posts_page import CommunityPostsPage
 from ..pages.login_page import LoginPage
-from ..pages.base_page import BasePage
 from playwright.sync_api import Page, expect
 import pytest
 from faker import Faker
@@ -17,13 +16,14 @@ def setup(page: Page):
 
     # Create pages
     login_page = LoginPage(page)
-    home_page = HomePage(page)
+    community_posts_page = CommunityPostsPage(page)
     add_comment_page = AddCommentPage(page)
 
     # Login
     login_page.navigate()
     login_page.login(login_page.test_user_username, login_page.test_user_password)
-    yield post_id, home_page, add_comment_page
+    community_posts_page.navigate()
+    yield post_id, community_posts_page, add_comment_page
     
     # Delete all aposts
     api_delete_posts()
@@ -33,7 +33,7 @@ def test_add_comment(page: Page, setup):
 
     # Find first ['Add comment'] button and click
     expect(home_page.add_comment_button).to_have_count(1)
-    first = home_page.get_nth(home_page.add_comment_button, 0)
+    first = home_page.add_comment_button.nth(0)
     first.click()
 
     # Check that the comment form is displayed
@@ -53,7 +53,7 @@ def test_add_comment(page: Page, setup):
     expect(home_page.comment_author_date).to_be_visible()
     expect(home_page.comment_content).to_have_text(comment_text)
 
-def test_comment_message_is_preserved_after_going_back_to_home_page(page: Page, setup):
+def test_comment_message_is_preserved_after_going_back_to_community_feed(page: Page, setup):
     post_id, home_page, add_comment_page = setup
 
     # Go to add comment page and fill comment form
@@ -61,7 +61,7 @@ def test_comment_message_is_preserved_after_going_back_to_home_page(page: Page, 
     content = fake.text()
     add_comment_page.comment_form_content.fill(content)
 
-    # Go back to homepage and forward to the comment form
+    # Go back to the community feed and forward to the comment form
     page.go_back()
     page.go_forward()
     expect(add_comment_page.comment_form_content).to_have_value(content)

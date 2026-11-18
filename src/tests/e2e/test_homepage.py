@@ -1,7 +1,9 @@
-from playwright.sync_api import Page, BrowserType, expect
-from ..pages.home_page import HomePage
-from ..pages.login_page import LoginPage
 import pytest
+from playwright.sync_api import Page, expect
+
+from ..pages.community_posts_page import CommunityPostsPage
+from ..pages.home_page import HomePage
+
 
 @pytest.fixture
 def home_page(page: Page):
@@ -10,63 +12,69 @@ def home_page(page: Page):
 
     yield home_page
 
-def test_homepage_title(home_page: HomePage, page: Page):
+def test_homepage_title(page: Page, home_page: HomePage):
     expect(page).to_have_title('Mars Weather - Home')
-
-# def test_headless_and_slow_mo(browser_type: BrowserType):
-#     browser = browser_type.launch(headless=True, slow_mo=100)
 
 def test_home_page_hero_header(home_page: HomePage):
     expect(home_page.hero_header).to_be_visible()
-    expect(home_page.hero_header).to_contain_text('Welcome to Mars Weather')
+    expect(home_page.hero_header).to_have_text('Mars Weather')
 
-def test_logout_user_cant_create_posts_and_comments(home_page: HomePage, page: Page):
-    expect(home_page.add_post_button).to_be_hidden()
-    expect(home_page.add_comment_button).to_be_hidden()
-    expect(home_page.login_to_add_post).to_be_visible()
-    post_count = page.get_by_test_id('post').count()
-    expect(home_page.login_to_add_comment).to_have_count(post_count)
-
-@pytest.mark.skip(reason='NASA API call currently returns 404. Unskip when fixed')
-def test_nasa_pic_section_is_displayed(home_page: HomePage):
-    expect(home_page.apod_content).to_be_visible()
-    expect(home_page.apod_media).to_be_visible()
-    expect(home_page.apod_text_title).to_be_visible()
-    expect(home_page.apod_text).to_be_visible()
-
-def test_apod_section_hidden_if_nasa_pic_request_resulted_in_404(page: Page):
-    home_page = HomePage(page)
-    page.route('https://api.nasa.gov/planetary/*', lambda route: route.fulfill(
-        status=404,
-        content_type='text/plain',
-        body='Not Found'
-    ))
-    home_page.navigate()
-    expect(home_page.apod_section).not_to_be_visible()
-    expect(home_page.apod_title).not_to_be_visible()
-    expect(home_page.apod_content).not_to_be_visible()
+def test_homepage_introduction_and_weather_document(home_page: HomePage):
+    expect(home_page.page.get_by_role('heading', name='Hey there!')).to_be_visible()
+    expect(home_page.page.get_by_role('link', name='GitHub repository')).to_have_attribute(
+        'href', 'https://github.com/juju9301/mars_weather_site'
+    )
     expect(home_page.recent_sol_title).to_be_visible()
+    expect(home_page.page.get_by_test_id('recent-sol-document')).to_contain_text('°C')
+    expect(home_page.page.get_by_test_id('recent-sol-document')).to_contain_text('Pa')
+    expect(home_page.page.locator('#apod')).to_have_count(0)
 
-def test_apod_section_hidden_if_nasa_pic_request_resulted_in_500(page: Page):
+
+def test_community_posts_nav_link_is_before_login_and_opens_feed(page: Page, home_page: HomePage):
+    expect(page.get_by_role('heading', name='Community Posts')).to_have_count(0)
+    nav_links = page.locator('.site-nav').get_by_role('link')
+    expect(nav_links.nth(3)).to_have_text('Community Posts')
+    expect(nav_links.nth(4)).to_have_text('Login')
+
+    home_page.nav_community_posts.click()
+    community_posts_page = CommunityPostsPage(page)
+    expect(page).to_have_url(community_posts_page.url)
+    expect(community_posts_page.heading).to_be_visible()
+    expect(community_posts_page.login_to_add_post).to_be_visible()
+    expect(community_posts_page.add_post_button).to_be_hidden()
+    expect(community_posts_page.login_to_add_comment).to_have_count(
+        community_posts_page.post.count()
+    )
+
+def test_rover_photo_loads_on_refresh_and_selection(page: Page):
     home_page = HomePage(page)
-    page.route('https://api.nasa.gov/planetary/*', lambda route: route.fulfill(
-        content_type='text/html;', status=500,
-        body='''
-<!doctype html>
-<html lang="en">
-<head>
-  <title>500 Internal Server Error</title>
-</head>
-<body>
-  <h1>Internal Server Error</h1>
-  <p>The server was unable to complete your request. Please try again later.</p>
-  <p>If this problem persists, please <a href="https://example.com/support">contact support</a>.</p>
-  <p>Server logs contain details of this error with request ID: ABC-123.</p>
-</body>
-</html>
-'''))
+    rover_requests = []
+
+    def rover_response(route):
+        rover_requests.append(route.request.url)
+        route.fulfill(json={
+            'photos': [{
+                'img_src': f'https://images.example/rover-{len(rover_requests)}.svg',
+                'sol': 3000,
+            }]
+        })
+
+    page.route('https://rovers.nebulum.one/**', rover_response)
+    page.route(
+        'https://images.example/**',
+        lambda route: route.fulfill(
+            content_type='image/svg+xml',
+            body='<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"></svg>',
+        ),
+    )
     home_page.navigate()
-    expect(home_page.apod_section).not_to_be_visible()
-    expect(home_page.apod_title).not_to_be_visible()
-    expect(home_page.apod_content).not_to_be_visible()
-    expect(home_page.recent_sol_title).to_be_visible()
+    expect(home_page.rover_photo).to_be_visible()
+    expect(home_page.rover_photo).to_have_attribute('src', 'https://images.example/rover-1.svg')
+
+    page.reload()
+    expect(home_page.rover_photo).to_be_visible()
+    expect(home_page.rover_photo).to_have_attribute('src', 'https://images.example/rover-2.svg')
+
+    home_page.rover_selector.select_option('perseverance')
+    expect(home_page.rover_photo).to_have_attribute('src', 'https://images.example/rover-3.svg')
+    assert 'perseverance' in rover_requests[-1]

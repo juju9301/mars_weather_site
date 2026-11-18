@@ -141,7 +141,3 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-
-
-# Get the NASA API key from environment variables
-NASA_API_KEY = os.getenv("NASA_API_KEY")

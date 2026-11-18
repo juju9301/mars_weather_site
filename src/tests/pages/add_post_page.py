@@ -21,6 +21,7 @@ class AddPostPage(BasePage):
         self.get_mars_picture_button = page.get_by_role('button', name='Get Random Mars Picture')
         self.mars_picture = page.get_by_alt_text('Random Mars Picture')
         self.mars_picture_info = page.get_by_test_id('mars-pic-info')
+        self.mars_picture_status = page.get_by_test_id('rover-photo-status')
         self.add_to_post_button = page.get_by_role('button', name='Add to Post')
         self.mars_image_url = page.locator('span#mars-image-url')
 
@@ -43,19 +44,5 @@ class AddPostPage(BasePage):
         # yield file_path
 
     def fetch_mars_image(self):
-        # Fetching Mars rover image can result in an error or invalid image. 
-        # Here we attempt to fetch it 5 times in order to decrease test flakiness.
-        max_attempts = 5
-        current_attempt = 1
-
-        self.page.on('dialog', lambda dialog: dialog.accept())
-
-        for attempt in range(1, max_attempts + 1):
-            try:
-                self.get_mars_picture_button.click()
-                expect(self.mars_picture).to_be_visible()
-                # Found image
-                break
-            except AssertionError:
-                if attempt == max_attempts:
-                    raise TimeoutError(f'Failed to fetch mars image after {max_attempts} attempts')
+        self.get_mars_picture_button.click()
+        expect(self.mars_picture).to_be_visible(timeout=60000)
