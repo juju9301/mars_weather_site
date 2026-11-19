@@ -44,7 +44,7 @@
         <div class="md:pl-8 mt-8 md:mt-0">
             <h2 class="text-2xl font-bold mb-4" data-testid="recent-sol-title">Most Recent Sol Weather</h2>
             {% if recent_sol %}
-                <article class="site-panel site-panel--surface p-5 sm:p-6" data-testid="recent-sol-document">
+                <article class="site-panel p-5 sm:p-6" data-testid="recent-sol-document">
                     <header class="flex flex-wrap justify-between items-baseline border-b border-gray-500 pb-3 mb-2">
                         <h3 class="text-xl font-bold">Sol {{ recent_sol.sol }}</h3>
                         <p>{{ recent_sol.terrestrial_date|date:"Y-m-d" }}</p>

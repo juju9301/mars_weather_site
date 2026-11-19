@@ -18,7 +18,7 @@
     </form>
 
     {% if page_obj %}
-        <div class="site-panel site-panel--surface hidden lg:block overflow-x-auto" data-testid="weather-table-panel">
+        <div class="site-panel site-panel--light hidden lg:block overflow-x-auto" data-testid="weather-table-panel">
             <table class="min-w-full w-max text-sm text-gray-700">
                 <caption class="sr-only">Mars weather observations by sol</caption>
                 <thead class="bg-gray-100 text-xs leading-tight text-gray-900">
@@ -62,7 +62,7 @@
             </table>
         </div>
 
-        <div class="site-panel site-panel--surface lg:hidden p-4" data-testid="weather-cards-panel">
+        <div class="site-panel site-panel--light lg:hidden p-4" data-testid="weather-cards-panel">
             {% for sol in page_obj %}
                 <a href="{{ sol.get_absolute_url }}" class="block border-b border-gray-200 py-3 hover:bg-gray-100">
                     <h2 class="text-lg font-bold text-gray-900 mb-2">Sol {{ sol.sol }}</h2>

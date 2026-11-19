@@ -25,8 +25,10 @@ def test_homepage_introduction_and_weather_document(home_page: HomePage):
         'href', 'https://github.com/juju9301/mars_weather_site'
     )
     expect(home_page.recent_sol_title).to_be_visible()
-    expect(home_page.page.get_by_test_id('recent-sol-document')).to_contain_text('°C')
-    expect(home_page.page.get_by_test_id('recent-sol-document')).to_contain_text('Pa')
+    recent_sol_panel = home_page.page.get_by_test_id('recent-sol-document')
+    expect(recent_sol_panel).to_contain_text('°C')
+    expect(recent_sol_panel).to_contain_text('Pa')
+    expect(recent_sol_panel).to_have_css('background-color', 'rgba(255, 255, 255, 0.3)')
     expect(home_page.page.locator('#apod')).to_have_count(0)
 
 
