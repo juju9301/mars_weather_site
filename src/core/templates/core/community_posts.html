@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 
-{% block title %}Community Posts - Mars Weather{% endblock title %}
+{% block title %}Blog - Mars Weather{% endblock title %}
 {% block content %}
 <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <section aria-labelledby="community-heading">
+    <section aria-labelledby="blog-heading">
         <div class="flex flex-wrap items-center justify-between gap-4 mb-5">
-            <h1 id="community-heading" class="text-3xl sm:text-4xl font-bold">Community Posts</h1>
+            <h1 id="blog-heading" class="text-3xl sm:text-4xl font-bold">Blog</h1>
             {% if user.is_staff %}
                 <a href="{% url 'core:add_post' %}" class="border border-gray-700 px-4 py-2 hover:bg-gray-800 hover:text-white" data-testid="add-post">Add Post</a>
             {% elif user.is_authenticated %}
@@ -40,7 +40,7 @@
                 </div>
             </article>
         {% empty %}
-            <p class="mb-5" data-testid="no-community-posts">No community posts yet.</p>
+            <p class="mb-5" data-testid="no-blog-posts">No blog posts yet.</p>
         {% endfor %}
 
         {% if posts.paginator.num_pages > 1 %}

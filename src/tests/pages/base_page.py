@@ -20,7 +20,7 @@ class BasePage:
         self.nav_greeting = page.get_by_test_id('nav-greeting')
         self.nav_plot_link = page.get_by_role('link', name="Generate Weather Plot")
         self.nav_weather_list = page.get_by_role('link', name="Weather List")
-        self.nav_community_posts = page.get_by_test_id('nav-community-posts')
+        self.nav_blog = page.get_by_test_id('nav-blog')
 
         self.test_user_username = os.getenv('TEST_USER_USERNAME') 
         self.test_user_password = os.getenv('TEST_USER_PASSWORD')

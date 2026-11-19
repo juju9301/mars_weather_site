@@ -27,6 +27,8 @@ def test_community_posts_view_renders_paginated_posts(client):
     second_page = client.get(reverse('core:community_posts'), {'page': 2})
 
     assert first_page.status_code == 200
+    assert b'<title>Blog - Mars Weather</title>' in first_page.content
+    assert b'<h1 id="blog-heading"' in first_page.content
     assert len(first_page.context['posts']) == 5
     assert second_page.status_code == 200
     assert len(second_page.context['posts']) == 1
