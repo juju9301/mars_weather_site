@@ -46,6 +46,43 @@ def test_blog_nav_link_is_before_login_and_opens_blog(page: Page, home_page: Hom
         blog_page.post.count()
     )
 
+
+def test_mobile_navigation_is_collapsible_and_keyboard_accessible(page: Page, home_page: HomePage):
+    page.set_viewport_size({"width": 375, "height": 812})
+    home_page.navigate()
+
+    toggle = page.get_by_test_id('mobile-nav-toggle')
+    blog_link = page.get_by_test_id('nav-blog')
+    expect(toggle).to_be_visible()
+    expect(blog_link).to_be_hidden()
+
+    toggle.click()
+    expect(toggle).to_have_attribute('aria-expanded', 'true')
+    expect(blog_link).to_be_visible()
+
+    page.keyboard.press('Escape')
+    expect(toggle).to_have_attribute('aria-expanded', 'false')
+    expect(blog_link).to_be_hidden()
+
+
+def test_mobile_footer_has_consistent_size_and_follows_short_page_content(
+    page: Page, home_page: HomePage
+):
+    page.set_viewport_size({"width": 375, "height": 812})
+    home_page.navigate()
+    footer = page.locator('footer')
+    index_footer_height = footer.evaluate('(element) => element.getBoundingClientRect().height')
+
+    page.goto(f'{home_page.base_url}plot')
+    plot_footer = page.locator('footer')
+    plot_metrics = plot_footer.evaluate(
+        '(element) => ({ height: element.getBoundingClientRect().height, bottom: element.getBoundingClientRect().bottom })'
+    )
+
+    assert abs(plot_metrics['height'] - index_footer_height) < 1
+    assert abs(plot_metrics['bottom'] - 812) < 1
+
+
 def test_rover_photo_loads_on_refresh_and_selection(page: Page):
     home_page = HomePage(page)
     rover_requests = []

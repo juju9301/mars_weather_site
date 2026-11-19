@@ -40,6 +40,16 @@
             transform: translateY(-50%);
         }
 
+        @media (max-width: 767px) {
+            .nav-links > * + *::before {
+                display: none;
+            }
+
+            .nav-links > * + * {
+                border-top: 1px solid #a8a29e;
+            }
+        }
+
         .site-footer {
             background-color: transparent;
             border-top: 1px solid #827d75;
@@ -49,21 +59,35 @@
 <body class="flex flex-col min-h-screen">
     <!-- Navigation Bar -->
     <nav class="site-nav">
-        <div class="container mx-auto px-4 py-2 flex justify-between items-center">
+        <div class="container mx-auto px-4 py-2 flex flex-wrap justify-between items-center">
             <a class="text-xl font-bold text-orange-600" href="{% url 'core:index' %}">Mars Weather</a>
-            <div class="nav-links space-x-4 flex items-center">
-                <a class="text-gray-700 hover:text-orange-600" href="{% url 'weather:weather_list' %}">Weather List</a>
-                <a class="text-gray-700 hover:text-orange-600" href="{% url 'weather:generate_weather_plot' %}">Generate Weather Plot</a>
-                <a class="text-gray-700 hover:text-orange-600" data-testid="nav-blog" href="{% url 'core:community_posts' %}">Blog</a>
+            <button
+                id="mobile-nav-toggle"
+                type="button"
+                class="md:hidden border border-gray-500 px-3 py-2"
+                aria-label="Open navigation menu"
+                aria-expanded="false"
+                aria-controls="primary-navigation"
+                data-testid="mobile-nav-toggle"
+            >
+                <svg aria-hidden="true" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+                <span class="sr-only">Toggle navigation menu</span>
+            </button>
+            <div id="primary-navigation" class="nav-links hidden flex flex-col w-full mt-2 md:mt-0 md:w-auto md:flex md:flex-row md:items-center space-y-0 md:space-x-4">
+                <a class="block py-2 md:py-0 text-gray-700 hover:text-orange-600" href="{% url 'weather:weather_list' %}">Weather List</a>
+                <a class="block py-2 md:py-0 text-gray-700 hover:text-orange-600" href="{% url 'weather:generate_weather_plot' %}">Generate Weather Plot</a>
+                <a class="block py-2 md:py-0 text-gray-700 hover:text-orange-600" data-testid="nav-blog" href="{% url 'core:community_posts' %}">Blog</a>
                 {% if user.is_authenticated %}
-                    <span data-testid="nav-greeting" class="text-gray-700">Hello, {{ user.username }}</span>
-                    <form method="post" action="{% url 'core:logout' %}" class="inline">
+                    <span data-testid="nav-greeting" class="block py-2 md:py-0 text-gray-700">Hello, {{ user.username }}</span>
+                    <form method="post" action="{% url 'core:logout' %}" class="py-2 md:py-0 md:inline">
                         {% csrf_token %}
                         <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded">Logout</button>
                     </form>
                 {% else %}
-                    <a class="bg-gray-600 text-white px-4 py-2 rounded" data-testid="nav-login" href="{% url 'core:login' %}">Login</a>
-                    <a class="bg-gray-600 text-white px-4 py-2 rounded" href="{% url 'core:register' %}">Register</a>
+                    <a class="block py-2 md:py-0 bg-gray-600 text-white px-4 rounded md:py-2" data-testid="nav-login" href="{% url 'core:login' %}">Login</a>
+                    <a class="block py-2 md:py-0 bg-gray-600 text-white px-4 rounded md:py-2" href="{% url 'core:register' %}">Register</a>
                 {% endif %}
             </div>
         </div>
@@ -79,5 +103,36 @@
             <span>© 2026 Mars Weather</span>
         </div>
     </footer>
+    <script>
+        const mobileNavToggle = document.getElementById("mobile-nav-toggle");
+        const primaryNavigation = document.getElementById("primary-navigation");
+
+        function setNavigationOpen(isOpen) {
+            primaryNavigation.classList.toggle("hidden", !isOpen);
+            mobileNavToggle.setAttribute("aria-expanded", String(isOpen));
+            mobileNavToggle.setAttribute(
+                "aria-label",
+                isOpen ? "Close navigation menu" : "Open navigation menu"
+            );
+        }
+
+        mobileNavToggle.addEventListener("click", () => {
+            const isOpen = mobileNavToggle.getAttribute("aria-expanded") === "true";
+            setNavigationOpen(!isOpen);
+        });
+
+        primaryNavigation.addEventListener("click", (event) => {
+            if (event.target.closest("a, button[type='submit']")) {
+                setNavigationOpen(false);
+            }
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape" && mobileNavToggle.getAttribute("aria-expanded") === "true") {
+                setNavigationOpen(false);
+                mobileNavToggle.focus();
+            }
+        });
+    </script>
 </body>
 </html>
