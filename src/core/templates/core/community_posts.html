@@ -6,10 +6,12 @@
     <section aria-labelledby="community-heading">
         <div class="flex flex-wrap items-center justify-between gap-4 mb-5">
             <h1 id="community-heading" class="text-3xl sm:text-4xl font-bold">Community Posts</h1>
-            {% if user.is_authenticated %}
+            {% if user.is_staff %}
                 <a href="{% url 'core:add_post' %}" class="border border-gray-700 px-4 py-2 hover:bg-gray-800 hover:text-white" data-testid="add-post">Add Post</a>
+            {% elif user.is_authenticated %}
+                <p data-testid="admin-only-posts">Only admins can create posts.</p>
             {% else %}
-                <p data-testid="login-to-add-post">Please <a href="{% url 'core:login' %}" class="underline text-orange-800">login</a> to add a post.</p>
+                <p data-testid="admin-only-posts">Post creation is limited to admins. <a href="{% url 'core:login' %}" class="underline text-orange-800">Log in</a> to comment.</p>
             {% endif %}
         </div>
 

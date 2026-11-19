@@ -24,6 +24,8 @@ class BasePage:
 
         self.test_user_username = os.getenv('TEST_USER_USERNAME') 
         self.test_user_password = os.getenv('TEST_USER_PASSWORD')
+        self.test_admin_username = os.getenv('TEST_ADMIN_USERNAME') or self.test_user_username
+        self.test_admin_password = os.getenv('TEST_ADMIN_PASSWORD') or self.test_user_password
 
         self.api_posts = self.base_url + 'api/posts'
         self.api_posts_delete = self.base_url + 'api/posts/delete'
