@@ -6,7 +6,7 @@
     <h1 class="text-4xl sm:text-5xl font-bold text-center mb-8" data-testid="hero-header">Mars Weather</h1>
 
     <section class="grid grid-cols-1 md:grid-cols-5 gap-6 items-stretch" aria-labelledby="intro-heading">
-        <div class="md:col-span-3 border border-gray-500 p-6 sm:p-8 flex flex-col justify-center">
+        <div class="site-panel md:col-span-3 p-6 sm:p-8 flex flex-col justify-center">
             <h2 id="intro-heading" class="text-2xl font-bold mb-4">Hey there!</h2>
             <div class="space-y-4 leading-relaxed">
                 <p>This is a small side project dedicated to the weather on Mars. It initially started as a way to practice Python + Playwright automation, and over time picked up various unrelated functionality.</p>
@@ -14,7 +14,7 @@
                 <p>The project's code is on GitHub → <a class="underline text-orange-800" href="https://github.com/juju9301/mars_weather_site" target="_blank" rel="noopener noreferrer">GitHub repository</a>.</p>
             </div>
         </div>
-        <div class="md:col-span-2 min-h-64 border border-gray-500 overflow-hidden">
+        <div class="site-panel md:col-span-2 min-h-64 overflow-hidden">
             <img
                 src="{{ MEDIA_URL }}static/Curiosity_credit_NASA.jpg"
                 alt="Curiosity_credit_NASA"
@@ -35,7 +35,7 @@
                 <option value="perseverance">Perseverance</option>
             </select>
             <div id="rover-image-status" class="text-sm mb-3" role="status" aria-live="polite" data-testid="rover-image-status">Loading a rover image…</div>
-            <div id="rover-image-container" class="border border-gray-500 p-3 min-h-64 flex flex-col items-center justify-center">
+            <div id="rover-image-container" class="site-panel p-3 min-h-64 flex flex-col items-center justify-center">
                 <img id="rover-photo" class="hidden max-w-full max-h-96 object-contain" alt="" data-testid="rover-photo">
                 <p id="rover-photo-info" class="text-sm mt-3 text-center" data-testid="rover-photo-info"></p>
             </div>
@@ -44,7 +44,7 @@
         <div class="md:pl-8 mt-8 md:mt-0">
             <h2 class="text-2xl font-bold mb-4" data-testid="recent-sol-title">Most Recent Sol Weather</h2>
             {% if recent_sol %}
-                <article class="border border-gray-500 bg-white bg-opacity-30 p-5 sm:p-6" data-testid="recent-sol-document">
+                <article class="site-panel p-5 sm:p-6" data-testid="recent-sol-document">
                     <header class="flex flex-wrap justify-between items-baseline border-b border-gray-500 pb-3 mb-2">
                         <h3 class="text-xl font-bold">Sol {{ recent_sol.sol }}</h3>
                         <p>{{ recent_sol.terrestrial_date|date:"Y-m-d" }}</p>
@@ -53,7 +53,7 @@
                     <a href="{{ recent_sol.get_absolute_url }}" class="inline-block mt-4 underline text-orange-800">View sol details</a>
                 </article>
             {% else %}
-                <p class="border border-gray-500 p-6" data-testid="no-recent-weather">No recent weather data available.</p>
+                <p class="site-panel p-6" data-testid="no-recent-weather">No recent weather data available.</p>
             {% endif %}
         </div>
     </section>
@@ -61,7 +61,7 @@
     <hr class="border-gray-500 my-8">
 
     <section class="grid grid-cols-1 md:grid-cols-5 gap-6 items-stretch" aria-label="Weather archive statistics">
-        <div class="md:col-span-2 border border-gray-500 p-5 sm:p-6" aria-labelledby="data-coverage-heading" data-testid="data-coverage">
+        <div class="site-panel md:col-span-2 p-5 sm:p-6" aria-labelledby="data-coverage-heading" data-testid="data-coverage">
             <h2 id="data-coverage-heading" class="text-2xl font-bold mb-4">Data Coverage</h2>
             {% if coverage %}
                 <p class="mb-4">Weather observations are available for {{ coverage.record_count }} sols in the recorded range.</p>
@@ -89,7 +89,7 @@
             {% endif %}
         </div>
 
-        <div class="md:col-span-3 border border-gray-500 p-5 sm:p-6" aria-labelledby="current-champions-heading" data-testid="current-champions">
+        <div class="site-panel md:col-span-3 p-5 sm:p-6" aria-labelledby="current-champions-heading" data-testid="current-champions">
             <h2 id="current-champions-heading" class="text-2xl font-bold mb-2">Current Champions</h2>
             <p class="mb-4 text-sm">Highest and lowest recorded values in the archive.</p>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">

@@ -24,6 +24,28 @@ def test_plot_is_generated(page: Page, setup):
     expect(plot_img).to_be_visible()
 
 
+def test_mobile_weather_pages_have_side_gutters_without_horizontal_overflow(
+    page: Page, setup
+):
+    plot_page = setup
+    page.set_viewport_size({"width": 375, "height": 812})
+
+    for url in (plot_page.url, f"{plot_page.base_url}list"):
+        page.goto(url)
+        layout = page.locator("main > .container").evaluate(
+            """container => ({
+                paddingLeft: parseFloat(getComputedStyle(container).paddingLeft),
+                contentLeft: container.querySelector('h1').getBoundingClientRect().left,
+                viewportWidth: document.documentElement.clientWidth,
+                pageWidth: document.documentElement.scrollWidth
+            })"""
+        )
+
+        assert layout["paddingLeft"] >= 16
+        assert layout["contentLeft"] >= 16
+        assert layout["pageWidth"] <= layout["viewportWidth"]
+
+
 @pytest.mark.parametrize(
     "sol_from,sol_to,metric", [("10", "9", "ls"), ("10", "10", "max_temp")]
 )

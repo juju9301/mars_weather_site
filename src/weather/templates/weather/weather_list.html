@@ -1,24 +1,24 @@
 {% extends 'base.html' %}
 {% block title %}Weather List{% endblock title %}
 {% block content %}
-<div class="container mx-auto mt-5">
+<div class="container mx-auto mt-5 px-4 sm:px-6 lg:px-8">
     <h1 class="text-3xl font-bold mb-4">Sol Weather</h1>
     <p>Weather data is imported from calibrated REMS products published in the <a href="https://atmos.nmsu.edu/PDS/data/PDS4/msl_rems_bundle/data_calibrated/SOL_04710_04843/" class="text-orange-600">NASA Planetary Data System</a>.</p>
 
-    <form method="get" action="" class="flex items-center mb-4 space-x-4">
-        <div class="flex items-center space-x-2">
+    <form method="get" action="" class="mb-4 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end">
+        <div class="flex w-full min-w-0 flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
             <label for="sol_search" class="text-gray-700">Search by Sol number:</label>
-            <input type="number" id="sol_search" name="sol" class="form-input" value="{{ request.GET.sol }}">
+            <input type="number" id="sol_search" name="sol" class="form-input w-full sm:w-40" value="{{ request.GET.sol }}">
         </div>
-        <div class="flex items-center space-x-2">
+        <div class="flex w-full min-w-0 flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
             <label for="date_search" class="text-gray-700">or by Terrestrial date:</label>
-            <input type="date" id="date_search" name="terrestrial_date" class="form-input" value="{{ request.GET.terrestrial_date }}">
+            <input type="date" id="date_search" name="terrestrial_date" class="form-input w-full sm:w-48" value="{{ request.GET.terrestrial_date }}">
         </div>
-        <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded">Search</button>
+        <button type="submit" class="self-start bg-gray-600 text-white px-4 py-2 rounded sm:self-auto">Search</button>
     </form>
 
     {% if page_obj %}
-        <div class="hidden lg:block overflow-x-auto bg-white shadow rounded-lg">
+        <div class="site-panel site-panel--light hidden lg:block overflow-x-auto" data-testid="weather-table-panel">
             <table class="min-w-full w-max text-sm text-gray-700">
                 <caption class="sr-only">Mars weather observations by sol</caption>
                 <thead class="bg-gray-100 text-xs leading-tight text-gray-900">
@@ -62,7 +62,7 @@
             </table>
         </div>
 
-        <div class="lg:hidden bg-white shadow rounded-lg p-4">
+        <div class="site-panel site-panel--light lg:hidden p-4" data-testid="weather-cards-panel">
             {% for sol in page_obj %}
                 <a href="{{ sol.get_absolute_url }}" class="block border-b border-gray-200 py-3 hover:bg-gray-100">
                     <h2 class="text-lg font-bold text-gray-900 mb-2">Sol {{ sol.sol }}</h2>

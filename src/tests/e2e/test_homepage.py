@@ -25,8 +25,10 @@ def test_homepage_introduction_and_weather_document(home_page: HomePage):
         'href', 'https://github.com/juju9301/mars_weather_site'
     )
     expect(home_page.recent_sol_title).to_be_visible()
-    expect(home_page.page.get_by_test_id('recent-sol-document')).to_contain_text('°C')
-    expect(home_page.page.get_by_test_id('recent-sol-document')).to_contain_text('Pa')
+    recent_sol_panel = home_page.page.get_by_test_id('recent-sol-document')
+    expect(recent_sol_panel).to_contain_text('°C')
+    expect(recent_sol_panel).to_contain_text('Pa')
+    expect(recent_sol_panel).to_have_css('background-color', 'rgba(255, 255, 255, 0.3)')
     expect(home_page.page.locator('#apod')).to_have_count(0)
 
 
@@ -45,6 +47,43 @@ def test_blog_nav_link_is_before_login_and_opens_blog(page: Page, home_page: Hom
     expect(blog_page.login_to_add_comment).to_have_count(
         blog_page.post.count()
     )
+
+
+def test_mobile_navigation_is_collapsible_and_keyboard_accessible(page: Page, home_page: HomePage):
+    page.set_viewport_size({"width": 375, "height": 812})
+    home_page.navigate()
+
+    toggle = page.get_by_test_id('mobile-nav-toggle')
+    blog_link = page.get_by_test_id('nav-blog')
+    expect(toggle).to_be_visible()
+    expect(blog_link).to_be_hidden()
+
+    toggle.click()
+    expect(toggle).to_have_attribute('aria-expanded', 'true')
+    expect(blog_link).to_be_visible()
+
+    page.keyboard.press('Escape')
+    expect(toggle).to_have_attribute('aria-expanded', 'false')
+    expect(blog_link).to_be_hidden()
+
+
+def test_mobile_footer_has_consistent_size_and_follows_short_page_content(
+    page: Page, home_page: HomePage
+):
+    page.set_viewport_size({"width": 375, "height": 812})
+    home_page.navigate()
+    footer = page.locator('footer')
+    index_footer_height = footer.evaluate('(element) => element.getBoundingClientRect().height')
+
+    page.goto(f'{home_page.base_url}plot')
+    plot_footer = page.locator('footer')
+    plot_metrics = plot_footer.evaluate(
+        '(element) => ({ height: element.getBoundingClientRect().height, bottom: element.getBoundingClientRect().bottom })'
+    )
+
+    assert abs(plot_metrics['height'] - index_footer_height) < 1
+    assert abs(plot_metrics['bottom'] - 812) < 1
+
 
 def test_rover_photo_loads_on_refresh_and_selection(page: Page):
     home_page = HomePage(page)
