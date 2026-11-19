@@ -30,20 +30,20 @@ def test_homepage_introduction_and_weather_document(home_page: HomePage):
     expect(home_page.page.locator('#apod')).to_have_count(0)
 
 
-def test_community_posts_nav_link_is_before_login_and_opens_feed(page: Page, home_page: HomePage):
-    expect(page.get_by_role('heading', name='Community Posts')).to_have_count(0)
+def test_blog_nav_link_is_before_login_and_opens_blog(page: Page, home_page: HomePage):
+    expect(page.get_by_role('heading', name='Blog')).to_have_count(0)
     nav_links = page.locator('.site-nav').get_by_role('link')
-    expect(nav_links.nth(3)).to_have_text('Community Posts')
+    expect(nav_links.nth(3)).to_have_text('Blog')
     expect(nav_links.nth(4)).to_have_text('Login')
 
-    home_page.nav_community_posts.click()
-    community_posts_page = CommunityPostsPage(page)
-    expect(page).to_have_url(community_posts_page.url)
-    expect(community_posts_page.heading).to_be_visible()
-    expect(community_posts_page.login_to_add_post).to_be_visible()
-    expect(community_posts_page.add_post_button).to_be_hidden()
-    expect(community_posts_page.login_to_add_comment).to_have_count(
-        community_posts_page.post.count()
+    home_page.nav_blog.click()
+    blog_page = CommunityPostsPage(page)
+    expect(page).to_have_url(blog_page.url)
+    expect(blog_page.heading).to_be_visible()
+    expect(blog_page.post_creation_notice).to_be_visible()
+    expect(blog_page.add_post_button).to_be_hidden()
+    expect(blog_page.login_to_add_comment).to_have_count(
+        blog_page.post.count()
     )
 
 def test_rover_photo_loads_on_refresh_and_selection(page: Page):

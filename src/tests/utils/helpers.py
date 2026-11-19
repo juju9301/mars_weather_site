@@ -10,32 +10,86 @@ import json
 fake = Faker()
 
 
-def get_test_user_id():
-    resp = requests.get(url=API_GET_USERS_URL)
-    return resp.json()[0]["id"]
+def _admin_api_session():
+    username = os.getenv('TEST_ADMIN_USERNAME') or os.getenv('TEST_USER_USERNAME')
+    password = os.getenv('TEST_ADMIN_PASSWORD') or os.getenv('TEST_USER_PASSWORD')
+    if not username or not password:
+        raise RuntimeError('Set TEST_ADMIN_USERNAME and TEST_ADMIN_PASSWORD for API test setup.')
+
+    session = requests.Session()
+    login_url = BASE_URL + 'login/'
+    response = session.get(login_url)
+    response.raise_for_status()
+    csrf_token = session.cookies.get('csrftoken')
+    if not csrf_token:
+        raise RuntimeError('Could not obtain a CSRF token while logging in the test admin.')
+
+    response = session.post(
+        login_url,
+        data={
+            'username': username,
+            'password': password,
+            'csrfmiddlewaretoken': csrf_token,
+        },
+        headers={'Referer': login_url},
+    )
+    response.raise_for_status()
+    if response.url.rstrip('/').endswith('/login'):
+        raise RuntimeError('Test admin login failed; check the configured admin credentials.')
+    return session
+
+
+def _csrf_headers(session):
+    token = session.cookies.get('csrftoken')
+    if not token:
+        raise RuntimeError('Could not obtain a CSRF token for the authenticated API request.')
+    return {'Referer': BASE_URL, 'X-CSRFToken': token}
 
 
 def api_create_post(image=False, many=False):
     """Create a test post with optional image and return its ID"""
-    data = {"author": get_test_user_id(), "content": fake.text()}
+    session = _admin_api_session()
+    data = {"content": fake.text()}
 
     if image:
         # Open the image file and prepare it for upload
         with open(TEST_FILES["jpg"], "rb") as f:
             files = {"image": (os.path.basename(TEST_FILES["jpg"]), f, "image/jpeg")}
-            resp = requests.post(url=API_POST_CREATE_URL, data=data, files=files)
+            resp = session.post(
+                API_POST_CREATE_URL,
+                data=data,
+                files=files,
+                headers=_csrf_headers(session),
+            )
     else:
-        resp = requests.post(url=API_POST_CREATE_URL, data=data)
+        resp = session.post(
+            API_POST_CREATE_URL,
+            data=data,
+            headers=_csrf_headers(session),
+        )
+    session.close()
 
     if resp.status_code != 201:
-        raise Exception(f"Failed to create post: {resp.text}")
+        raise RuntimeError(
+            f"Failed to create test post ({resp.status_code}); "
+            "verify TEST_ADMIN_USERNAME belongs to a staff user. "
+            f"Response: {resp.text}"
+        )
 
     return resp.json()["id"]
 
 
 def api_delete_posts():
-    resp = requests.delete(url=API_POST_DELETE_URL)
-    assert resp.status_code == 204
+    session = _admin_api_session()
+    resp = session.delete(
+        API_POST_DELETE_URL,
+        headers=_csrf_headers(session),
+    )
+    session.close()
+    if resp.status_code != 204:
+        raise RuntimeError(
+            f"Failed to delete test posts ({resp.status_code}): {resp.text}"
+        )
 
 
 def check_timestamp(text):

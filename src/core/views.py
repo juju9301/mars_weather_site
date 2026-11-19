@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 # from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.core.files.base import ContentFile
 from django.core.paginator import Paginator
 import requests
@@ -14,6 +15,7 @@ from django.db.models import Count, Max, Min
 
 from .serializers import PostSerializer, CommentSerializer, UserSerializer
 from rest_framework import generics, status
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
 
@@ -110,6 +112,9 @@ def community_posts(request):
 
 @login_required
 def add_post(request):
+    if not request.user.is_staff:
+        raise PermissionDenied
+
     if request.method == 'POST':
         form = PostForm(request.POST, request.FILES)
         if form.is_valid():
@@ -147,6 +152,11 @@ class PostListCreateApiView(generics.ListCreateAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
 
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [IsAdminUser()]
+        return [AllowAny()]
+
     def create(self, request, *args, **kwargs):
         if isinstance(request.data, list):
             serializer = self.get_serializer(data=request.data, many=True)
@@ -157,9 +167,13 @@ class PostListCreateApiView(generics.ListCreateAPIView):
         headers =  self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
 class PostDeleteApiView(generics.DestroyAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
+    permission_classes = [IsAdminUser]
 
     def delete(self, request, *args, **kwargs):
         ids = request.data.get('ids', None)
@@ -175,8 +189,13 @@ class CommentListCreateApiView(generics.ListCreateAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
 
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [IsAuthenticated()]
+        return [AllowAny()]
+
     def get_queryset(self):
-        post_id = self.request.query_params.get(post_id)
+        post_id = self.request.query_params.get('post_id')
         if post_id:
             return Comment.objects.filter(post_id=post_id)
         return super().get_queryset()
@@ -190,10 +209,14 @@ class CommentListCreateApiView(generics.ListCreateAPIView):
         self.perform_create(serializer)
         headers =  self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
         
 class CommentDeleteApiView(generics.DestroyAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
+    permission_classes = [IsAdminUser]
 
     def delete(self, request, *args, **kwargs):
         ids = request.data.get('ids', [])
@@ -205,6 +228,8 @@ class CommentDeleteApiView(generics.DestroyAPIView):
         return Response({'deleted': count}, status=status.HTTP_204_NO_CONTENT)
     
 class UserDeleteApiView(generics.DestroyAPIView):
+    permission_classes = [IsAdminUser]
+
     def delete(self, request, *args, **kwargs):
         ids = request.data.get('ids', None)
         if ids:

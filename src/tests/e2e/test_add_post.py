@@ -34,7 +34,7 @@ def setup(page: Page):
     expect(page).to_have_url(login_page.url)
 
     # Login
-    login_page.login(login_page.test_user_username, login_page.test_user_password)
+    login_page.login(login_page.test_admin_username, login_page.test_admin_password)
     expect(page).to_have_url(home_page.url)
 
     # Navigate to the community feed and then the add-post page
@@ -54,7 +54,7 @@ def test_add_post_without_image(page: Page, setup):
     expect(page).to_have_url(home_page.url)
     expect(home_page.post).to_have_count(1)
     expect(home_page.post_content).to_have_text(content)
-    expect(home_page.post_author).to_contain_text(f'Posted by {home_page.test_user_username}')
+    expect(home_page.post_author).to_contain_text(f'Posted by {home_page.test_admin_username}')
     check_timestamp(home_page.post_author.text_content())
 
 def test_post_with_custom_image(page: Page, setup):
@@ -116,7 +116,7 @@ def test_post_with_fetched_image(page: Page, setup):
     expect(home_page.post).to_have_count(1)
     expect(home_page.post_content).to_have_text(mars_info)
     expect(home_page.post_image).to_be_visible()
-    expect(home_page.post_author).to_contain_text(f'Posted by {home_page.test_user_username}')
+    expect(home_page.post_author).to_contain_text(f'Posted by {home_page.test_admin_username}')
     check_timestamp(home_page.post_author.text_content())
 
 def test_add_post_without_text(page: Page, setup):

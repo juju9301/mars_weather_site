@@ -7,10 +7,10 @@ class CommunityPostsPage(BasePage):
     def __init__(self, page: Page):
         super().__init__(page)
         self.url = f'{self.base_url}community-posts/'
-        self.heading = page.get_by_role('heading', name='Community Posts')
+        self.heading = page.get_by_role('heading', name='Blog')
         self.add_post_button = page.get_by_test_id('add-post')
-        self.login_to_add_post = page.get_by_test_id('login-to-add-post')
-        self.no_posts = page.get_by_test_id('no-community-posts')
+        self.post_creation_notice = page.get_by_test_id('admin-only-posts')
+        self.no_posts = page.get_by_test_id('no-blog-posts')
 
         self.post = page.get_by_test_id('post')
         self.post_content = page.get_by_test_id('post-content')
