@@ -7,16 +7,89 @@
       "sol": 4843,
       "ls": null,
       "season": null,
+      "pressure_string": null,
+      "local_uv_irradiance_index": null,
+      "source": "NASA PDS REMS RDR",
+      "rems_quality_summary": {
+        "missing_value": -999,
+        "confidence_policy": "All non-missing measurements are included; confidence flags are reported but not used to filter.",
+        "aggregation": {
+          "ground_minimum": "Minimum mean brightness temperature per contiguous acquisition burst, with a new burst after a gap greater than 60 seconds.",
+          "uv_daylight": "RMD samples between the interpolated ADR solar-zenith crossings at 90 degrees."
+        },
+        "products": {
+          "rmd_samples": 22793,
+          "adr_samples": 22793
+        },
+        "metrics": {
+          "air_temperature": {
+            "valid_samples": 22793,
+            "total_samples": 22793,
+            "confidence_flag_column": "AMBIENT_TEMP_CONFIDENCE_LEVEL",
+            "confidence_flag_counts": {
+              "001XX0001": 135,
+              "001XX0011": 2066,
+              "001XX1101": 132,
+              "001XX1110": 50,
+              "001XX1111": 3594,
+              "101XX0001": 204,
+              "101XX0011": 1949,
+              "101XX0101": 135,
+              "101XX0111": 544,
+              "101XX1101": 3355,
+              "101XX1110": 24,
+              "101XX1111": 10605
+            }
+          },
+          "ground_temperature": {
+            "valid_samples": 22179,
+            "total_samples": 22793,
+            "confidence_flag_column": "GTS_CONFIDENCE_LEVEL",
+            "confidence_flag_counts": {
+              "0110": 1950,
+              "0111": 20229,
+              "XXXX": 614
+            },
+            "burst_count": 10,
+            "coldest_burst_valid_samples": 7646,
+            "coldest_burst_mean_celsius": -72.28
+          },
+          "pressure": {
+            "valid_samples": 22793,
+            "total_samples": 22793,
+            "confidence_flag_column": "PS_CONFIDENCE_LEVEL",
+            "confidence_flag_counts": {
+              "01": 540,
+              "11": 22253
+            }
+          },
+          "uv_abc_daylight": {
+            "valid_samples": 4076,
+            "total_samples": 22793,
+            "confidence_flag_column": "UVS_CONFIDENCE_LEVEL",
+            "confidence_flag_counts": {
+              "01110": 4076,
+              "XXX": 360,
+              "XXXX": 8674
+            },
+            "daylight_samples": 13110
+          }
+        }
+      },
       "min_temp": -68,
       "max_temp": -13,
+      "mean_temp": -43.72,
+      "min_gts_temp": -72,
+      "max_gts_temp": 6,
+      "mean_gts_temp": -36.36,
+      "raw_min_gts_temp": -118.56,
       "pressure": 847,
-      "pressure_string": null,
+      "min_pressure": 801.08,
+      "max_pressure": 884.65,
       "sunrise": "05:34",
       "sunset": "17:17",
-      "local_uv_irradiance_index": null,
-      "min_gts_temp": -119,
-      "max_gts_temp": 6,
-      "source": "NASA PDS REMS RDR"
+      "uv_abc_daylight_mean": 0.2138,
+      "uv_abc_daylight_peak": 1.32
     }
   }
 ]
