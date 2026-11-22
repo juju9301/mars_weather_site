@@ -2,7 +2,7 @@ import pytest
 from django.contrib.auth.models import User
 from django.urls import reverse
 
-from core.models import Post
+from core.models import Comment, Post
 
 
 @pytest.mark.django_db
@@ -35,6 +35,29 @@ def test_community_posts_view_renders_paginated_posts(client):
     rendered_posts = first_page.content + second_page.content
     for content in contents:
         assert content.encode() in rendered_posts
+
+
+@pytest.mark.django_db
+def test_post_and_comment_content_preserve_line_breaks(client):
+    author = User.objects.create_user(username='linebreak-author')
+    post = Post.objects.create(
+        author=author,
+        content='First post line\nSecond post line',
+    )
+    Comment.objects.create(
+        post=post,
+        author=author,
+        content='First comment line\nSecond comment line',
+    )
+    client.force_login(author)
+
+    feed_response = client.get(reverse('core:community_posts'))
+    comment_response = client.get(reverse('core:add_comment', args=[post.pk]))
+
+    assert b'First post line<br>Second post line' in feed_response.content
+    assert b'First comment line<br>Second comment line' in feed_response.content
+    assert b'First post line<br>Second post line' in comment_response.content
+    assert b'First comment line<br>Second comment line' in comment_response.content
 
 
 @pytest.mark.django_db

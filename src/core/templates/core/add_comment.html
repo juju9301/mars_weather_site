@@ -8,7 +8,7 @@
     <!-- Display the relevant post -->
     <div class="mb-4 p-4 border rounded" data-testid="post">
         <h2 class="text-2xl font-bold" data-testid="post-author">{{ post.author.username }}</h2>
-        <p data-testid="post-content">{{ post.content }}</p>
+        <p data-testid="post-content">{{ post.content|linebreaksbr }}</p>
         {% if post.image %}
             <img data-testid="post-image" src="{{ post.image.url }}" alt="Post Image" class="max-w-full h-auto mt-2">
         {% endif %}
@@ -21,7 +21,7 @@
         {% for comment in comments %}
             <div class="mb-2 p-2 border rounded" data-testid="comment">
                 <p class="font-bold" data-testid="comment-username">{{ comment.author.username }}</p>
-                <p data-testid="comment-content">{{ comment.content }}</p>
+                <p data-testid="comment-content">{{ comment.content|linebreaksbr }}</p>
                 <p class="text-gray-600 text-sm" data-testid="comment-date">{{ comment.created_at }}</p>
             </div>
         {% empty %}
