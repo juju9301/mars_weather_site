@@ -15,12 +15,20 @@ By default, the script reads `data\sols` and writes `weather_sol_<sol>.json` fil
 
 Before generating fixtures, the script diagnoses the products for every requested sol and the immediately preceding sol when its products are available. It routes table rows to the sol stated in LTST, not just the sol in the product filename. This recovers boundary samples that appear in the previous sol's files but are absent from the following sol's own files. The combined tables are written to a temporary staging directory for parsing, then removed automatically. The terminal reports row counts by LTST sol, spillover found/routed, and any cross-file duplicate timestamps removed.
 
-The fixture has no database primary key and is intended to add a sol that is not already in the database. Since `Weather.sol` is unique, loading a fixture for an existing sol will fail rather than update it. To load a new sol, first migrate and then run from `src`:
+Generated fixtures omit database primary keys. Django's built-in `loaddata` inserts records and cannot update an existing row by `sol`; an existing sol therefore causes a unique-constraint error. To insert fixtures only for sols not already present, run from `src`:
 
 ```powershell
 python manage.py migrate
 python manage.py loaddata weather_sol_4843
 ```
+
+For a batch that may include existing sols, use the app's explicit import command from `src`:
+
+```powershell
+python manage.py load_rems_fixtures --sol 3995 3996 3997 3998 3999 --update-existing
+```
+
+This creates missing sols and replaces all fixture-provided fields for existing sols, while preserving each existing database ID. Without `--update-existing`, the command refuses to overwrite any existing sol. It reads `weather_sol_<sol>.json` from `weather/fixtures` by default; pass `--fixture-dir` to load files written elsewhere.
 
 ## Input and validation
 

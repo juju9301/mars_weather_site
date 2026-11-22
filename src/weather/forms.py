@@ -9,7 +9,7 @@ PLOT_METRIC_CHOICES = (
     ("max_temp", "Maximum air temperature"),
     ("min_temp", "Minimum air temperature"),
     ("max_gts_temp", "Maximum ground temperature"),
-    ("min_gts_temp", "Minimum ground temperature"),
+    ("min_gts_temp", "Coldest burst mean"),
     ("pressure", "Pressure"),
     ("sunrise", "Sunrise"),
     ("sunset", "Sunset"),

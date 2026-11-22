@@ -67,7 +67,45 @@ def weather_detail(request, sol):
     sol_to_show = get_object_or_404(
         Weather, sol=sol
     )
-    return render(request, 'weather/weather_detail.html', {'sol': sol_to_show})
+    quality_summary = sol_to_show.rems_quality_summary or {}
+    metric_labels = (
+        ("air_temperature", "Air temperature"),
+        ("ground_temperature", "Ground temperature (GTS)"),
+        ("pressure", "Pressure"),
+        ("uv_abc_daylight", "Daylight UV_ABC irradiance"),
+    )
+    metrics = quality_summary.get("metrics", {})
+    quality_metrics = []
+    for metric_key, label in metric_labels:
+        metric = metrics.get(metric_key)
+        if not isinstance(metric, dict):
+            continue
+        flags = metric.get("confidence_flag_counts", {})
+        quality_metrics.append({
+            "label": label,
+            "valid_samples": metric.get("valid_samples"),
+            "total_samples": metric.get("total_samples"),
+            "daylight_samples": metric.get("daylight_samples"),
+            "burst_count": metric.get("burst_count"),
+            "coldest_burst_valid_samples": metric.get(
+                "coldest_burst_valid_samples"
+            ),
+            "coldest_burst_mean_celsius": metric.get(
+                "coldest_burst_mean_celsius"
+            ),
+            "confidence_flags": list(flags.items())
+            if isinstance(flags, dict)
+            else [],
+        })
+    return render(
+        request,
+        'weather/weather_detail.html',
+        {
+            'sol': sol_to_show,
+            'quality_summary': quality_summary,
+            'quality_metrics': quality_metrics,
+        },
+    )
 
 def generate_weather_plot(request):
     sol_bounds = Weather.objects.aggregate(min_sol=Min('sol'), max_sol=Max('sol'))
