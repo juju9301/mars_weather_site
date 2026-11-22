@@ -8,6 +8,7 @@
         <h2 class="text-xl font-semibold mb-4">Weather measurements</h2>
         {% include "weather/_weather_data.html" with compact=False %}
     </div>
+    {% include "weather/_rems_quality_summary.html" %}
     <a href="{% url 'weather:weather_list' %}" class="text-orange-600 mt-3 inline-block">Back to Weather List</a>
 </div>
 {% endblock content %}

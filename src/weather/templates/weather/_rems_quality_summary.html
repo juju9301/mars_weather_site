@@ -1,0 +1,61 @@
+{% if quality_summary %}
+    <section class="site-panel mt-6 p-5 sm:p-6" aria-labelledby="rems-summary-heading" data-testid="rems-quality-summary">
+        <h2 id="rems-summary-heading" class="text-xl font-semibold mb-3">Sol data summary</h2>
+        {% if quality_summary.confidence_policy %}
+            <p class="mb-4 text-gray-700">{{ quality_summary.confidence_policy }}</p>
+        {% endif %}
+        {% if quality_summary.products %}
+            <dl class="mb-5 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                <div>
+                    <dt class="font-semibold text-gray-600">RMD samples</dt>
+                    <dd>{{ quality_summary.products.rmd_samples|default:"0" }}</dd>
+                </div>
+                <div>
+                    <dt class="font-semibold text-gray-600">ADR samples</dt>
+                    <dd>{{ quality_summary.products.adr_samples|default:"0" }}</dd>
+                </div>
+            </dl>
+        {% endif %}
+        {% if quality_metrics %}
+            <h3 class="font-semibold mb-2">Sample coverage and confidence flags</h3>
+            <dl class="divide-y divide-gray-400">
+                {% for metric in quality_metrics %}
+                    <div class="grid grid-cols-1 gap-2 py-3 sm:grid-cols-3">
+                        <dt class="font-semibold text-gray-600">{{ metric.label }}</dt>
+                        <dd>
+                            {{ metric.valid_samples }} / {{ metric.total_samples }} valid samples
+                            {% if metric.daylight_samples is not None %}
+                                ({{ metric.daylight_samples }} daylight samples)
+                            {% endif %}
+                            {% if metric.burst_count is not None %}
+                                <span class="block">
+                                    {{ metric.burst_count }} acquisition bursts;
+                                    coldest burst mean {{ metric.coldest_burst_mean_celsius|floatformat:2 }} °C
+                                    across {{ metric.coldest_burst_valid_samples }} samples
+                                </span>
+                            {% endif %}
+                        </dd>
+                        {% if metric.confidence_flags %}
+                            <dd class="text-sm text-gray-600">
+                                Flags:
+                                {% for code, count in metric.confidence_flags %}
+                                    <span class="whitespace-nowrap">{{ code }}: {{ count }}{% if not forloop.last %}, {% endif %}</span>
+                                {% endfor %}
+                            </dd>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </dl>
+        {% endif %}
+        {% if quality_summary.product_staging %}
+            <h3 class="font-semibold mt-4 mb-2">Cross-sol records</h3>
+            <p class="text-gray-700">
+                RMD rows routed in: {{ quality_summary.product_staging.RMD.routed_in_rows|default:"0" }};
+                ADR rows routed in: {{ quality_summary.product_staging.ADR.routed_in_rows|default:"0" }}.
+                Duplicate cross-file timestamps removed:
+                {{ quality_summary.product_staging.RMD.duplicate_rows_removed|default:"0" }} RMD,
+                {{ quality_summary.product_staging.ADR.duplicate_rows_removed|default:"0" }} ADR.
+            </p>
+        {% endif %}
+    </section>
+{% endif %}

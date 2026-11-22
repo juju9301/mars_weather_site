@@ -27,6 +27,10 @@ class WeatherPlotViewTests(TestCase):
         self.assertContains(response, 'type="number" name="sol_from"')
         self.assertContains(response, 'type="number" name="sol_to"')
         self.assertNotContains(response, '<option value="10">')
+        self.assertContains(
+            response,
+            '<option value="min_gts_temp">Coldest burst mean</option>',
+        )
 
     def test_rejects_reversed_out_of_range_and_missing_endpoint_sols(self):
         url = reverse("weather:generate_weather_plot")
@@ -61,6 +65,11 @@ class WeatherPlotViewTests(TestCase):
                 )
                 self.assertEqual(response.status_code, 200)
                 self.assertTrue(response.context["plot_image"].startswith("data:image/png;base64,"))
+                if metric == "min_gts_temp":
+                    self.assertEqual(
+                        response.context["metric_label"],
+                        "Coldest burst mean",
+                    )
 
     def test_reports_when_selected_metric_has_no_data(self):
         Weather.objects.filter(sol__in=(12, 15)).update(ls=None)

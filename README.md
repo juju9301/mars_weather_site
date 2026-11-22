@@ -113,7 +113,16 @@ python manage.py export_rems_fixture --sol 4843
 python manage.py loaddata weather_sol_4843
 ```
 
-The parser checks its column definitions and record counts against the PDS XML labels. It derives sunrise and sunset from the ADR solar-zenith crossings. Values that aren't directly available are left unset rather than guessed: in particular, the ADR field named `SOLAR_LONGITUDE_ANGLE` is rover-relative solar azimuth, not Mars solar longitude (`ls`). The generated fixture is written to `weather/fixtures/weather_sol_<sol>.json`.
+Alternatively, run the root-level parser for one or more sols:
+
+```powershell
+python scripts\parse_rems.py --sol 4843 --overwrite
+python scripts\parse_rems.py --sol 4835 4836 4837 4838 4839 --data-root E:\path\to\data_calibrated
+```
+
+By default, the script reads `data/sols` and writes fixtures to `src/weather/fixtures/`. It accepts both numeric sol folders (for example `4843`) and PDS-style folders (for example `SOL04843`). Existing output files are left untouched unless `--overwrite` is passed. Django's `loaddata` inserts fixtures and fails if `Weather.sol` already exists. To import a batch that may include existing sols, run from `src`: `python manage.py load_rems_fixtures --sol 3995 3996 3997 3998 3999 --update-existing`. The command inserts missing sols and explicitly replaces fixture-provided fields on existing sols while preserving their database IDs. Without `--update-existing`, it refuses to overwrite existing records.
+
+The parser checks its column definitions and record counts against the PDS XML labels and derives sunrise/sunset from ADR solar-zenith crossings. Before parsing, it diagnoses requested sols and their preceding sols, routes rows by LTST sol, and stages the combined product rows in a temporary directory. This recovers measurements that spill over a product's named sol boundary; terminal logs report spillover and duplicate timestamps. Rows without a requested destination are counted in `rems_quality_summary`. It computes air/ground means, pressure min/max, and daylight mean/peak `UV_ABC` irradiance. The existing `min_gts_temp` field stores the lowest mean across contiguous ground-temperature bursts (a new burst starts after a gap greater than 60 seconds); the raw PDS minimum is also stored separately in `raw_min_gts_temp`. Confidence flags are recorded with valid/total sample counts in `rems_quality_summary`, but do not filter values. This preserves the observed legacy behavior without presenting it as strict confidence-good data. Values that aren't directly available are left unset rather than guessed: in particular, the ADR field named `SOLAR_LONGITUDE_ANGLE` is rover-relative solar azimuth, not Mars solar longitude (`ls`).
 
 
 CircleCI installs `requirements.txt` and `requirements-dev.txt`, audits the runtime dependencies with `pip-audit`, runs the migrations, loads the fixtures, and executes the Playwright tests. The experiments file is not installed in CI.

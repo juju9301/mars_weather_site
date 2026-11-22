@@ -5,13 +5,23 @@ from playwright.sync_api import Page, expect
 from ..utils.constants import BASE_URL
 
 
-def test_weather_detail_displays_measurement_units(page: Page):
-    page.goto(f"{BASE_URL}4842")
+def test_weather_detail_displays_rems_metrics_and_quality_summary(page: Page):
+    page.goto(f"{BASE_URL}3997")
 
-    expect(page.get_by_text("-67 °C", exact=True)).to_be_visible()
-    expect(page.get_by_text("849 Pa", exact=True)).to_be_visible()
-    expect(page.get_by_text("247°", exact=True)).to_be_visible()
-    expect(page.get_by_text("05:41 LTST", exact=True)).to_be_visible()
+    expect(page.get_by_text("-76 °C", exact=True)).to_be_visible()
+    expect(page.get_by_text("-49.04 °C", exact=True)).to_be_visible()
+    expect(page.get_by_text("-44.07 °C", exact=True)).to_be_visible()
+    expect(page.get_by_text("-116.11 °C", exact=True)).to_be_visible()
+    expect(page.get_by_text("693 Pa", exact=True)).to_be_visible()
+    expect(page.get_by_text("5.0834 W/m²", exact=True)).to_be_visible()
+    expect(page.get_by_text("10.7000 W/m²", exact=True)).to_be_visible()
+    expect(page.get_by_text("05:38 LTST", exact=True)).to_be_visible()
+    expect(page.get_by_test_id("rems-quality-summary")).to_contain_text(
+        "Sol data summary"
+    )
+    expect(page.get_by_text("Solar longitude", exact=False)).to_have_count(0)
+    expect(page.get_by_text("Pressure category", exact=False)).to_have_count(0)
+    expect(page.get_by_text("UV irradiance index", exact=False)).to_have_count(0)
 
 
 def test_weather_list_shows_compact_measurements(page: Page):
@@ -29,6 +39,11 @@ def test_weather_list_shows_compact_measurements(page: Page):
     expect(sol_row.locator('th[scope="row"]')).to_have_text("Sol 4842")
     expect(sol_row).to_contain_text("-67 °C")
     expect(sol_row).to_contain_text("849 Pa")
+    expect(page.locator("thead")).to_contain_text("Mean air")
+    expect(page.locator("thead")).to_contain_text("Daylight UV mean")
+    expect(page.get_by_text("Solar longitude", exact=False)).to_have_count(0)
+    expect(page.get_by_text("Pressure category", exact=False)).to_have_count(0)
+    expect(page.get_by_text("UV irradiance index", exact=False)).to_have_count(0)
     sol_row.hover()
     expect(sol_row.locator('th[scope="row"]')).to_have_css(
         "background-color", "rgb(243, 244, 246)"

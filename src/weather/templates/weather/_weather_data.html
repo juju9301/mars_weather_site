@@ -8,10 +8,6 @@
         <dd>{{ sol.season|default_if_none:"Not available" }}</dd>
     </div>
     <div class="grid grid-cols-3 gap-3 py-2">
-        <dt class="col-span-2 font-semibold text-gray-600">Solar longitude (Ls)</dt>
-        <dd>{% if sol.ls is not None %}{{ sol.ls }}°{% else %}Not available{% endif %}</dd>
-    </div>
-    <div class="grid grid-cols-3 gap-3 py-2">
         <dt class="col-span-2 font-semibold text-gray-600">Minimum air temperature</dt>
         <dd>{% if sol.min_temp is not None %}{{ sol.min_temp }} °C{% else %}Not available{% endif %}</dd>
     </div>
@@ -20,8 +16,20 @@
         <dd>{% if sol.max_temp is not None %}{{ sol.max_temp }} °C{% else %}Not available{% endif %}</dd>
     </div>
     <div class="grid grid-cols-3 gap-3 py-2">
-        <dt class="col-span-2 font-semibold text-gray-600">Minimum ground temperature (GTS)</dt>
+        <dt class="col-span-2 font-semibold text-gray-600">Mean air temperature</dt>
+        <dd>{% if sol.mean_temp is not None %}{{ sol.mean_temp|floatformat:2 }} °C{% else %}Not available{% endif %}</dd>
+    </div>
+    <div class="grid grid-cols-3 gap-3 py-2">
+        <dt class="col-span-2 font-semibold text-gray-600">Coldest burst mean (GTS)</dt>
         <dd>{% if sol.min_gts_temp is not None %}{{ sol.min_gts_temp }} °C{% else %}Not available{% endif %}</dd>
+    </div>
+    <div class="grid grid-cols-3 gap-3 py-2">
+        <dt class="col-span-2 font-semibold text-gray-600">Mean ground temperature (GTS)</dt>
+        <dd>{% if sol.mean_gts_temp is not None %}{{ sol.mean_gts_temp|floatformat:2 }} °C{% else %}Not available{% endif %}</dd>
+    </div>
+    <div class="grid grid-cols-3 gap-3 py-2">
+        <dt class="col-span-2 font-semibold text-gray-600">Raw minimum ground temperature (GTS)</dt>
+        <dd>{% if sol.raw_min_gts_temp is not None %}{{ sol.raw_min_gts_temp|floatformat:2 }} °C{% else %}Not available{% endif %}</dd>
     </div>
     <div class="grid grid-cols-3 gap-3 py-2">
         <dt class="col-span-2 font-semibold text-gray-600">Maximum ground temperature (GTS)</dt>
@@ -32,10 +40,6 @@
         <dd>{% if sol.pressure is not None %}{{ sol.pressure }} Pa{% else %}Not available{% endif %}</dd>
     </div>
     <div class="grid grid-cols-3 gap-3 py-2">
-        <dt class="col-span-2 font-semibold text-gray-600">Pressure category</dt>
-        <dd>{{ sol.pressure_string|default_if_none:"Not available" }}</dd>
-    </div>
-    <div class="grid grid-cols-3 gap-3 py-2">
         <dt class="col-span-2 font-semibold text-gray-600">Sunrise</dt>
         <dd>{{ sol.sunrise }} LTST</dd>
     </div>
@@ -44,7 +48,11 @@
         <dd>{{ sol.sunset }} LTST</dd>
     </div>
     <div class="grid grid-cols-3 gap-3 py-2">
-        <dt class="col-span-2 font-semibold text-gray-600">UV irradiance index</dt>
-        <dd>{{ sol.local_uv_irradiance_index|default_if_none:"Not available" }}</dd>
+        <dt class="col-span-2 font-semibold text-gray-600">Daylight mean UV_ABC irradiance</dt>
+        <dd>{% if sol.uv_abc_daylight_mean is not None %}{{ sol.uv_abc_daylight_mean|floatformat:4 }} W/m²{% else %}Not available{% endif %}</dd>
+    </div>
+    <div class="grid grid-cols-3 gap-3 py-2">
+        <dt class="col-span-2 font-semibold text-gray-600">Daylight peak UV_ABC irradiance</dt>
+        <dd>{% if sol.uv_abc_daylight_peak is not None %}{{ sol.uv_abc_daylight_peak|floatformat:4 }} W/m²{% else %}Not available{% endif %}</dd>
     </div>
 </dl>

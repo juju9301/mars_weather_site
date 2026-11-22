@@ -1,0 +1,115 @@
+[
+  {
+    "model": "weather.Weather",
+    "fields": {
+      "orig_id": null,
+      "terrestrial_date": "2023-11-02",
+      "sol": 3995,
+      "ls": null,
+      "season": null,
+      "pressure_string": null,
+      "local_uv_irradiance_index": null,
+      "source": "NASA PDS REMS RDR",
+      "rems_quality_summary": {
+        "missing_value": -999,
+        "confidence_policy": "All non-missing measurements are included; confidence flags are reported but not used to filter.",
+        "aggregation": {
+          "ground_minimum": "Minimum mean brightness temperature per contiguous acquisition burst, with a new burst after a gap greater than 60 seconds.",
+          "uv_daylight": "RMD samples between the interpolated ADR solar-zenith crossings at 90 degrees."
+        },
+        "products": {
+          "rmd_samples": 27796,
+          "adr_samples": 27796
+        },
+        "metrics": {
+          "air_temperature": {
+            "valid_samples": 27796,
+            "total_samples": 27796,
+            "confidence_flag_column": "AMBIENT_TEMP_CONFIDENCE_LEVEL",
+            "confidence_flag_counts": {
+              "001XX1101": 832,
+              "001XX1111": 9321,
+              "101XX0001": 167,
+              "101XX0011": 268,
+              "101XX0101": 395,
+              "101XX0111": 1384,
+              "101XX1101": 2128,
+              "101XX1111": 13301
+            }
+          },
+          "ground_temperature": {
+            "valid_samples": 26596,
+            "total_samples": 27796,
+            "confidence_flag_column": "GTS_CONFIDENCE_LEVEL",
+            "confidence_flag_counts": {
+              "0110": 2717,
+              "0111": 23879,
+              "XXXX": 1200
+            },
+            "burst_count": 18,
+            "coldest_burst_valid_samples": 248,
+            "coldest_burst_mean_celsius": -77.8
+          },
+          "pressure": {
+            "valid_samples": 27796,
+            "total_samples": 27796,
+            "confidence_flag_column": "PS_CONFIDENCE_LEVEL",
+            "confidence_flag_counts": {
+              "11": 27796
+            }
+          },
+          "uv_abc_daylight": {
+            "valid_samples": 9838,
+            "total_samples": 27796,
+            "confidence_flag_column": "UVS_CONFIDENCE_LEVEL",
+            "confidence_flag_counts": {
+              "01010": 5642,
+              "10010": 4196,
+              "XXX": 248,
+              "XXXX": 1158
+            },
+            "daylight_samples": 11244
+          }
+        },
+        "excluded_other_sol_rows": {
+          "rmd": {},
+          "adr": {}
+        },
+        "product_staging": {
+          "RMD": {
+            "rows_by_source_sol": {
+              "03995": 27796
+            },
+            "routed_in_rows": 0,
+            "routed_out_rows": {},
+            "unrouted_other_sol_rows": {},
+            "duplicate_rows_removed": 0
+          },
+          "ADR": {
+            "rows_by_source_sol": {
+              "03995": 27796
+            },
+            "routed_in_rows": 0,
+            "routed_out_rows": {},
+            "unrouted_other_sol_rows": {},
+            "duplicate_rows_removed": 0
+          }
+        }
+      },
+      "min_temp": -76,
+      "max_temp": -12,
+      "mean_temp": -54.56,
+      "min_gts_temp": -78,
+      "max_gts_temp": 2,
+      "mean_gts_temp": -53.21,
+      "raw_min_gts_temp": -109.58,
+      "pressure": 694,
+      "min_pressure": 657.43,
+      "max_pressure": 725.2,
+      "sunrise": "05:38",
+      "sunset": "17:50",
+      "uv_abc_daylight_mean": 4.4124,
+      "uv_abc_daylight_peak": 10.62
+    }
+  }
+]

@@ -26,16 +26,18 @@
                         <th scope="col" class="sticky left-0 z-10 whitespace-nowrap border-r border-gray-200 bg-gray-100 px-3 py-2">Sol</th>
                         <th scope="col" class="whitespace-normal border-r border-gray-200 px-3 py-2"><span class="block">Terrestrial</span><span class="block">date</span></th>
                         <th scope="col" class="whitespace-normal border-r border-gray-200 px-3 py-2">Season</th>
-                        <th scope="col" class="whitespace-normal border-r border-gray-200 px-3 py-2"><span class="block">Solar longitude</span><span class="block">(Ls)</span></th>
                         <th scope="col" class="whitespace-normal border-r border-gray-200 px-3 py-2"><span class="block">Min air</span><span class="block">(°C)</span></th>
                         <th scope="col" class="whitespace-normal border-r border-gray-200 px-3 py-2"><span class="block">Max air</span><span class="block">(°C)</span></th>
-                        <th scope="col" class="whitespace-normal border-r border-gray-200 px-3 py-2"><span class="block">Min ground</span><span class="block">(GTS, °C)</span></th>
+                        <th scope="col" class="whitespace-normal border-r border-gray-200 px-3 py-2"><span class="block">Mean air</span><span class="block">(°C)</span></th>
+                        <th scope="col" class="whitespace-normal border-r border-gray-200 px-3 py-2"><span class="block">Coldest burst mean</span><span class="block">(GTS, °C)</span></th>
+                        <th scope="col" class="whitespace-normal border-r border-gray-200 px-3 py-2"><span class="block">Mean ground</span><span class="block">(GTS, °C)</span></th>
+                        <th scope="col" class="whitespace-normal border-r border-gray-200 px-3 py-2"><span class="block">Raw min ground</span><span class="block">(GTS, °C)</span></th>
                         <th scope="col" class="whitespace-normal border-r border-gray-200 px-3 py-2"><span class="block">Max ground</span><span class="block">(GTS, °C)</span></th>
                         <th scope="col" class="whitespace-normal border-r border-gray-200 px-3 py-2"><span class="block">Pressure</span><span class="block">(Pa)</span></th>
-                        <th scope="col" class="whitespace-normal border-r border-gray-200 px-3 py-2"><span class="block">Pressure</span><span class="block">category</span></th>
                         <th scope="col" class="whitespace-normal border-r border-gray-200 px-3 py-2"><span class="block">Sunrise</span><span class="block">(LTST)</span></th>
                         <th scope="col" class="whitespace-normal border-r border-gray-200 px-3 py-2"><span class="block">Sunset</span><span class="block">(LTST)</span></th>
-                        <th scope="col" class="whitespace-normal border-r border-gray-200 px-3 py-2"><span class="block">UV</span><span class="block">index</span></th>
+                        <th scope="col" class="whitespace-normal border-r border-gray-200 px-3 py-2"><span class="block">Daylight UV mean</span><span class="block">(W/m²)</span></th>
+                        <th scope="col" class="whitespace-normal border-r border-gray-200 px-3 py-2"><span class="block">Daylight UV peak</span><span class="block">(W/m²)</span></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -46,16 +48,18 @@
                             </th>
                             <td class="whitespace-nowrap border-r border-gray-200 px-3 py-2">{{ sol.terrestrial_date|date:"Y-m-d" }}</td>
                             <td class="whitespace-nowrap border-r border-gray-200 px-3 py-2">{{ sol.season|default_if_none:"N/A" }}</td>
-                            <td class="whitespace-nowrap border-r border-gray-200 px-3 py-2">{% if sol.ls is not None %}{{ sol.ls }}°{% else %}N/A{% endif %}</td>
                             <td class="whitespace-nowrap border-r border-gray-200 px-3 py-2">{% if sol.min_temp is not None %}{{ sol.min_temp }} °C{% else %}N/A{% endif %}</td>
                             <td class="whitespace-nowrap border-r border-gray-200 px-3 py-2">{% if sol.max_temp is not None %}{{ sol.max_temp }} °C{% else %}N/A{% endif %}</td>
+                            <td class="whitespace-nowrap border-r border-gray-200 px-3 py-2">{% if sol.mean_temp is not None %}{{ sol.mean_temp|floatformat:2 }} °C{% else %}N/A{% endif %}</td>
                             <td class="whitespace-nowrap border-r border-gray-200 px-3 py-2">{% if sol.min_gts_temp is not None %}{{ sol.min_gts_temp }} °C{% else %}N/A{% endif %}</td>
+                            <td class="whitespace-nowrap border-r border-gray-200 px-3 py-2">{% if sol.mean_gts_temp is not None %}{{ sol.mean_gts_temp|floatformat:2 }} °C{% else %}N/A{% endif %}</td>
+                            <td class="whitespace-nowrap border-r border-gray-200 px-3 py-2">{% if sol.raw_min_gts_temp is not None %}{{ sol.raw_min_gts_temp|floatformat:2 }} °C{% else %}N/A{% endif %}</td>
                             <td class="whitespace-nowrap border-r border-gray-200 px-3 py-2">{% if sol.max_gts_temp is not None %}{{ sol.max_gts_temp }} °C{% else %}N/A{% endif %}</td>
                             <td class="whitespace-nowrap border-r border-gray-200 px-3 py-2">{% if sol.pressure is not None %}{{ sol.pressure }} Pa{% else %}N/A{% endif %}</td>
-                            <td class="whitespace-nowrap border-r border-gray-200 px-3 py-2">{{ sol.pressure_string|default_if_none:"N/A" }}</td>
                             <td class="whitespace-nowrap border-r border-gray-200 px-3 py-2">{{ sol.sunrise }} LTST</td>
                             <td class="whitespace-nowrap border-r border-gray-200 px-3 py-2">{{ sol.sunset }} LTST</td>
-                            <td class="whitespace-nowrap border-r border-gray-200 px-3 py-2">{{ sol.local_uv_irradiance_index|default_if_none:"N/A" }}</td>
+                            <td class="whitespace-nowrap border-r border-gray-200 px-3 py-2">{% if sol.uv_abc_daylight_mean is not None %}{{ sol.uv_abc_daylight_mean|floatformat:4 }} W/m²{% else %}N/A{% endif %}</td>
+                            <td class="whitespace-nowrap border-r border-gray-200 px-3 py-2">{% if sol.uv_abc_daylight_peak is not None %}{{ sol.uv_abc_daylight_peak|floatformat:4 }} W/m²{% else %}N/A{% endif %}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
