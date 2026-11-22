@@ -1,8 +1,26 @@
+import os
+from unittest.mock import patch
+
+from django.core.management import call_command
+from django.core.management.base import CommandError
 from django.test import TestCase
 from django.urls import reverse
 
 from .forms import PostForm
 from weather.models import Weather
+
+
+class CreateTestUserCommandTests(TestCase):
+    def test_requires_test_user_credentials(self):
+        with patch.dict(os.environ, {
+            "TEST_USER_USERNAME": "",
+            "TEST_USER_PASSWORD": "",
+        }):
+            with self.assertRaisesMessage(
+                CommandError,
+                "Set TEST_USER_USERNAME and TEST_USER_PASSWORD",
+            ):
+                call_command("create_test_user")
 
 
 class PostFormTests(TestCase):
