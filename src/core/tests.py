@@ -1,6 +1,7 @@
 import os
 from unittest.mock import patch
 
+from django.contrib.auth.models import User
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import TestCase
@@ -21,6 +22,40 @@ class CreateTestUserCommandTests(TestCase):
                 "Set TEST_USER_USERNAME and TEST_USER_PASSWORD",
             ):
                 call_command("create_test_user")
+
+    def test_creates_user_and_staff_admin_with_configured_credentials(self):
+        credentials = {
+            "TEST_USER_USERNAME": "test-user",
+            "TEST_USER_PASSWORD": "user-password",
+            "TEST_ADMIN_USERNAME": "test-admin",
+            "TEST_ADMIN_PASSWORD": "admin-password",
+        }
+        with patch.dict(os.environ, credentials):
+            call_command("create_test_user", verbosity=0)
+
+        user = User.objects.get(username="test-user")
+        admin = User.objects.get(username="test-admin")
+        self.assertTrue(user.check_password("user-password"))
+        self.assertFalse(user.is_staff)
+        self.assertTrue(admin.check_password("admin-password"))
+        self.assertTrue(admin.is_staff)
+
+    def test_resets_password_for_existing_test_user(self):
+        user = User.objects.create_user(
+            username="test-user",
+            password="old-password",
+        )
+        with patch.dict(os.environ, {
+            "TEST_USER_USERNAME": "test-user",
+            "TEST_USER_PASSWORD": "new-password",
+            "TEST_ADMIN_USERNAME": "",
+            "TEST_ADMIN_PASSWORD": "",
+        }):
+            call_command("create_test_user", verbosity=0)
+
+        user.refresh_from_db()
+        self.assertTrue(user.check_password("new-password"))
+        self.assertTrue(user.is_staff)
 
 
 class PostFormTests(TestCase):
