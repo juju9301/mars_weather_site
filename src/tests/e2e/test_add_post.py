@@ -71,16 +71,23 @@ def test_post_with_fetched_image(page: Page, setup):
     home_page, add_post_page = setup
     rover_requests = []
     cors_headers = {'access-control-allow-origin': '*'}
+    served_test_image = (
+        f'{home_page.base_url.rstrip("/")}/media/test_images/test_image1.jpg'
+    )
 
     def rover_response(route):
         rover_requests.append(route.request.url)
         if len(rover_requests) == 1:
             route.fulfill(json={'photos': []}, headers=cors_headers)
         else:
-            image_name = 'unavailable.svg' if len(rover_requests) == 2 else 'rover.svg'
+            image_url = (
+                'https://images.example/unavailable.svg'
+                if len(rover_requests) == 2
+                else served_test_image
+            )
             route.fulfill(json={
                 'photos': [{
-                    'img_src': f'https://images.example/{image_name}',
+                    'img_src': image_url,
                     'sol': 3200,
                 }]
             }, headers=cors_headers)

@@ -6,9 +6,46 @@ from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import TestCase
 from django.urls import reverse
+from rest_framework.test import APIClient
 
 from .forms import PostForm
+from .models import Comment, Post
 from weather.models import Weather
+
+
+class ApiAuthorAssignmentTests(TestCase):
+    def setUp(self):
+        self.staff_user = User.objects.create_user(
+            username="post-api-admin",
+            password="test-password",
+            is_staff=True,
+        )
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.staff_user)
+
+    def test_post_api_assigns_authenticated_author(self):
+        response = self.client.post(
+            reverse("core:post_list_create"),
+            {"content": "API-created post"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 201, response.data)
+        self.assertEqual(response.data["author"], self.staff_user.pk)
+        self.assertEqual(Post.objects.get().author, self.staff_user)
+
+    def test_comment_api_assigns_authenticated_author(self):
+        post = Post.objects.create(author=self.staff_user, content="Existing post")
+
+        response = self.client.post(
+            reverse("core:comment_list_create"),
+            {"post": post.pk, "content": "API-created comment"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 201, response.data)
+        self.assertEqual(response.data["author"], self.staff_user.pk)
+        self.assertEqual(Comment.objects.get().author, self.staff_user)
 
 
 class CreateTestUserCommandTests(TestCase):
