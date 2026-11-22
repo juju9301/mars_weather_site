@@ -23,12 +23,14 @@ class PostForm(forms.ModelForm):
         model = Post
         fields = ['content', 'image', 'font_color', 'background_color']
         widgets = {
-            'content': forms.Textarea(attrs={'rows': 4, 'cols': 40, 'required': False}),
             'font_color': forms.TextInput(attrs={'type': 'color'}),
             'background_color': forms.TextInput(attrs={'type': 'color'})
         }
 
-    content = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 4, 'cols': 40, 'required': False}))
+    content = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={'rows': 12, 'cols': 60, 'class': 'w-full'}),
+    )
 
     def clean(self):
         cleaned_data = super().clean()

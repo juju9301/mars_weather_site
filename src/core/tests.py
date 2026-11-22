@@ -1,7 +1,26 @@
 from django.test import TestCase
 from django.urls import reverse
 
+from .forms import PostForm
 from weather.models import Weather
+
+
+class PostFormTests(TestCase):
+    def test_accepts_post_content_of_at_least_1000_characters(self):
+        form = PostForm(data={
+            "content": "x" * 1000,
+            "font_color": "#000000",
+            "background_color": "#ffffff",
+        })
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+    def test_post_content_textarea_is_large_and_full_width(self):
+        widget_attrs = PostForm().fields["content"].widget.attrs
+
+        self.assertEqual(widget_attrs["rows"], 12)
+        self.assertEqual(widget_attrs["cols"], 60)
+        self.assertEqual(widget_attrs["class"], "w-full")
 
 
 class LandingPageWeatherSummaryTests(TestCase):
