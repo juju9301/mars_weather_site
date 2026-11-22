@@ -32,8 +32,10 @@ ADR_COLUMNS = [
 ]
 
 
-def _write_product(directory: Path, product: str, columns: list[str], rows):
-    stem = f"RME_TEST{product}{SOL}"
+def _write_product(
+    directory: Path, product: str, columns: list[str], rows, sol: int = SOL
+):
+    stem = f"RME_TEST{product}{sol}"
     xml_fields = "".join(
         f"<Field_Character><name>{name}</name></Field_Character>"
         for name in columns
@@ -195,6 +197,101 @@ class RemsParserTests(TestCase):
         record = parse_weather_record(self.data_root, SOL)
 
         self.assertEqual(record["fields"]["sol"], SOL)
+
+    def test_excludes_rows_from_adjacent_sols(self):
+        self._write_sample_tables(
+            [
+                [
+                    "1", "04843M05:00:00", "04843 05:00:00",
+                    "180", "0111", "200", "111111111", "-999", "11001",
+                    "800", "11",
+                ],
+                [
+                    "2", "04843M05:00:01", "04844 00:00:00",
+                    "-999", "XXXX", "999", "XXXXXXXXX", "999", "XXXXX",
+                    "9999", "XX",
+                ],
+            ],
+        )
+
+        record = parse_weather_record(self.data_root, SOL)
+        fields = record["fields"]
+        products = fields["rems_quality_summary"]["products"]
+
+        self.assertEqual((fields["min_temp"], fields["max_temp"]), (-73, -73))
+        self.assertEqual(fields["pressure"], 800)
+        self.assertEqual(fields["uv_abc_daylight_peak"], None)
+        self.assertEqual(products["rmd_samples"], 1)
+        self.assertEqual(
+            fields["rems_quality_summary"]["excluded_other_sol_rows"]["rmd"],
+            {"04844": 1},
+        )
+        self.assertEqual(
+            fields["rems_quality_summary"]["excluded_other_sol_rows"]["adr"], {}
+        )
+
+    def test_merges_rows_from_previous_sol_product(self):
+        self._write_sample_tables(
+            [[
+                "2", "04843M05:00:30", "04843 05:00:30",
+                "182", "0111", "202", "111111111", "-999", "11001",
+                "810", "11",
+            ]],
+        )
+        previous_directory = self.data_root / str(SOL - 1)
+        previous_directory.mkdir()
+        _write_product(
+            previous_directory,
+            "RMD",
+            RMD_COLUMNS,
+            [
+                [
+                    "1", "04843M05:00:00", "04843 05:00:00",
+                    "180", "0111", "200", "111111111", "-999", "11001",
+                    "800", "11",
+                ],
+                [
+                    "2", "04843M05:00:29", "04843 05:00:29",
+                    "181", "0111", "201", "111111111", "-999", "11001",
+                    "805", "11",
+                ],
+            ],
+            sol=SOL - 1,
+        )
+        _write_product(
+            previous_directory,
+            "ADR",
+            ADR_COLUMNS,
+            [
+                ["1", "04842M05:00:00", "04842 05:00:00", "247", "100"],
+                ["2", "04842M06:00:00", "04842 06:00:00", "247", "80"],
+                ["3", "04842M17:00:00", "04842 17:00:00", "247", "80"],
+                ["4", "04842M18:00:00", "04842 18:00:00", "247", "100"],
+            ],
+            sol=SOL - 1,
+        )
+
+        record = parse_weather_record(self.data_root, SOL)
+        fields = record["fields"]
+        staging = fields["rems_quality_summary"]["product_staging"]["RMD"]
+
+        self.assertEqual(fields["min_temp"], -73)
+        self.assertEqual(fields["max_temp"], -71)
+        self.assertEqual(fields["pressure"], 805)
+        self.assertEqual(
+            fields["rems_quality_summary"]["metrics"]["air_temperature"][
+                "valid_samples"
+            ],
+            2,
+        )
+        self.assertEqual(staging["routed_in_rows"], 2)
+        self.assertEqual(
+            staging["rows_by_source_sol"], {"04842": 2, "04843": 1}
+        )
+        self.assertEqual(staging["duplicate_rows_removed"], 1)
+        self.assertEqual(
+            fields["rems_quality_summary"]["products"]["rmd_samples"], 2
+        )
 
     def test_all_ci_weather_fixtures_load_together(self):
         fixture_dir = Path(__file__).resolve().parents[1] / "weather" / "fixtures"

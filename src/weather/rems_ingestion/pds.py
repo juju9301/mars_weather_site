@@ -14,7 +14,9 @@ def _local_name(tag: str) -> str:
     return tag.rsplit("}", 1)[-1]
 
 
-def _product_file(data_root: Path, sol: int, product: str, suffix: str) -> Path:
+def _find_product_file(
+    data_root: Path, sol: int, product: str, suffix: str
+) -> Path | None:
     directories = (
         data_root / str(sol),
         data_root / f"SOL{sol:05d}",
@@ -29,11 +31,23 @@ def _product_file(data_root: Path, sol: int, product: str, suffix: str) -> Path:
             matches.update(directory.glob(f"*{product}{sol:04d}*.LBL.txt"))
 
     if len(matches) != 1:
+        if not matches:
+            return None
         raise RemsDataError(
             f"Expected exactly one {product} {suffix} file for sol {sol} "
             f"under {data_root}; found {len(matches)}."
         )
     return matches.pop()
+
+
+def _product_file(data_root: Path, sol: int, product: str, suffix: str) -> Path:
+    path = _find_product_file(data_root, sol, product, suffix)
+    if path is None:
+        raise RemsDataError(
+            f"Expected exactly one {product} {suffix} file for sol {sol} "
+            f"under {data_root}; found 0."
+        )
+    return path
 
 
 def _label_value(label_path: Path, key: str) -> str:
@@ -118,6 +132,14 @@ def _read_table(
     return [dict(zip(columns, row)) for row in rows]
 
 
+def _read_staged_table(table_path: Path) -> list[dict[str, str]]:
+    try:
+        with table_path.open(encoding="ascii", newline="") as source:
+            return list(csv.DictReader(source))
+    except (OSError, csv.Error, UnicodeError) as exc:
+        raise RemsDataError(f"Could not read staged PDS table {table_path}: {exc}") from exc
+
+
 def _select_table(
     tables: list[tuple[list[str], int]], required_columns: set[str], product: str
 ) -> tuple[list[str], int]:
@@ -159,13 +181,28 @@ def _ltst_seconds(value: str) -> float:
         raise RemsDataError(f"Invalid LTST value: {value!r}.") from exc
 
 
-def _validate_ltst_sol(rows: list[dict[str, str]], sol: int, product: str) -> None:
+def _filter_rows_for_sol(
+    rows: list[dict[str, str]], sol: int, product: str
+) -> tuple[list[dict[str, str]], dict[str, int]]:
     expected_sol = f"{sol:05d}"
+    selected_rows = []
+    excluded_sol_counts: dict[str, int] = {}
     for row_number, row in enumerate(rows, start=1):
         prefix = row["LTST"].strip().split(maxsplit=1)
-        if not prefix or prefix[0] != expected_sol:
+        if not prefix or not re.fullmatch(r"\d{5}", prefix[0]):
             value = row["LTST"].strip()
             raise RemsDataError(
-                f"{product} PDS row {row_number} has LTST {value!r}; "
-                f"expected sol {expected_sol}."
+                f"{product} PDS row {row_number} has invalid LTST {value!r}."
             )
+        if prefix[0] == expected_sol:
+            selected_rows.append(row)
+        else:
+            excluded_sol_counts[prefix[0]] = (
+                excluded_sol_counts.get(prefix[0], 0) + 1
+            )
+
+    if not selected_rows:
+        raise RemsDataError(
+            f"No {product} PDS rows found for sol {expected_sol}."
+        )
+    return selected_rows, excluded_sol_counts

@@ -1,4 +1,5 @@
 import argparse
+import logging
 import sys
 from pathlib import Path
 
@@ -10,7 +11,7 @@ sys.path.insert(0, str(SOURCE_ROOT))
 from weather.rems_ingestion import (  # noqa: E402
     RemsDataError,
     fixture_json,
-    parse_weather_record,
+    parse_weather_records,
 )
 
 
@@ -42,6 +43,11 @@ def main(argv: list[str] | None = None) -> int:
         parser.error("Sol numbers must be non-negative.")
     if len(set(args.sol)) != len(args.sol):
         parser.error("Sol numbers must be unique.")
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(levelname)s: %(message)s",
+        stream=sys.stdout,
+    )
 
     output_paths = [
         args.output_dir / f"weather_sol_{sol}.json" for sol in args.sol
@@ -55,10 +61,11 @@ def main(argv: list[str] | None = None) -> int:
             )
 
     try:
-        records = [
-            parse_weather_record(args.data_root, sol)
-            for sol in args.sol
-        ]
+        records = parse_weather_records(
+            args.data_root,
+            args.sol,
+            logger=logging.getLogger("rems_ingestion"),
+        )
         args.output_dir.mkdir(parents=True, exist_ok=True)
         for path, record in zip(output_paths, records):
             path.write_text(fixture_json(record), encoding="utf-8")
