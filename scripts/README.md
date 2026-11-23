@@ -13,8 +13,6 @@ python scripts\parse_rems.py --sol 4835 4836 4837 --data-root E:\path\to\data_ca
 
 By default, the script reads `data\sols` and writes `weather_sol_<sol>.json` files to `src\weather\fixtures`. It recognizes numeric sol directories such as `4843`, PDS-style directories such as `SOL04843`, or products placed directly in the data-root. Use `--output-dir` to choose another destination. Existing output files are not replaced unless `--overwrite` is specified.
 
-Before generating fixtures, the script diagnoses the products for every requested sol and the immediately preceding sol when its products are available. It routes table rows to the sol stated in LTST, not just the sol in the product filename. This recovers boundary samples that appear in the previous sol's files but are absent from the following sol's own files. The combined tables are written to a temporary staging directory for parsing, then removed automatically. The terminal reports row counts by LTST sol, spillover found/routed, and any cross-file duplicate timestamps removed.
-
 The fixture has no database primary key and is intended to add a sol that is not already in the database. Since `Weather.sol` is unique, loading a fixture for an existing sol will fail rather than update it. To load a new sol, first migrate and then run from `src`:
 
 ```powershell
@@ -24,7 +22,7 @@ python manage.py loaddata weather_sol_4843
 
 ## Input and validation
 
-The parser reads the RMD table for measurements and the ADR table for solar geometry. XML labels provide the table columns and expected row counts; the RMD label provides the terrestrial date from `STOP_TIME`. Rows whose LTST sol differs from the requested sol are routed to the matching requested sol when possible. Other-sol rows without a requested destination are excluded from that fixture and counted in `rems_quality_summary.excluded_other_sol_rows`. A malformed LTST value, malformed table, invalid numeric value, or missing required product raises an explicit error.
+The parser reads the RMD table for measurements and the ADR table for solar geometry. XML labels provide the table columns and expected row counts; the RMD label provides the terrestrial date from `STOP_TIME`. LTST values are checked against the requested sol. A mismatch, malformed table, invalid numeric value, or missing required product raises an explicit error.
 
 The PDS missing-value sentinel `-999` is excluded from calculations. Temperatures are converted from kelvin to Celsius using `K - 273.15`. Confidence flags are metric-specific: all non-missing values are included, and the original flag-code counts are recorded rather than applying a generic “good” filter.
 
