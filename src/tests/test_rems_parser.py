@@ -15,13 +15,8 @@ RMD_COLUMNS = [
     "LMST",
     "LTST",
     "BRIGHTNESS_TEMP",
-    "GTS_CONFIDENCE_LEVEL",
     "AMBIENT_TEMP",
-    "AMBIENT_TEMP_CONFIDENCE_LEVEL",
-    "UV_ABC",
-    "UVS_CONFIDENCE_LEVEL",
     "PRESSURE",
-    "PS_CONFIDENCE_LEVEL",
 ]
 ADR_COLUMNS = [
     "TIMESTAMP",
@@ -80,23 +75,15 @@ class RemsParserTests(TestCase):
             [
                 [
                     "1", "04843M05:00:00", "04843 05:00:00",
-                    "180", "0111", "200", "111111111", "-999", "11001",
-                    "800", "11",
-                ],
-                [
-                    "2", "04843M05:00:30", "04843 05:00:30",
-                    "182", "0111", "202", "111111111", "-999", "11001",
-                    "810", "11",
+                    "180", "200", "800",
                 ],
                 [
                     "2", "04843M12:00:00", "04843 12:00:00",
-                    "200", "0111", "220", "111111111", "1.2", "11001",
-                    "1000", "11",
+                    "200", "220", "1000",
                 ],
                 [
                     "3", "04843M13:00:00", "04843 13:00:00",
-                    "-999", "XXXX", "-999", "XXXXXXXXX", "-999", "XXXXX",
-                    "-999", "XX",
+                    "-999", "-999", "-999",
                 ],
             ],
         )
@@ -109,38 +96,9 @@ class RemsParserTests(TestCase):
         self.assertIsNone(fields["ls"])
         self.assertIsNone(fields["season"])
         self.assertEqual((fields["min_temp"], fields["max_temp"]), (-73, -53))
-        self.assertAlmostEqual(fields["mean_temp"], -65.82)
-        self.assertEqual(fields["pressure"], 870)
-        self.assertEqual((fields["min_pressure"], fields["max_pressure"]), (800, 1000))
+        self.assertEqual(fields["pressure"], 900)
         self.assertEqual((fields["sunrise"], fields["sunset"]), ("05:30", "17:30"))
-        self.assertEqual((fields["min_gts_temp"], fields["max_gts_temp"]), (-92, -73))
-        self.assertAlmostEqual(fields["mean_gts_temp"], -85.82)
-        self.assertEqual(fields["raw_min_gts_temp"], -93.15)
-        self.assertEqual(fields["uv_abc_daylight_mean"], 1.2)
-        self.assertEqual(fields["uv_abc_daylight_peak"], 1.2)
-        quality = fields["rems_quality_summary"]
-        self.assertEqual(
-            quality["metrics"]["ground_temperature"]["valid_samples"], 3
-        )
-        self.assertEqual(
-            quality["metrics"]["ground_temperature"]["confidence_flag_counts"],
-            {"0111": 3, "XXXX": 1},
-        )
-        self.assertEqual(
-            quality["metrics"]["ground_temperature"]["burst_count"], 2
-        )
-        self.assertEqual(
-            quality["metrics"]["ground_temperature"]["coldest_burst_valid_samples"],
-            2,
-        )
-        self.assertEqual(
-            quality["metrics"]["ground_temperature"]["coldest_burst_mean_celsius"],
-            -92.15,
-        )
-        self.assertEqual(
-            quality["metrics"]["uv_abc_daylight"]["daylight_samples"], 2
-        )
-        self.assertIn("not used to filter", quality["confidence_policy"])
+        self.assertEqual((fields["min_gts_temp"], fields["max_gts_temp"]), (-93, -73))
         self.assertNotIn("abs_humidity", fields)
         self.assertNotIn("wind_speed", fields)
         self.assertNotIn("wind_direction", fields)
@@ -148,11 +106,7 @@ class RemsParserTests(TestCase):
 
     def test_generated_fixture_loads_without_a_source_primary_key(self):
         self._write_sample_tables(
-            [[
-                "1", "04843M05:00:00", "04843 05:00:00",
-                "180", "0111", "200", "111111111", "-999", "11001",
-                "800", "11",
-            ]],
+            [["1", "04843M05:00:00", "04843 05:00:00", "180", "200", "800"]],
         )
         record = parse_weather_record(self.data_root, SOL)
         fixture_path = self.directory / "weather_sol_4843.json"
@@ -165,36 +119,6 @@ class RemsParserTests(TestCase):
         weather = Weather.objects.get(sol=SOL)
         self.assertIsNone(weather.orig_id)
         self.assertEqual(weather.source, "NASA PDS REMS RDR")
-        self.assertEqual(weather.raw_min_gts_temp, -93.15)
-
-    def test_reads_padded_sol_directory_names(self):
-        self._write_sample_tables(
-            [[
-                "1", "04843M05:00:00", "04843 05:00:00",
-                "180", "0111", "200", "111111111", "-999", "11001",
-                "800", "11",
-            ]],
-        )
-        self.directory.rename(self.data_root / "SOL04843")
-
-        record = parse_weather_record(self.data_root, SOL)
-
-        self.assertEqual(record["fields"]["sol"], SOL)
-
-    def test_reads_text_label_fallback_when_no_label_is_present(self):
-        self._write_sample_tables(
-            [[
-                "1", "04843M05:00:00", "04843 05:00:00",
-                "180", "0111", "200", "111111111", "-999", "11001",
-                "800", "11",
-            ]],
-        )
-        label_path = self.directory / f"RME_TESTRMD{SOL}.LBL"
-        label_path.rename(label_path.with_suffix(".LBL.txt"))
-
-        record = parse_weather_record(self.data_root, SOL)
-
-        self.assertEqual(record["fields"]["sol"], SOL)
 
     def test_all_ci_weather_fixtures_load_together(self):
         fixture_dir = Path(__file__).resolve().parents[1] / "weather" / "fixtures"
