@@ -53,7 +53,7 @@ def test_add_post_without_image(page: Page, setup):
     add_post_page.create_post(content=content)
     expect(page).to_have_url(home_page.url)
     expect(home_page.post).to_have_count(1)
-    expect(home_page.post_content).to_have_text(content)
+    expect(home_page.post_content).to_have_js_property("innerText", content)
     expect(home_page.post_author).to_contain_text(f'Posted by {home_page.test_admin_username}')
     check_timestamp(home_page.post_author.text_content())
 
@@ -63,7 +63,7 @@ def test_post_with_custom_image(page: Page, setup):
     add_post_page.create_post(content, add_post_page.test_file_jpg)
     expect(page).to_have_url(home_page.url)
     expect(home_page.post).to_have_count(1)
-    expect(home_page.post_content).to_have_text(content)
+    expect(home_page.post_content).to_have_js_property("innerText", content)
     expect(home_page.post_image).to_be_visible()
 
 
@@ -71,16 +71,23 @@ def test_post_with_fetched_image(page: Page, setup):
     home_page, add_post_page = setup
     rover_requests = []
     cors_headers = {'access-control-allow-origin': '*'}
+    served_test_image = (
+        f'{home_page.base_url.rstrip("/")}/media/test_images/test_image1.jpg'
+    )
 
     def rover_response(route):
         rover_requests.append(route.request.url)
         if len(rover_requests) == 1:
             route.fulfill(json={'photos': []}, headers=cors_headers)
         else:
-            image_name = 'unavailable.svg' if len(rover_requests) == 2 else 'rover.svg'
+            image_url = (
+                'https://images.example/unavailable.svg'
+                if len(rover_requests) == 2
+                else served_test_image
+            )
             route.fulfill(json={
                 'photos': [{
-                    'img_src': f'https://images.example/{image_name}',
+                    'img_src': image_url,
                     'sol': 3200,
                 }]
             }, headers=cors_headers)
@@ -114,7 +121,7 @@ def test_post_with_fetched_image(page: Page, setup):
     # Submit post and verify it appears in the community feed
     add_post_page.submit_button.click()
     expect(home_page.post).to_have_count(1)
-    expect(home_page.post_content).to_have_text(mars_info)
+    expect(home_page.post_content).to_have_js_property("innerText", mars_info)
     expect(home_page.post_image).to_be_visible()
     expect(home_page.post_author).to_contain_text(f'Posted by {home_page.test_admin_username}')
     check_timestamp(home_page.post_author.text_content())
@@ -160,7 +167,7 @@ def test_mars_image_overrides_custome_image(page: Page, setup):
     # Submit post and verify that mars picture and content was posted
     add_post_page.submit_button.click()
     expect(home_page.post).to_have_count(1)
-    expect(home_page.post_content).to_have_text(mars_info)
+    expect(home_page.post_content).to_have_js_property("innerText", mars_info)
     expect(home_page.post_image).to_be_visible()
 
 def test_mars_info_gets_appended(page: Page, setup):
@@ -178,7 +185,7 @@ def test_mars_info_gets_appended(page: Page, setup):
     expect(add_post_page.content_field).to_have_value(content + mars_info)
     add_post_page.submit_button.click()
     expect(home_page.post).to_have_count(1)
-    expect(home_page.post_content).to_have_text(content + mars_info)
+    expect(home_page.post_content).to_have_js_property("innerText", content + mars_info)
 
 def test_after_page_refresh_form_content_not_preserved(page: Page, setup):
     home_page, add_post_page = setup
@@ -208,7 +215,7 @@ def test_after_page_refresh_with_custome_image_new_data_is_submitted(page: Page,
     add_post_page.create_post(content=new_content, file_path=new_image)
 
     # Check that the post posted contains new data
-    expect(home_page.post_content).to_have_text(new_content)
+    expect(home_page.post_content).to_have_js_property("innerText", new_content)
     image_src = home_page.post_image.get_attribute('src')
     assert new_image.stem in image_src
 
@@ -228,7 +235,7 @@ def test_after_page_refresh_mars_image_replaced_with_custom(page: Page, setup):
     add_post_page.create_post(content=content, file_path=image)
 
     # Check that post created with latest data
-    expect(home_page.post_content).to_have_text(content)
+    expect(home_page.post_content).to_have_js_property("innerText", content)
     image_src = home_page.post_image.get_attribute('src')
     assert image.stem in image_src
 
@@ -251,7 +258,7 @@ def test_mars_image_data_is_preserved_after_going_back_to_community_feed(page: P
 
     # Submit post
     add_post_page.submit_button.click()
-    expect(home_page.post_content).to_have_text(info)
+    expect(home_page.post_content).to_have_js_property("innerText", info)
     expect(home_page.post_image).to_be_visible()
 
 def test_custom_image_data_is_preserved_after_going_back_to_community_feed(page: Page, setup):
@@ -271,7 +278,7 @@ def test_custom_image_data_is_preserved_after_going_back_to_community_feed(page:
 
     # Submit post and check the post result
     add_post_page.submit_button.click()
-    expect(home_page.post_content).to_have_text(content)
+    expect(home_page.post_content).to_have_js_property("innerText", content)
     expect(home_page.post_image).to_be_visible()
 
 def test_submit_resulted_in_500(page: Page, setup):

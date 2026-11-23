@@ -51,7 +51,7 @@ def test_add_comment(page: Page, setup):
     expect(home_page.comment).to_be_visible()
     expect(home_page.comment).to_have_count(1)
     expect(home_page.comment_author_date).to_be_visible()
-    expect(home_page.comment_content).to_have_text(comment_text)
+    expect(home_page.comment_content).to_have_js_property("innerText", comment_text)
 
 def test_comment_message_is_preserved_after_going_back_to_community_feed(page: Page, setup):
     post_id, home_page, add_comment_page = setup
